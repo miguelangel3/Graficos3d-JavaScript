@@ -3,18 +3,19 @@
  var ctx;
 const desp = 3;
 
-function Triangle(id,x,y,color) {
+function Triangle(id,x,y,color,ang) {
 	this.id = id;
 	this.x = x;
 	this.y = y;
 	this.color = color;
-  that=this;
+   this.ang = ang;
+   that=this;
 		console.log("estoy entrando en la función");
 	this.draw =function(){
 		console.log("Estoy pintando");
     // Triángulo rellenado
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
+    //ctx.restore();
     ctx.beginPath();
     ctx.moveTo(that.x,that.x);
     console.log(x);
@@ -25,16 +26,36 @@ function Triangle(id,x,y,color) {
    //this.move = function(val)
 
 	}
-  this.angulo = function(){
-    ctx.rotate()
-  }
-	this.move = function(orientacion){
-    if (orientacion == "derecha"){
-      that.x = that.x +10;
-      that.y = that.y +10
-    }else{
-      that.x = that.x -10;
-      that.y = that.y -10;
+   this.angulo = function(orientacion){
+      console.log("estoy dentro de la función angulo");
+      ctx.save();
+      //ctx.translate();
+      if (orientacion == "derecha" ){
+         ctx.translate(0,-that.y);
+         that.ang = that.ang +(6*Math.PI)/180;
+         ctx.rotate(that.ang);
+         this.draw();
+         ctx.restore();  
+      }else{
+         that.ang = that.ang -(6*Math.PI)/180;
+         ctx.rotate(that.ang);
+         this.draw();
+         ctx.restore();
+      }
+   }
+   this.move = function(orientacion){
+      if (orientacion == "up"){
+         ctx.save();
+         that.x = that.x +10;
+         that.y = that.y +10
+         this.draw();
+         ctx.restore();
+      }else{
+         ctx.save();
+         that.x = that.x -10;
+         that.y = that.y -10;
+         this.draw();
+         ctx.restore();
     }
 	}
 }
@@ -46,14 +67,25 @@ function keyHandler(event){
 	switch(event.key) {
 		case "ArrowLeft":
 			console.log("izquierda");
-			t1.move("izquierda");
-			t1.draw();
+			//t1.move("izquierda");
+         t1.angulo("izquierda")
+			//t1.draw();
 		break;
 		case "ArrowRight":
-      console.log("derecha");
-			t1.move("derecha");
-      t1.draw();
+         console.log("derecha");
+         //ctx.save();
+			t1.angulo("derecha");
+         //t1.move("derecha");
+         //t1.draw();
 		break;
+      case "ArrowUp":
+         t1.move("up");
+         //t1.draw();
+      break;
+      case "ArrowDown":
+         t1.move("down");
+         //t1.draw();
+      break;
 	default:
 	console.log("Key not handled");
 	}
@@ -66,9 +98,9 @@ function main(){
 		return false;
   }
   	ctx = canvas.getContext('2d');
-  	t1= new Triangle("t1", 50, 25,"#FFF000");
-    t1.draw();
-    document.addEventListener('keydown', keyHandler, false);
+  	t1= new Triangle("t1", 50, 25,"#FFF000",0);
+   t1.draw();
+   document.addEventListener('keydown', keyHandler, false);
 }
 
 //1 mover nave espacial
