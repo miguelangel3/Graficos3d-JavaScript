@@ -45,7 +45,7 @@ function cuadrado(color, x, y, type) {
    this.move = function(){
       that.angle += that.moveAngle*Math.PI/180;
       that.x += that.speed*Math.sin(that.angle);
-      that.y += that.speed*Math.cos(that.angle);
+      that.y -= that.speed*Math.cos(that.angle);
    }
 
     }
@@ -68,9 +68,9 @@ function Triangle(id,x,y,color,ang) {
    ctx.rotate(that.angle);
    console.log("aquiiiiiiiiiiiiii");
    console.log(that.angle);
+   //con esto pinto el triángulo
    ctx.beginPath();
    ctx.moveTo(60,60);
-   console.log(x);
    ctx.lineTo(35,60);
    ctx.lineTo(60,35);
    ctx.closePath();
@@ -79,31 +79,11 @@ function Triangle(id,x,y,color,ang) {
    ctx.restore();
 
 	}
-   this.angulo = function(orientacion){
-      console.log("estoy dentro de la función angulo");
-      ctx.save();
-      if (orientacion == "derecha" ){
-         //ctx.translate(400/2,400/2);
-         that.ang = that.ang +(Math.PI)/180;
-         ctx.rotate(that.ang);
-         //ctx.translate(that.x,that.y)
-         that.draw();
-         ctx.restore();  
-      }else{
-         //ctx.translate(400/2,400/2);
-         that.ang = that.ang -(Math.PI)/180;
-         ctx.rotate(that.ang);
-         //ctx.translate(that.x,that.y)
-         that.draw();
-         ctx.restore();
-      }
-   }
-   //this.move = function(orientacion){
+   
    this.move = function(){
       that.angle += that.moveAngle*Math.PI/180;
       that.x += that.speed*Math.sin(that.angle);
       that.y -= that.speed*Math.cos(that.angle);
-
 	}
 }
 
@@ -176,8 +156,8 @@ function main(){
 		return false;
   }
   	ctx = canvas.getContext('2d');
-   //c1= new cuadrado("blue",20,20);
-   //c1.draw();
+   c1= new cuadrado("blue",20,20);
+   c1.draw();
   	t1= new Triangle("t1", 60, 60,"#FFF000",0);
    t1.draw();
    //m1= new Meteoro("m1",canvas.width,200,20,"red");
