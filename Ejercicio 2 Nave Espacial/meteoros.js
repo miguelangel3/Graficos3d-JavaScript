@@ -21,7 +21,7 @@
       ctx.restore();
    }
    this.move = function(){
-   	that.x = that.x -1;
+   	that.x = that.x -3;
    	
 
    }
@@ -35,23 +35,25 @@ function Meteoro (id,x,y,radious,color){
   	that=this;
 
   	this.draw = function(){
-  		//ctx.save();
+  			//ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  		ctx.save();
   		ctx.beginPath();
-    	ctx.arc(this.x, this.y, that.radious, 0, 2 * Math.PI, false);
-    	console.log("Estoy en pintar");
+    	ctx.arc(this.x, this.y, this.radious, 0, 2 * Math.PI, false);
+    	console.log("Estoy en pintar y esta es la coordenada:");
     	console.log(this.y);
     	ctx.fillStyle = this.color;
     	ctx.fill();
-    	//ctx.restore();
+    	ctx.restore();
 
   	}
   	this.move = function(){
   		
   		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  		that.x = that.x -1;
+  		this.x = this.x -1;
   		
 
-  		drawShapes();
+  		//drawShapes();
   	}
 }
 
@@ -61,9 +63,12 @@ function drawShapes(){
 	for(x in shapes) {
 		ctx.save();
       shapes[x].draw();
+      console.log	("Este es el identificador:");
+		console.log(obj.id);
+
+
       ctx.restore();
     }
-
 
 }
 
@@ -77,41 +82,31 @@ function getShape(id) {
 function render() {
 	var id ;
 	for (x in shapes){
-		//var obj = getShape(id);
-      //ctx.save();
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-
 		obj=shapes[x];
-		console.log	("1");
-		console.log(obj.id);
-		  if(obj !== undefined){
-		    obj.move();
-		    		ctx.save();
-
-		    obj.draw();
-		    ctx.restore();
-		    if(obj.x < -30){
+		if(obj !== undefined){
+		   obj.move();
+		   if(obj.x < -30){
 		      obj.x = canvas.width+30;
 		   	obj.y = Math.floor(Math.random()*canvas.height);
 		   }
 		  }
-		//drawShapes();
+		drawShapes();
 	}
 
 }
 
-/*function MeteorosRnd(){
+function MeteorosRnd(){
 	var position ;
 	//var radious;
 
-	for (var i = 0; i < 0; i++) {
+	for (var i = 0; i < 4; i++) {
 
-		position = Math.floor(Math.random()*200);
+		position = Math.floor(Math.random()*canvas.height);
 
 		shapes.push(new Meteoro("m" + i ,canvas.width +30 ,position,20,"red"));
 		console.log(shapes[i].id);
 	}
-}*/
+}
 
 
  function main(){
@@ -128,16 +123,16 @@ function render() {
   	shapes.push(new Cuadrado("c1","blue", 100, 100));
   	
 	shapes[0].draw();
-  	shapes.push(new Meteoro("m0",canvas.width,100,20,"red"));
-	console.log(shapes[1].y);
+  	//shapes.push(new Meteoro("m0",canvas.width,100,20,"red"));
+	//console.log(shapes[1].y);
   	//shapes.push(new Meteoro("m1",canvas.width,300,20,"green"));
-	console.log(shapes[1].y);
-  	shapes[1].draw();
-  //	shapes[2].draw();
+	//console.log(shapes[1].y);
+  	//shapes[1].draw();
+  	//shapes[2].draw();
   	//console.log(shapes[1].y);
   	//console.log(shapes[2].y);
   	//shapes[2].draw();
   	//MeteorosRnd();
-  	setInterval(render,60);
+  	//setInterval(render,20);
   
 }
