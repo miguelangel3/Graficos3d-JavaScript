@@ -55,8 +55,7 @@ function cuadrado(color, x, y, type) {
       }else if(that.y > canvas.height+20)
          that.y=(-5);
    }
-
-   }
+}
 function Triangle(id,x,y,color,ang) {
 	this.id = id;
 	this.x = x;

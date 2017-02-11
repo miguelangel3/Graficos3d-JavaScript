@@ -2,14 +2,14 @@
  var canvas;
  var ctx;
 
- function Cuadrado(id,color, x, y) {
-
-   this.id = id;
+ function Cuadrado (id,color, x, y) {
+ 	this.id = id;
    this.speed = 0;
    this.angle = 0;
    this.moveAngle = 0;
    this.x = x;
    this.y = y;
+   this.color=color;
    that=this;
 
    this.draw = function(){
@@ -21,9 +21,17 @@
       ctx.restore();
    }
    this.move = function(){
-   	that.x = that.x -3;
-   	
-
+      this.angle += this.moveAngle*Math.PI/180;
+      this.x += this.speed*Math.sin(this.angle);
+      this.y -= this.speed*Math.cos(this.angle);
+      if(this.x > (canvas.width + 20)){
+         this.x=-5;
+      }else if(this.x < (-26)){
+         this.x=canvas.width+5;
+      }else if(this.y < (-26)){
+         this.y=(canvas.height);
+      }else if(this.y > canvas.height+20)
+         this.y=(-5);
    }
 }
 function Meteoro (id,x,y,radious,color){
@@ -40,8 +48,8 @@ function Meteoro (id,x,y,radious,color){
   		ctx.save();
   		ctx.beginPath();
     	ctx.arc(this.x, this.y, this.radious, 0, 2 * Math.PI, false);
-    	console.log("Estoy en pintar y esta es la coordenada:");
-    	console.log(this.y);
+    	//console.log("Estoy en pintar y esta es la coordenada:");
+    	//console.log(this.y);
     	ctx.fillStyle = this.color;
     	ctx.fill();
     	ctx.restore();
@@ -50,7 +58,7 @@ function Meteoro (id,x,y,radious,color){
   	this.move = function(){
   		
   		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  		this.x = this.x -1;
+  		this.x = this.x -5;
   		
 
   		//drawShapes();
@@ -65,8 +73,6 @@ function drawShapes(){
       shapes[x].draw();
       console.log	("Este es el identificador:");
 		console.log(obj.id);
-
-
       ctx.restore();
     }
 
@@ -95,6 +101,64 @@ function render() {
 	}
 
 }
+
+function keyHandler(event){
+  console.log("EStyo dentro de KeyHAndlerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  c1=getShape("c1");
+
+  c1.moveAngle=0;
+  c1.speed=0;
+  //t1.moveAngle=0;
+  //t1.speed=0;
+  //ctx.clear()
+
+	switch(event.key) {
+		case "ArrowLeft":
+			console.log("izquierda");
+			c1.moveAngle=5;
+         c1.move();
+         //c1.draw();
+         drawShapes();
+         
+         //t1.angulo("izquierda")
+			//t1.draw();
+		break;
+		case "ArrowRight":
+         console.log("derecha");
+         c1.moveAngle=-5;
+         c1.move();
+         drawShapes();
+
+         //c1.draw();
+			//t1.angulo("derecha");
+
+      break;
+      case "ArrowUp":
+      console.log("arriba");
+         c1.speed=-5;
+         c1.move();
+         drawShapes();
+
+         //c1.draw();        
+
+      break;
+      case "ArrowDown":
+         c1.speed=5;
+         c1.move();
+         drawShapes();
+
+         //c1.draw();
+
+      break;
+	default:
+	console.log("Key not handled");
+	}
+}
+
+
+
 
 function MeteorosRnd(){
 	var position ;
@@ -127,8 +191,8 @@ function MeteorosRnd(){
 
   	shapes.push(new Cuadrado("c1","blue", 100, 100));
   	
-	shapes[0].draw();
-  	//shapes.push(new Meteoro("m0",canvas.width,100,20,"red"));
+	//shapes[0].draw();
+  	shapes.push(new Meteoro("m0",canvas.width,100,20,"red"));
 	//console.log(shapes[1].y);
   	//shapes.push(new Meteoro("m1",canvas.width,300,20,"green"));
 	//console.log(shapes[1].y);
@@ -138,6 +202,8 @@ function MeteorosRnd(){
   	//console.log(shapes[2].y);
   	//shapes[2].draw();
   	MeteorosRnd();
-  	setInterval(render,20);
+	document.addEventListener('keydown', keyHandler, false);
+
+  	setInterval(render,16);
   
 }
