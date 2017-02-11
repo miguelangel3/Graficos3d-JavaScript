@@ -86,7 +86,8 @@ function render() {
 		if(obj !== undefined){
 		   obj.move();
 		   if(obj.x < -30){
-		      obj.x = canvas.width+30;
+		   	positionx = Math.floor(Math.random()*100);
+		      obj.x = canvas.width+30+positionx;
 		   	obj.y = Math.floor(Math.random()*canvas.height);
 		   }
 		  }
@@ -97,13 +98,17 @@ function render() {
 
 function MeteorosRnd(){
 	var position ;
+	var positionx;
+
 	//var radious;
 
-	for (var i = 0; i < 4; i++) {
+	for (var i = 0; i < 7; i++) {
 
 		position = Math.floor(Math.random()*canvas.height);
+		//positionx = Math.floor(Math.random()*50);
 
-		shapes.push(new Meteoro("m" + i ,canvas.width +30 ,position,20,"red"));
+
+		shapes.push(new Meteoro("m" + i ,canvas.width +30,position,20,"red"));
 		console.log(shapes[i].id);
 	}
 }
@@ -132,7 +137,7 @@ function MeteorosRnd(){
   	//console.log(shapes[1].y);
   	//console.log(shapes[2].y);
   	//shapes[2].draw();
-  	//MeteorosRnd();
-  	//setInterval(render,20);
+  	MeteorosRnd();
+  	setInterval(render,20);
   
 }

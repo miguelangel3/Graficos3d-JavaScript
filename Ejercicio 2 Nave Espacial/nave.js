@@ -46,9 +46,17 @@ function cuadrado(color, x, y, type) {
       that.angle += that.moveAngle*Math.PI/180;
       that.x += that.speed*Math.sin(that.angle);
       that.y -= that.speed*Math.cos(that.angle);
+      if(that.x > (canvas.width + 20)){
+         that.x=-5;
+      }else if(that.x < (-26)){
+         that.x=canvas.width+5;
+      }else if(that.y < (-26)){
+         that.y=(canvas.height);
+      }else if(that.y > canvas.height+20)
+         that.y=(-5);
    }
 
-    }
+   }
 function Triangle(id,x,y,color,ang) {
 	this.id = id;
 	this.x = x;
@@ -61,38 +69,41 @@ function Triangle(id,x,y,color,ang) {
    that=this;
 		console.log("estoy entrando en la función");
 	this.draw =function(){
-		console.log("Estoy pintando");
-    // Triángulo rellenado
-   ctx.save();
-   ctx.translate(that.x,that.y);
-   ctx.rotate(that.angle);
-   console.log("aquiiiiiiiiiiiiii");
-   console.log(that.angle);
-   //con esto pinto el triángulo
-   ctx.beginPath();
-   ctx.moveTo(60,60);
-   ctx.lineTo(35,60);
-   ctx.lineTo(60,35);
-   ctx.closePath();
-   ctx.fillStyle = that.color;
-   ctx.fill();
-   ctx.restore();
+   		console.log("Estoy pintando");
+       // Triángulo rellenado
+      ctx.save();
+      ctx.translate(that.x,that.y);
+      ctx.rotate(that.angle);
+      console.log("aquiiiiiiiiiiiiii");
+      console.log(that.angle);
+      //con esto pinto el triángulo
+      ctx.fillStyle = that.color;
+      ctx.beginPath();
+      ctx.moveTo(60,60);
+      ctx.lineTo(35,60);
+      ctx.lineTo(60,35);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
 
 	}
    
    this.move = function(){
-      that.angle += that.moveAngle*Math.PI/180;
+      that.angle += this.moveAngle*Math.PI/180;
       that.x += that.speed*Math.sin(that.angle);
       that.y -= that.speed*Math.cos(that.angle);
+      if(that.x > (canvas.width)){
+         that.x=0;
+      }
 	}
 }
 
 
 function keyHandler(event){
   console.log("EStyo dentro de KeyHAndler");
-  ctx.clearRect(0, 0,canvas.width,canvas.height);
-  t1.moveAngle=0;
-  t1.speed=0;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  c1.moveAngle=0;
+  c1.speed=0;
   //t1.moveAngle=0;
   //t1.speed=0;
   //ctx.clear()
@@ -100,49 +111,30 @@ function keyHandler(event){
 	switch(event.key) {
 		case "ArrowLeft":
 			console.log("izquierda");
-			//t1.move("izquierda");
-         //t1.move();
-         //t1.moveAngle=1;
-         //t1.move();
-         //t1.draw()
-         t1.moveAngle=1;
-         t1.move();
-         t1.draw();
+			c1.moveAngle=1;
+         c1.move();
+         c1.draw();
          
          //t1.angulo("izquierda")
 			//t1.draw();
 		break;
 		case "ArrowRight":
          console.log("derecha");
-         //ctx.save();
-         //t1.moveAngle=-1
-         //t1.move();
-         //t1.draw();
-         t1.moveAngle=-1;
-         t1.move();
-         t1.draw();
+         c1.moveAngle=-1;
+         c1.move();
+         c1.draw();
 			//t1.angulo("derecha");
       break;
       case "ArrowUp":
       console.log("arriba");
-         //t1.move("up");
-         //t1.speed=-1;
-         //t1.move();
-         //t1.draw();
-         t1.speed=-1;
-         t1.move();
-         t1.draw();        
+         c1.speed=-1;
+         c1.move();
+         c1.draw();        
       break;
       case "ArrowDown":
-         //t1.move("down");
-         //t1.speed=1;
-         //t1.move();
-         //t1.draw();
-
-         t1.speed=1;
-         //setInterval(c1.move,50);
-         t1.move();
-         t1.draw();
+         c1.speed=1;
+         c1.move();
+         c1.draw();
       break;
 	default:
 	console.log("Key not handled");
@@ -158,8 +150,8 @@ function main(){
   	ctx = canvas.getContext('2d');
    c1= new cuadrado("blue",20,20);
    c1.draw();
-  	t1= new Triangle("t1", 60, 60,"#FFF000",0);
-   t1.draw();
+  	//t1= new Triangle("t1", 20, 20,"#FFF000",0);
+   //t1.draw();
    //m1= new Meteoro("m1",canvas.width,200,20,"red");
    //m1.draw();
    //setInterval(m1.move,100);
