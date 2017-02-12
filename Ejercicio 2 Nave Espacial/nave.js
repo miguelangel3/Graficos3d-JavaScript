@@ -78,9 +78,9 @@ function Triangle(id,x,y,color,ang) {
       //con esto pinto el triángulo
       ctx.fillStyle = that.color;
       ctx.beginPath();
-      ctx.moveTo(60,60);
-      ctx.lineTo(35,60);
-      ctx.lineTo(60,35);
+      ctx.moveTo(-20,0);
+      ctx.lineTo(0,20);
+      ctx.lineTo(18,0);
       ctx.closePath();
       ctx.fill();
       ctx.restore();
@@ -101,8 +101,8 @@ function Triangle(id,x,y,color,ang) {
 function keyHandler(event){
   console.log("EStyo dentro de KeyHAndler");
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  c1.moveAngle=0;
-  c1.speed=0;
+  t1.moveAngle=0;
+  t1.speed=0;
   //t1.moveAngle=0;
   //t1.speed=0;
   //ctx.clear()
@@ -110,30 +110,30 @@ function keyHandler(event){
 	switch(event.key) {
 		case "ArrowLeft":
 			console.log("izquierda");
-			c1.moveAngle=1;
-         c1.move();
-         c1.draw();
+			t1.moveAngle=1;
+         t1.move();
+         t1.draw();
          
          //t1.angulo("izquierda")
 			//t1.draw();
 		break;
 		case "ArrowRight":
          console.log("derecha");
-         c1.moveAngle=-1;
-         c1.move();
-         c1.draw();
+         t1.moveAngle=-1;
+         t1.move();
+         t1.draw();
 			//t1.angulo("derecha");
       break;
       case "ArrowUp":
       console.log("arriba");
-         c1.speed=-1;
-         c1.move();
-         c1.draw();        
+         t1.speed=-1;
+         t1.move();
+         t1.draw();        
       break;
       case "ArrowDown":
-         c1.speed=1;
-         c1.move();
-         c1.draw();
+         t1.speed=1;
+         t1.move();
+         t1.draw();
       break;
 	default:
 	console.log("Key not handled");
@@ -147,10 +147,10 @@ function main(){
 		return false;
   }
   	ctx = canvas.getContext('2d');
-   c1= new cuadrado("blue",20,20);
-   c1.draw();
-  	//t1= new Triangle("t1", 20, 20,"#FFF000",0);
-   //t1.draw();
+   //c1= new cuadrado("blue",20,20);
+   //c1.draw();
+  	t1= new Triangle("t1", 20, 20,"#FFF000",0);
+   t1.draw();
    //m1= new Meteoro("m1",canvas.width,200,20,"red");
    //m1.draw();
    //setInterval(m1.move,100);
