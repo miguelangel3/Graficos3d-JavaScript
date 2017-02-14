@@ -71,16 +71,18 @@ function Triangle(id,x,y,color,ang) {
    		console.log("Estoy pintando");
        // Triángulo rellenado
       ctx.save();
-      ctx.translate(that.x,that.y);
-      ctx.rotate(that.angle);
-      console.log("aquiiiiiiiiiiiiii");
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      ctx.scale(20.0, 20.0);
+      
+       console.log("aquiiiiiiiiiiiiii");
       console.log(that.angle);
       //con esto pinto el triángulo
       ctx.fillStyle = that.color;
       ctx.beginPath();
-      ctx.moveTo(-20,0);
-      ctx.lineTo(0,20);
-      ctx.lineTo(18,0);
+      ctx.moveTo(0,-1);
+      ctx.lineTo(1,1);
+      ctx.lineTo(-1,1);
       ctx.closePath();
       ctx.fill();
       ctx.restore();

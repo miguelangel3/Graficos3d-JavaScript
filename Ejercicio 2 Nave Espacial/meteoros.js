@@ -12,21 +12,34 @@ function Triangle(id,x,y,color,ang) {
    this.moveAngle = 0;
    this.ang = ang;
    //that=this;
-		console.log("estoy entrando en la función");
 	this.draw =function(){
-   		console.log("Estoy pintando");
        // Triángulo rellenado
       ctx.save();
       ctx.translate(this.x,this.y);
       ctx.rotate(this.angle);
-      console.log("aquiiiiiiiiiiiiii");
+      //ctx.scale(15.0, 15.0);
+
       console.log(this.angle);
-      //con esto pinto el triángulo
-      ctx.fillStyle = this.color;
+      //con esto pinto el área
       ctx.beginPath();
+      ctx.arc(0,4, 21, 0, 2 * Math.PI, false);
+		//ctx.fillStyle = "green";
+    	ctx.lineWidth = 2;
+		ctx.strokeStyle = "red";
+		ctx.stroke();
+    	ctx.fill();
+    	//pinto el triángulo
+    	ctx.fillStyle = this.color;
+      ctx.beginPath();
+      ctx.moveTo(0,-15);
+      ctx.lineTo(15,15);
+      ctx.lineTo(-15,15);
+      /*
+      ctx.fillStyle = this.color;
       ctx.moveTo(-20,0);
       ctx.lineTo(0,20);
-      ctx.lineTo(18,0);
+      ctx.lineTo(18,0);*/
+
       ctx.closePath();
       ctx.fill();
       ctx.restore();
@@ -46,6 +59,32 @@ function Triangle(id,x,y,color,ang) {
       }
    }
 
+ function shots(id,x,y,angle,speed) {
+	this.id = id;
+	this.x = x;
+	this.y = y;
+	this.speed = speed;
+   this.angle = angle;
+   that=this;
+
+   this.draw = function(){
+   	console.log("estoy pintando disparos");
+   	ctx.save();
+      ctx.translate(this.x,this.y);
+   	ctx.beginPath();
+      ctx.arc(0,-10, 6, 0, 2 * Math.PI, false);
+		ctx.fillStyle = "blue";
+    	ctx.fill();
+    	ctx.restore();
+   this.move = function(){
+   	that.x += that.speed*Math.sin(that.angle) + 2;
+      that.y -= that.speed*Math.cos(that.angle) + 2;
+
+   }
+   }
+}
+
+/*
  function Cuadrado (id,color, x, y) {
  	this.id = id;
    this.speed = 0;
@@ -64,7 +103,10 @@ function Triangle(id,x,y,color,ang) {
       ctx.rotate(this.angle);
       ctx.beginPath();
     	ctx.arc(0, 0, 42/2, 0, 2 * Math.PI, false);
-    	ctx.fillStyle = "green";
+    	//ctx.fillStyle = "green";
+    	ctx.lineWidth = 2;
+		ctx.strokeStyle = "red";
+		ctx.stroke();
     	ctx.fill();
       ctx.fillStyle = color;
       ctx.fillRect(30/ -2, 30 / -2, 30, 30);
@@ -85,6 +127,7 @@ function Triangle(id,x,y,color,ang) {
          this.y=(-5);
    }
 }
+*/
 function Meteoro (id,x,y,radious,color){
 	this.id = id;
   	this.x = x;
@@ -122,8 +165,8 @@ function drawShapes(){
 	for(x in shapes) {
 		ctx.save();
       shapes[x].draw();
-      console.log	("Este es el identificador:");
-		console.log(obj.id);
+      //console.log	("Este es el identificador:");
+		//console.log(obj.id);
       ctx.restore();
     }
 
@@ -170,56 +213,45 @@ function keyHandler(event){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   t1=getShape("t1");
-  	//para hacer que se mueva con mas suavidad:
-  //c1.moveAngle=0;
-  //c1.speed=0;
-
-  //t1.moveAngle=0;
-  //t1.speed=0;
-  //ctx.clear()
-
-	switch(event.key) {
-		case "ArrowLeft":
+  	
+	switch(event.keyCode) {
+		case 37:
 			console.log("izquierda");
 			//para hacer que se mueva con mas suavidad:
-			//c1.moveAngle=+1;
 			t1.moveAngle=t1.moveAngle -1;
          t1.move();
          drawShapes();
          
-         //t1.angulo("izquierda")
-			//t1.draw();
 		break;
-		case "ArrowRight":
+		case 39:
          console.log("derecha");
          //para hacer que se mueva con mas suavidad:
-			//c1.moveAngle=-1;
+			;
          t1.moveAngle=t1.moveAngle+1;
          t1.move();
          drawShapes();
 
-         //c1.draw();
-			//t1.angulo("derecha");
-
+         
       break;
-      case "ArrowUp":
-      console.log("arriba");
+      case 38:
       	 //para hacer que se mueva con mas suavidad:
-			//c1.speed=-1;
-         t1.speed=t1.speed -1;
-         t1.move();
-         drawShapes();
-
-         //c1.draw();        
-
-      break;
-      case "ArrowDown":
-      	//para hacer que se mueva con mas suavidad:
-			//c1.speed=+1;
          t1.speed=t1.speed +1;
          t1.move();
          drawShapes();
 
+      break;
+      case 40:
+      	//para hacer que se mueva con mas suavidad:
+         t1.speed=t1.speed -1;
+         t1.move();
+         drawShapes();
+
+      break;
+      case 32:
+      console.log("Estoy dando al espacio");
+
+      shapes.push(new shots("s1",t1.x,t1.y,t1.moveAngle,t1.speed));
+      drawShapes();
       break;
 	default:
 	console.log("Key not handled");
