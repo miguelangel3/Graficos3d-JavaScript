@@ -34,18 +34,12 @@ function Triangle(id,x,y,color,ang) {
       ctx.moveTo(0,-15);
       ctx.lineTo(15,15);
       ctx.lineTo(-15,15);
-      /*
-      ctx.fillStyle = this.color;
-      ctx.moveTo(-20,0);
-      ctx.lineTo(0,20);
-      ctx.lineTo(18,0);*/
-
       ctx.closePath();
       ctx.fill();
       ctx.restore();
    }
    this.move = function(){
-      this.angle += this.moveAngle*Math.PI/180;
+      this.angle += this.moveAngle*Math.PI/180;//Lo paso a radianes
       this.x += this.speed*Math.sin(this.angle);
       this.y -= this.speed*Math.cos(this.angle);
       if(this.x > (canvas.width + 20)){
@@ -68,66 +62,37 @@ function Triangle(id,x,y,color,ang) {
    that=this;
 
    this.draw = function(){
-   	console.log("estoy pintando disparos");
+   	console.log("Estoy pintando disparos");
+   	console.log("Este es el ángulo:");
+   	console.log(this.angle);
    	ctx.save();
       ctx.translate(this.x,this.y);
-   	ctx.beginPath();
+      ctx.rotate(this.angle);
+      ctx.beginPath();
       ctx.arc(0,-10, 6, 0, 2 * Math.PI, false);
 		ctx.fillStyle = "blue";
     	ctx.fill();
     	ctx.restore();
    this.move = function(){
-   	that.x += that.speed*Math.sin(that.angle) + 2;
-      that.y -= that.speed*Math.cos(that.angle) + 2;
+   	var speedTorpedo= this.speed;
+   	console.log("Estoy moviendo disparos");
+   	console.log("Esta es la velocidad:");
+   	console.log(this.angle);
+   	if (this.speed==0){
+   		console.log("Estoy en el if");
+   		speedTorpedo=5;
+   		this.x += speedTorpedo*Math.sin(this.angle);
+      	this.y -= speedTorpedo*Math.cos(this.angle);
+   	}else{
+   		speedTorpedo= speedTorpedo+5;
+   		this.x += speedTorpedo*Math.sin(this.angle);
+      	this.y -= speedTorpedo*Math.cos(this.angle);
+ 		}
 
    }
    }
 }
 
-/*
- function Cuadrado (id,color, x, y) {
- 	this.id = id;
-   this.speed = 0;
-   this.angle = 0;
-   this.moveAngle = 0;
-   this.x = x;
-   this.y = y;
-   this.width=30;
-   this.height=30;
-   this.color=color;
-   that=this;
-
-   this.draw = function(){
-      ctx.save();
-      ctx.translate(this.x, this.y);
-      ctx.rotate(this.angle);
-      ctx.beginPath();
-    	ctx.arc(0, 0, 42/2, 0, 2 * Math.PI, false);
-    	//ctx.fillStyle = "green";
-    	ctx.lineWidth = 2;
-		ctx.strokeStyle = "red";
-		ctx.stroke();
-    	ctx.fill();
-      ctx.fillStyle = color;
-      ctx.fillRect(30/ -2, 30 / -2, 30, 30);
-	   ctx.restore();
-   }
-   this.move = function(){
-      this.angle += this.moveAngle*Math.PI/180;
-      this.x += this.speed*Math.sin(this.angle);
-      this.y -= this.speed*Math.cos(this.angle);
-
-      if(this.x > (canvas.width + 20)){
-         this.x=-5;
-      }else if(this.x < (-26)){
-         this.x=canvas.width+5;
-      }else if(this.y < (-26)){
-         this.y=(canvas.height);
-      }else if(this.y > canvas.height+20)
-         this.y=(-5);
-   }
-}
-*/
 function Meteoro (id,x,y,radious,color){
 	this.id = id;
   	this.x = x;
@@ -165,6 +130,11 @@ function drawShapes(){
 	for(x in shapes) {
 		ctx.save();
       shapes[x].draw();
+      //Con esto solo me quito a los torpedos que todos tienen
+      //el id como s1
+      if (shapes[x].id==="s1"){
+      checkPosition(x,shapes[x]);
+      }
       //console.log	("Este es el identificador:");
 		//console.log(obj.id);
       ctx.restore();
@@ -172,7 +142,16 @@ function drawShapes(){
 
 }
 
+function checkPosition(x,obj){
 
+	 if(obj.x > (canvas.width + 20)||obj.x < (-26)
+	 	|| obj.y < (-26) ||obj.y > canvas.height+20 ){
+	 	shapes.splice(x,1);
+	 }
+	      
+
+	
+}
 function getShape(id) {
   for(x in shapes) {
    	if(shapes[x].id === id)
@@ -190,7 +169,6 @@ function getShape(id) {
 		}
 	}
 }*/
-
 function render() {
 	var id ;
 	for (x in shapes){
@@ -250,8 +228,9 @@ function keyHandler(event){
       case 32:
       console.log("Estoy dando al espacio");
 
-      shapes.push(new shots("s1",t1.x,t1.y,t1.moveAngle,t1.speed));
-      drawShapes();
+      shapes.push(new shots("s1",t1.x,t1.y,t1.angle,t1.speed));
+	     
+	   drawShapes();
       break;
 	default:
 	console.log("Key not handled");
@@ -283,27 +262,10 @@ function MeteorosRnd(){
   }
   	ctx = canvas.getContext('2d');
   	var position;
-  	//position1 = Math.floor(Math.random()*100);
-  	//position2 = Math.floor(Math.random()*500);
-
-  	//shapes.push(new Cuadrado("c1","blue", 100, 100));
-  	
-	//shapes[0].draw();
-	shapes.push(new Triangle("t1", 100, 100,"#FFF000",0));
-
-  	//shapes.push(new Meteoro("m0",canvas.width,100,20,"red"));
-   //t1.draw();
-	//console.log(shapes[1].y);
-  	//shapes.push(new Meteoro("m1",canvas.width,300,20,"green"));
-	//console.log(shapes[1].y);
-  	//shapes[1].draw();
-  	//shapes[2].draw();
-  	//console.log(shapes[1].y);
-  	//console.log(shapes[2].y);
-  	//shapes[2].draw();
+  	shapes.push(new Triangle("t1", 100, 100,"#FFF000",0));
   	MeteorosRnd();
 	document.addEventListener('keydown', keyHandler, false);
 
-  	setInterval(render,16);
+  	setInterval(render,40);
   
 }
