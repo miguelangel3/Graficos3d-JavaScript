@@ -60,17 +60,15 @@ function Triangle(id,x,y,color,ang) {
 	this.y = y;
 	this.speed = speed;
    this.angle = angle;
+   this.radious=6;
    that=this;
 
    this.draw = function(){
-   	console.log("Estoy pintando disparos");
-   	console.log("Este es el ángulo:");
-   	console.log(this.angle);
    	ctx.save();
       ctx.translate(this.x,this.y);
       ctx.rotate(this.angle);
       ctx.beginPath();
-      ctx.arc(0,-10, 6, 0, 2 * Math.PI, false);
+      ctx.arc(0,-10,this.radious, 0, 2 * Math.PI, false);
 		ctx.fillStyle = "blue";
     	ctx.fill();
     	ctx.restore();
@@ -79,7 +77,6 @@ function Triangle(id,x,y,color,ang) {
    	//console.log("Esta es la velocidad:");
    	//console.log(this.angle);
    	if (this.speed==0){
-   		console.log("Estoy en el if");
    		speedTorpedo=5;
    		this.x += speedTorpedo*Math.sin(this.angle);
       	this.y -= speedTorpedo*Math.cos(this.angle);
@@ -130,6 +127,7 @@ function checkCollision (x,obj){
 	
 	for (i in shapes){
 		if (shapes[i].id ==="m1"){
+			console.log("Este es el objeto: " +obj.id);
 			var Numx=Math.pow(obj.x-shapes[i].x,2);
 			var Numy=Math.pow(obj.y-shapes[i].y,2);
 			var Distancia=Math.sqrt(Numx +Numy);
@@ -167,9 +165,10 @@ function drawShapes(){
       	var i=x;
       	checkCollision(i,shapes[i]);
       }
-      if (shapes[x].id==="s1"){
+      if (shapes[x].id ==="s1"){
       	var i=x;
       	console.log("Le paso el s1")
+      	console.log(shapes[x].id)
       	checkCollision(i,shapes[i]);
       	
       }
@@ -230,7 +229,7 @@ function keyHandler(event){
   	
 	switch(event.keyCode) {
 		case 37:
-			console.log("izquierda");
+			//console.log("izquierda");
 			//para hacer que se mueva con mas suavidad:
 			t1.moveAngle=t1.moveAngle -1;
          t1.move();
@@ -238,7 +237,7 @@ function keyHandler(event){
          
 		break;
 		case 39:
-         console.log("derecha");
+         //console.log("derecha");
          //para hacer que se mueva con mas suavidad:
 			;
          t1.moveAngle=t1.moveAngle+1;
