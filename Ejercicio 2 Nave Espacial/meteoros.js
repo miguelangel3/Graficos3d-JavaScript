@@ -11,6 +11,7 @@ function Triangle(id,x,y,color,ang) {
    this.angle = 0;
    this.moveAngle = 0;
    this.ang = ang;
+   this.radious=21;
    //that=this;
 	this.draw =function(){
        // Triángulo rellenado
@@ -19,10 +20,10 @@ function Triangle(id,x,y,color,ang) {
       ctx.rotate(this.angle);
       //ctx.scale(15.0, 15.0);
 
-      console.log(this.angle);
+      //console.log(this.angle);
       //con esto pinto el área
       ctx.beginPath();
-      ctx.arc(0,4, 21, 0, 2 * Math.PI, false);
+      ctx.arc(0,4, this.radious, 0, 2 * Math.PI, false);
 		//ctx.fillStyle = "green";
     	ctx.lineWidth = 2;
 		ctx.strokeStyle = "red";
@@ -75,9 +76,8 @@ function Triangle(id,x,y,color,ang) {
     	ctx.restore();
    this.move = function(){
    	var speedTorpedo= this.speed;
-   	console.log("Estoy moviendo disparos");
-   	console.log("Esta es la velocidad:");
-   	console.log(this.angle);
+   	//console.log("Esta es la velocidad:");
+   	//console.log(this.angle);
    	if (this.speed==0){
    		console.log("Estoy en el if");
    		speedTorpedo=5;
@@ -124,6 +124,33 @@ function Meteoro (id,x,y,radious,color){
   	}
 }
 
+function checkCollision (x,obj){
+	//console.log("Estoy dentro de detectar colision")
+	//t1 = getShape("t1");
+	
+	for (i in shapes){
+		if (shapes[i].id ==="m1"){
+			var Numx=Math.pow(obj.x-shapes[i].x,2);
+			var Numy=Math.pow(obj.y-shapes[i].y,2);
+			var Distancia=Math.sqrt(Numx +Numy);
+			var DRadios= obj.radious+shapes[i].radious;
+			if (Distancia < DRadios){
+				positionx = Math.floor(Math.random()*100);
+		      shapes[i].x = canvas.width+30+positionx;
+		   	shapes[i].y = Math.floor(Math.random()*canvas.height);
+				if(obj.id === "s1"){
+					shapes.splice(x,1)
+				}
+				break;
+			}else{
+				//return false;
+			}
+		}
+	}
+
+}
+
+
 function drawShapes(){
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	
@@ -132,13 +159,34 @@ function drawShapes(){
       shapes[x].draw();
       //Con esto solo me quito a los torpedos que todos tienen
       //el id como s1
+      //Esta parte funciona ya que se almacenana a partir de 1 los meteoritos
+      //console.log("m"+x);
+      if (shapes[x].id ==="t1"){
+      	//aquí tengo que hacer un cambio de variable,
+      	//ya que al llamar a la función se me modificba x
+      	var i=x;
+      	checkCollision(i,shapes[i]);
+      }
+      if (shapes[x].id==="s1"){
+      	var i=x;
+      	console.log("Le paso el s1")
+      	checkCollision(i,shapes[i]);
+      	
+      }
+	    	/*if(checkCollision(shapes[i])){
+	     		positionx = Math.floor(Math.random()*100);
+		      shapes[i].x = canvas.width+30+positionx;
+		   	shapes[i].y = Math.floor(Math.random()*canvas.height);
+
+      	}*/
+      
       if (shapes[x].id==="s1"){
       checkPosition(x,shapes[x]);
       }
       //console.log	("Este es el identificador:");
 		//console.log(obj.id);
       ctx.restore();
-    }
+   }
 
 }
 
@@ -148,8 +196,6 @@ function checkPosition(x,obj){
 	 	|| obj.y < (-26) ||obj.y > canvas.height+20 ){
 	 	shapes.splice(x,1);
 	 }
-	      
-
 	
 }
 function getShape(id) {
@@ -159,16 +205,6 @@ function getShape(id) {
   }
 }
 
-/*function checkCollision (){
-	
-	c1 = getShape("c1");
-	for(x in shapes){
-		if (shapes[x]!=="c1"){
-
-			
-		}
-	}
-}*/
 function render() {
 	var id ;
 	for (x in shapes){
@@ -187,7 +223,7 @@ function render() {
 }
 
 function keyHandler(event){
-  console.log("EStyo dentro de KeyHAndlerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
+  //console.log("EStyo dentro de KeyHAndlerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   t1=getShape("t1");
@@ -249,7 +285,9 @@ function MeteorosRnd(){
 		//positionx = Math.floor(Math.random()*50);
 
 
-		shapes.push(new Meteoro("m" + i ,canvas.width +30,position,20,"red"));
+		//shapes.push(new Meteoro("m" + i ,canvas.width +30,position,20,"red"));
+		shapes.push(new Meteoro("m1",canvas.width +30,position,20,"red"));
+
 		console.log(shapes[i].id);
 	}
 }
