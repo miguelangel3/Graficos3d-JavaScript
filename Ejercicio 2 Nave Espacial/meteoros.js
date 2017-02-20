@@ -12,24 +12,26 @@ function Triangle(id,x,y,color,ang) {
    this.moveAngle = 0;
    this.ang = ang;
    this.radious=21;
-   //that=this;
-	this.draw =function(){
-       // Triángulo rellenado
+   
+   this.draw =function(){
+
       ctx.save();
       ctx.translate(this.x,this.y);
       ctx.rotate(this.angle);
       //ctx.scale(15.0, 15.0);
 
-      //console.log(this.angle);
-      //con esto pinto el área
+      //Pinto circunferencia
+      //Lo hago en este orden para que el triángulo 
+      //se pinte encima del círculo
       ctx.beginPath();
       ctx.arc(0,4, this.radious, 0, 2 * Math.PI, false);
-		//ctx.fillStyle = "green";
     	ctx.lineWidth = 2;
 		ctx.strokeStyle = "red";
 		ctx.stroke();
     	ctx.fill();
-    	//pinto el triángulo
+    	
+    	//Pinto el triángulo
+
     	ctx.fillStyle = this.color;
       ctx.beginPath();
       ctx.moveTo(0,-15);
@@ -39,6 +41,7 @@ function Triangle(id,x,y,color,ang) {
       ctx.fill();
       ctx.restore();
    }
+
    this.move = function(){
       this.angle += this.moveAngle*Math.PI/180;//Lo paso a radianes
       this.x += this.speed*Math.sin(this.angle);
@@ -74,8 +77,7 @@ function Triangle(id,x,y,color,ang) {
     	ctx.restore();
    this.move = function(){
    	var speedTorpedo= this.speed;
-   	//console.log("Esta es la velocidad:");
-   	//console.log(this.angle);
+   	
    	if (this.speed==0){
    		speedTorpedo=5;
    		this.x += speedTorpedo*Math.sin(this.angle);
@@ -103,13 +105,10 @@ function Meteoro (id,x,y,radious,color){
   	that=this;
 
   	this.draw = function(){
-  			//ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   		ctx.save();
   		ctx.beginPath();
     	ctx.arc(this.x, this.y, this.radious, 0, 2 * Math.PI, false);
-    	//console.log("Estoy en pintar y esta es la coordenada:");
-    	//console.log(this.y);
     	ctx.fillStyle = this.color;
     	ctx.fill();
     	ctx.restore();
@@ -124,22 +123,20 @@ function Meteoro (id,x,y,radious,color){
 			this.time=d.getTime();
 		}
 
-  		//ctx.clearRect(0, 0, canvas.width, canvas.height);
   		this.x = this.x +this.speed;
   	}
 }
 
 function checkCollision (x,obj){
-	//console.log("Estoy dentro de detectar colision")
-	//t1 = getShape("t1");
-	
+
 	for (i in shapes){
 		if (shapes[i].id ==="m1"){
-			console.log("Este es el objeto: " +obj.id);
+			//console.log("Este es el objeto: " +obj.id);
 			var Numx=Math.pow(obj.x-shapes[i].x,2);
 			var Numy=Math.pow(obj.y-shapes[i].y,2);
 			var Distancia=Math.sqrt(Numx +Numy);
 			var DRadios= obj.radious+shapes[i].radious;
+			
 			if (Distancia < DRadios){
 				positionx = Math.floor(Math.random()*100);
 		      shapes[i].x = canvas.width+30+positionx;
@@ -163,10 +160,7 @@ function drawShapes(){
 	for(x in shapes) {
 		ctx.save();
       shapes[x].draw();
-      //Con esto solo me quito a los torpedos que todos tienen
-      //el id como s1
-      //Esta parte funciona ya que se almacenana a partir de 1 los meteoritos
-      //console.log("m"+x);
+  
       if (shapes[x].id ==="t1"){
       	//aquí tengo que hacer un cambio de variable,
       	//ya que al llamar a la función se me modificba x
@@ -180,18 +174,10 @@ function drawShapes(){
       	checkCollision(i,shapes[i]);
       	
       }
-	    	/*if(checkCollision(shapes[i])){
-	     		positionx = Math.floor(Math.random()*100);
-		      shapes[i].x = canvas.width+30+positionx;
-		   	shapes[i].y = Math.floor(Math.random()*canvas.height);
-
-      	}*/
-      
+	        
       if (shapes[x].id==="s1"){
       checkPosition(x,shapes[x]);
       }
-      //console.log	("Este es el identificador:");
-		//console.log(obj.id);
       ctx.restore();
    }
 
@@ -230,7 +216,6 @@ function render() {
 }
 
 function keyHandler(event){
-  //console.log("EStyo dentro de KeyHAndlerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr");
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
   t1=getShape("t1");
@@ -238,7 +223,6 @@ function keyHandler(event){
 	switch(event.keyCode) {
 		case 37:
 			//console.log("izquierda");
-			//para hacer que se mueva con mas suavidad:
 			t1.moveAngle=t1.moveAngle -1;
          t1.move();
          drawShapes();
@@ -246,34 +230,29 @@ function keyHandler(event){
 		break;
 		case 39:
          //console.log("derecha");
-         //para hacer que se mueva con mas suavidad:
-			;
+        
          t1.moveAngle=t1.moveAngle+1;
          t1.move();
          drawShapes();
-
          
       break;
       case 38:
-      	 //para hacer que se mueva con mas suavidad:
          t1.speed=t1.speed +1;
          t1.move();
          drawShapes();
 
       break;
       case 40:
-      	//para hacer que se mueva con mas suavidad:
          t1.speed=t1.speed -1;
          t1.move();
          drawShapes();
 
       break;
       case 32:
-      console.log("Estoy dando al espacio");
+      //console.log("Estoy dando al espacio");
 
-      shapes.push(new shots("s1",t1.x,t1.y,t1.angle,t1.speed));
-	     
-	   drawShapes();
+      	shapes.push(new shots("s1",t1.x,t1.y,t1.angle,t1.speed));
+	      drawShapes();
       break;
 	default:
 	console.log("Key not handled");
@@ -289,8 +268,6 @@ function MeteorosRnd(){
 	for (var i = 0; i < 6; i++) {
 
 		position = Math.floor(Math.random()*canvas.height);
-		//positionx = Math.floor(Math.random()*50);
-
 
 		//shapes.push(new Meteoro("m" + i ,canvas.width +30,position,20,"red"));
 		shapes.push(new Meteoro("m1",canvas.width +30,position,20,"red"));
