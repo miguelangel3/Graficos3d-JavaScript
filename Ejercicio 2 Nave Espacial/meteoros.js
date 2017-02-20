@@ -91,11 +91,15 @@ function Triangle(id,x,y,color,ang) {
 }
 
 function Meteoro (id,x,y,radious,color){
+	var d =new Date();
+
 	this.id = id;
   	this.x = x;
   	this.y = y;
   	this.radious = radious;
   	this.color = color;
+  	this.time = d.getTime();
+  	this.speed = -2; 
   	that=this;
 
   	this.draw = function(){
@@ -112,12 +116,16 @@ function Meteoro (id,x,y,radious,color){
 
   	}
   	this.move = function(){
-  		
-  		ctx.clearRect(0, 0, canvas.width, canvas.height);
-  		this.x = this.x -2;
-  		
+		var d = new Date();
+		var tmNow = d.getTime();
 
-  		//drawShapes();
+		if (((tmNow-this.time)/1000)>10){
+			this.speed=this.speed -1;
+			this.time=d.getTime();
+		}
+
+  		//ctx.clearRect(0, 0, canvas.width, canvas.height);
+  		this.x = this.x +this.speed;
   	}
 }
 
