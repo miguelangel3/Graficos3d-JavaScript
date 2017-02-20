@@ -3,6 +3,7 @@
  var ctx;
 
 function Triangle(id,x,y,color,ang) {
+	var d = new Date();
 	this.id = id;
 	this.x = x;
 	this.y = y;
@@ -12,6 +13,7 @@ function Triangle(id,x,y,color,ang) {
    this.moveAngle = 0;
    this.ang = ang;
    this.radious=21;
+   this.time=d.getTime();
    
    this.draw =function(){
 
@@ -43,9 +45,17 @@ function Triangle(id,x,y,color,ang) {
    }
 
    this.move = function(){
+
+   	var tmNow = d.getTime();
+      var dt = tmNow - this.time;
+      this.time = d.getTime();
+      this.speed=this.speed+1*(dt/1000);
+      this.moveAngle = this.moveAngle +1*(dt/1000);
+
       this.angle += this.moveAngle*Math.PI/180;//Lo paso a radianes
       this.x += this.speed*Math.sin(this.angle);
       this.y -= this.speed*Math.cos(this.angle);
+
       if(this.x > (canvas.width + 20)){
          this.x=-5;
       }else if(this.x < (-26)){
@@ -76,6 +86,7 @@ function Triangle(id,x,y,color,ang) {
     	ctx.fill();
     	ctx.restore();
    this.move = function(){
+
    	var speedTorpedo= this.speed;
    	
    	if (this.speed==0){
@@ -117,8 +128,9 @@ function Meteoro (id,x,y,radious,color){
   	this.move = function(){
 		var d = new Date();
 		var tmNow = d.getTime();
+		var dt = tmNow - this.time;
 
-		if (((tmNow-this.time)/1000)>10){
+		if (((dt)/1000)>10){
 			this.speed=this.speed -1;
 			this.time=d.getTime();
 		}
@@ -218,7 +230,7 @@ function render() {
 function keyHandler(event){
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  t1=getShape("t1");
+   t1=getShape("t1");
   	
 	switch(event.keyCode) {
 		case 37:
@@ -237,12 +249,15 @@ function keyHandler(event){
          
       break;
       case 38:
-         t1.speed=t1.speed +1;
+      //arriba
+      	t1.speed=t1.speed +1;
+         console.log(t1.speed);
          t1.move();
          drawShapes();
 
       break;
       case 40:
+      //abajo
          t1.speed=t1.speed -1;
          t1.move();
          drawShapes();
@@ -288,6 +303,6 @@ function MeteorosRnd(){
   	MeteorosRnd();
 	document.addEventListener('keydown', keyHandler, false);
 
-  	setInterval(render,40);
+  	setInterval(render,100);
   
 }
