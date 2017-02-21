@@ -1,6 +1,14 @@
- var shapes = [];
- var canvas;
- var ctx;
+/*
+	Tienes un 
+
+	Cada 10 segundos se suman 60 puntos y 10 cada vez que se destruye un asteroide.
+
+*/
+var shapes = [];
+var canvas;
+var ctx;
+var intervall = null;
+var score=0;
 
 function Triangle(id,x,y,color,ang) {
 	var d = new Date();
@@ -8,12 +16,13 @@ function Triangle(id,x,y,color,ang) {
 	this.x = x;
 	this.y = y;
 	this.color = color;
-   this.speed = 0;
-   this.angle = 0;
+   this.speed = 0; //(s/t)
+   this.angle = 0; // (rad/t)
    this.moveAngle = 0;
    this.ang = ang;
    this.radious=21;
    this.time=d.getTime();
+   this.lives =5;
    
    this.draw =function(){
 
@@ -50,6 +59,7 @@ function Triangle(id,x,y,color,ang) {
       var dt = tmNow - this.time;
       this.time = d.getTime();
       this.speed=this.speed+1*(dt/1000);
+
       this.moveAngle = this.moveAngle +1*(dt/1000);
 
       this.angle += this.moveAngle*Math.PI/180;//Lo paso a radianes
@@ -103,7 +113,7 @@ function Triangle(id,x,y,color,ang) {
    }
 }
 
-function Meteoro (id,x,y,radious,color){
+function Meteoro (id,x,y,radious,speed,color){
 	var d =new Date();
 
 	this.id = id;
@@ -112,7 +122,7 @@ function Meteoro (id,x,y,radious,color){
   	this.radious = radious;
   	this.color = color;
   	this.time = d.getTime();
-  	this.speed = -2; 
+  	this.speed = (speed*(-1)); 
   	that=this;
 
   	this.draw = function(){
@@ -130,8 +140,12 @@ function Meteoro (id,x,y,radious,color){
 		var tmNow = d.getTime();
 		var dt = tmNow - this.time;
 
-		if (((dt)/1000)>10){
-			this.speed=this.speed -1;
+		if (((dt)/1000.0)>10.0){
+			score = score +10;
+			document.getElementById("score").innerHTML = "Puntuación: "+score+" pts";
+
+			console.log(score);
+			this.speed=this.speed -2;
 			this.time=d.getTime();
 		}
 
@@ -154,7 +168,15 @@ function checkCollision (x,obj){
 		      shapes[i].x = canvas.width+30+positionx;
 		   	shapes[i].y = Math.floor(Math.random()*canvas.height);
 				if(obj.id === "s1"){
+					score = score +10;
+					document.getElementById("score").innerHTML = "Puntuación: "+score+" pts";
+
 					shapes.splice(x,1)
+				}
+				if(obj.id=== "t1"){
+					obj.lives= obj.lives-1;
+				document.getElementById("lives").innerHTML = "Tienes: "+obj.lives+" vidas" ;
+
 				}
 				break;
 			}else{
@@ -210,16 +232,35 @@ function getShape(id) {
   }
 }
 
+function restart(){
+
+	location.reload(true);
+}
+
 function render() {
 	var id ;
+	var reboot;
+	obj=getShape("t1");
+	if (obj.lives<=0){
+		alert("GAME OVER");
+		reboot = alert("GAME OVER TU PUNTUACION ES:"+score);
+		if (reboot== true){
+			restart();
+		}else{
+			restart();
+		}
+		//clearIntervall(intervall);//esto para el intervall
+	}
 	for (x in shapes){
 		obj=shapes[x];
 		if(obj !== undefined){
 		   obj.move();
-		   if(obj.x < -30){
-		   	positionx = Math.floor(Math.random()*100);
-		      obj.x = canvas.width+30+positionx;
-		   	obj.y = Math.floor(Math.random()*canvas.height);
+		   if (obj.id ==="m1"){
+			   if(obj.x < -30){
+			   	positionx = Math.floor(Math.random()*100);
+			      obj.x = canvas.width+30+positionx;
+			   	obj.y = Math.floor(Math.random()*canvas.height);
+		   }
 		   }
 		  }
 		drawShapes();
@@ -235,7 +276,7 @@ function keyHandler(event){
 	switch(event.keyCode) {
 		case 37:
 			//console.log("izquierda");
-			t1.moveAngle=t1.moveAngle -1;
+			t1.moveAngle=t1.moveAngle -2;
          t1.move();
          drawShapes();
          
@@ -243,7 +284,7 @@ function keyHandler(event){
 		case 39:
          //console.log("derecha");
         
-         t1.moveAngle=t1.moveAngle+1;
+         t1.moveAngle=t1.moveAngle+2;
          t1.move();
          drawShapes();
          
@@ -277,15 +318,16 @@ function keyHandler(event){
 function MeteorosRnd(){
 	var position ;
 	var positionx;
-
+	var speed;
 	//var radious;
 
 	for (var i = 0; i < 6; i++) {
 
 		position = Math.floor(Math.random()*canvas.height);
+		speed = Math.floor(Math.random()*7);
 
 		//shapes.push(new Meteoro("m" + i ,canvas.width +30,position,20,"red"));
-		shapes.push(new Meteoro("m1",canvas.width +30,position,20,"red"));
+		shapes.push(new Meteoro("m1",canvas.width +30,position,20,speed,"red"));
 
 		console.log(shapes[i].id);
 	}
@@ -301,8 +343,10 @@ function MeteorosRnd(){
   	var position;
   	shapes.push(new Triangle("t1", 100, 100,"#FFF000",0));
   	MeteorosRnd();
+
 	document.addEventListener('keydown', keyHandler, false);
 
-  	setInterval(render,100);
+  	intervall = setInterval(render,80);
+
   
 }
