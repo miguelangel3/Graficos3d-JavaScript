@@ -1,7 +1,7 @@
 /*
 Miguel Ángel Alba Blanco ISAM
 
-	Se controla con las teclas awsd
+	Se controla con las teclas awsd y se dispara con la barra espaciadora.
 
 	Cada 10 segundos se suman 60 puntos y 10 cada vez que se destruye un asteroide.
 
