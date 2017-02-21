@@ -1,5 +1,7 @@
 /*
-	Tienes un 
+Miguel Ángel Alba Blanco ISAM
+
+	Se controla con las teclas awsd
 
 	Cada 10 segundos se suman 60 puntos y 10 cada vez que se destruye un asteroide.
 
@@ -274,14 +276,14 @@ function keyHandler(event){
    t1=getShape("t1");
   	
 	switch(event.keyCode) {
-		case 37:
+		case 65:
 			//console.log("izquierda");
 			t1.moveAngle=t1.moveAngle -2;
          t1.move();
          drawShapes();
          
 		break;
-		case 39:
+		case 68:
          //console.log("derecha");
         
          t1.moveAngle=t1.moveAngle+2;
@@ -289,7 +291,7 @@ function keyHandler(event){
          drawShapes();
          
       break;
-      case 38:
+      case 87:
       //arriba
       	t1.speed=t1.speed +1;
          console.log(t1.speed);
@@ -297,7 +299,7 @@ function keyHandler(event){
          drawShapes();
 
       break;
-      case 40:
+      case 83:
       //abajo
          t1.speed=t1.speed -1;
          t1.move();
@@ -347,6 +349,4 @@ function MeteorosRnd(){
 	document.addEventListener('keydown', keyHandler, false);
 
   	intervall = setInterval(render,80);
-
-  
 }
