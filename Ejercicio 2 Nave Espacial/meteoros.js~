@@ -348,5 +348,5 @@ function MeteorosRnd(){
 
 	document.addEventListener('keydown', keyHandler, false);
 
-  	intervall = setInterval(render,80);
+  	intervall = setInterval(render,40);
 }
