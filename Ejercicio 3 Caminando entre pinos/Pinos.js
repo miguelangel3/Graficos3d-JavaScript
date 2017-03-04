@@ -3,6 +3,9 @@
 var canvas;
 var gl;
 var u_MvpMatrix;
+var pasos=0.0, angulo=0.0;
+var pasosx=0.8, pasosz=8.0 ;
+var alturaOjos=1.70;
 
 
 var VSHADER_SOURCE =
@@ -12,7 +15,7 @@ var VSHADER_SOURCE =
    'uniform mat4 u_xformMatrix;\n' +
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
-  '  gl_Position = u_MvpMatrix *u_xformMatrix * a_Position;\n' +
+  '  gl_Position = u_MvpMatrix*u_xformMatrix* a_Position;\n' +
   '  v_Color = a_Color;\n' +
   '}\n';
 
@@ -53,8 +56,6 @@ function alturaPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix){
 }
 
 
-
-
 function plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
   for (var i = 0; i < 50; i++) {
@@ -77,19 +78,43 @@ function plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
   }
 
 }
+function draw(delMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
-function keydown(ev, gl, n, u_ProjMatrix, projMatrix, nf) {
+   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+   console.log("paso2");
+   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, 0.0, 0.0, 0.0, 0, 1.0,0.0);
+      console.log("paso3");
+
+   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);// Falla en este paso
+   //gl.drawArrays(gl.TRIANGLES, 0, n);
+      console.log("paso4");
+
+}
+
+function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
-      case 39: g_near += 0.01; 
+      case 65: angulo = 1; //Right
          break;  
-      case 37: g_near -= 0.01; 
+      case 68: angulo  = 1; //Left
          break;  
-      case 38: g_far += 0.01;  
+      case 87: pasos = 1;  //Up
+            pasosx = pasosx +pasos;
+            pasosz = pasosz *pasos;
+            console.log("Paso1");
+    draw(pasosx,pasosz,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+
+            /*pasosx += pasos*Math.sin(angulo);
+            pasosz -= pasos*Math.cos(angulo);*/
+
          break;  
-      case 40: g_far -= 0.01;  
+      case 83: pasos = -1;  //Down
+            pasosx += pasos*Math.sin(angulo);
+            pasosz -= pasos*Math.cos(angulo);
+
          break;  
       default: return; 
   }
+
 }
 
 
@@ -185,28 +210,29 @@ function main() {
   var projMatrix = new Matrix4();  // Projection matrix
   var mvpMatrix = new Matrix4();   // Model view projection matrix
 
-  // Calculate the model, view and projection matrices
-  modelMatrix.setTranslate(0, 0, 0);
+   // Calculate the model, view and projection matrices
+   modelMatrix.setTranslate(0, 0, 0);
+   //COn esta matriz contrla la camara
+   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, 0.0, 0.0, 0.0, 0, 1.0,0.0);
 
-  viewMatrix.setLookAt(0.8, 1.70, 8.0, 0.0, 0.0, 0.0, 0, 1.0,0.0);
-  projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
+   projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
 
-  // Calculate the model view projection matrix
-  mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+   // Calculate the model view projection matrix
+   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
 
-  // Pass the model view projection matrix to u_MvpMatrix
-  gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+   // Pass the model view projection matrix to u_MvpMatrix
+   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
-  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+   gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
-  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+   gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
   
-  plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+   plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
-  document.onkeydown = function(ev){ 
-   keydown(ev, gl, n, u_ProjMatrix, projMatrix, nf);
+  /*document.onkeydown = function(ev){ 
+   keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
 
-   }
+   }*/
 
 
 
