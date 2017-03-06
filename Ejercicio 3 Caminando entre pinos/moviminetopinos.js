@@ -5,6 +5,9 @@ var gl;
 var u_MvpMatrix;
 var pasos=0.0, angulo=0.0;
 var pasosx=0.8, pasosz=8.0 ;
+var vectorVistax=0;
+var vectorVistaz=0;
+
 var alturaOjos=1.70;
 
 
@@ -15,7 +18,7 @@ var VSHADER_SOURCE =
    'uniform mat4 u_xformMatrix;\n' +
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
-  '  gl_Position = u_MvpMatrix*u_xformMatrix* a_Position;\n' +
+  '  gl_Position = u_MvpMatrix* a_Position;\n' +
   '  v_Color = a_Color;\n' +
   '}\n';
 
@@ -29,60 +32,21 @@ var FSHADER_SOURCE =
   '  gl_FragColor = v_Color;\n' +
   '}\n';
 
+function vectorUnitario(){
 
-function alturaPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix){
+   var cuadrado=Math.pow(pasosx,2)+ Math.pow(pasosz,2);
+   var modulo=Math.sqrt(cuadrado);
    
-
-   var Sy =  Math.floor(Math.random()*5)
-   var Sx = Sy/2
-   var Sz = Sx;
-   var xformMatrix = new Float32Array([
-      Sx,   0.0,  0.0,  0.0,
-      0.0,  Sy,   0.0,  0.0,
-      0.0,  0.0,  Sz,   0.0,
-      0.0,  0.0,  0.0,  1.0
-   ]);
-   // Pass the rotation matrix to the vertex shader
-   var u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
-   if (!u_xformMatrix) {
-      console.log('Failed to get the storage location of u_xformMatrix');
-      return;
-   }
-     //modelMatrix.setScale(Sx,Sy,Sz);
-    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-
-   gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+   vectorVistax=pasosx/modulo;
+   vectorVistaz=pasosz/modulo;
 
 }
 
-
-function plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
-
-  for (var i = 0; i < 50; i++) {
-    var positionx;
-    var positiony;
-    positionx = Math.floor(Math.random()*10)-5;
-    positionz = Math.floor(Math.random()*10)-5;
-
-    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-    
-    modelMatrix.setTranslate(positionx,0, positionz);
-
-    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-    // Pass the model view projection matrix to u_MvpMatrix
-    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-    
-    alturaPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
-
-    gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
-  }
-
-}
 function draw(delMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
    console.log("paso2");
-   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, 0.0, 0.0, 0.0, 0, 1.0,0.0);
+   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
       console.log("paso3");
 
    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);// Falla en este paso
@@ -97,9 +61,9 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          break;  
       case 68: angulo  = 1; //Left
          break;  
-      case 87: pasos = 1;  //Up
-            pasosx = pasosx +pasos;
-            pasosz = pasosz *pasos;
+      case 87:  //Up
+            pasosx = pasosx +1;
+            pasosz = pasosz +1;
             console.log("Paso1");
     draw(pasosx,pasosz,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
@@ -116,8 +80,6 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
   }
 
 }
-
-
 
 function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
@@ -213,7 +175,10 @@ function main() {
    // Calculate the model, view and projection matrices
    modelMatrix.setTranslate(0, 0, 0);
    //COn esta matriz contrla la camara
-   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, 0.0, 0.0, 0.0, 0, 1.0,0.0);
+
+   vectorUnitario();
+
+   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
 
    projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
 
@@ -227,13 +192,12 @@ function main() {
 
    gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
   
-   plantarPino(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
    //Función para detectar el control.
-  /*document.onkeydown = function(ev){ 
-   keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
-   
-   }*/
+
+   document.onkeydown = function(ev){ 
+      keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
+   }
 
 
 
