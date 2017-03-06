@@ -3,7 +3,7 @@
 var canvas;
 var gl;
 var u_MvpMatrix;
-var pasos=0.0, angulo=0.0;
+var pasos=1.0, angle=0.0;
 var pasosx=0.8, pasosz=8.0 ;
 var vectorVistax=0;
 var vectorVistaz=0;
@@ -54,26 +54,78 @@ function draw(delMatrix,projMatrix,viewMatrix,mvpMatrix,n){
       console.log("paso4");
 
 }
+function move(){
+         pasosx = pasosx*Math.sin(angle);
+         pasosz = pasosz*Math.cos(angle);
+
+
+}
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
-      case 65: angulo = 1; //Right
+      case 65:
+         var moveAngle= moveAngle +1;
+         angle += moveAngel*Math.PI/180; //Left
+
+         /*pasosx = pasosx*Math.sin(angle);
+         pasosz = pasosz*Math.cos(angle);*/
+         move();
+         vectorUnitario();
+         
+         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+      
+         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+         gl.clear(gl.COLOR_BUFFER_BIT);   
+         gl.drawArrays(gl.TRIANGLES, 0, n);
+
          break;  
-      case 68: angulo  = 1; //Left
+      case 68: 
+         angle -= 1*Math.PI/180; //Right
+
+         /*pasosx = pasosx*Math.sin(angle);
+         pasosz = pasosz*Math.cos(angle);*/
+         move();
+         vectorUnitario();
+         
+         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+      
+         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+         gl.clear(gl.COLOR_BUFFER_BIT);   
+         gl.drawArrays(gl.TRIANGLES, 0, n);
+
          break;  
       case 87:  //Up
-            pasosx = pasosx +1;
-            pasosz = pasosz +1;
-            console.log("Paso1");
-    draw(pasosx,pasosz,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+         //pasosx = pasosx +1;
+         pasosz = pasosz -1;
+         console.log("Paso1");
+         move();
+         vectorUnitario();
+         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+         
+         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+         gl.clear(gl.COLOR_BUFFER_BIT);   
+         gl.drawArrays(gl.TRIANGLES, 0, n);   
+  
+    //draw(pasosx,pasosz,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
             /*pasosx += pasos*Math.sin(angulo);
             pasosz -= pasos*Math.cos(angulo);*/
 
          break;  
       case 83: pasos = -1;  //Down
-            pasosx += pasos*Math.sin(angulo);
-            pasosz -= pasos*Math.cos(angulo);
+            pasosz = pasosz +1;
+            move();
+            vectorUnitario();
+            viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+            mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+            gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+            gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+            gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+            //pasosx += pasos*Math.sin(angulo);
+            //pasosz -= pasos*Math.cos(angulo);
 
          break;  
       default: return; 
