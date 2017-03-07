@@ -4,13 +4,11 @@ var canvas;
 var gl;
 var u_MvpMatrix;
 var pasos=1.0, angle=0.0;
-var pasosx=0.8, pasosz=8.0 ;
+var pasosx=2.0, pasosz=8.0 ;
 var vectorVistax=0;
 var vectorVistaz=0;
 var moveAngle=0;
-
 var alturaOjos=1.70;
-
 
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
@@ -43,16 +41,13 @@ function vectorUnitario(){
 
 }
 
-function draw(delMatrix,projMatrix,viewMatrix,mvpMatrix,n){
+function drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
-   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-   console.log("paso2");
    viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
-      console.log("paso3");
-
-   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);// Falla en este paso
-   //gl.drawArrays(gl.TRIANGLES, 0, n);
-      console.log("paso4");
+   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+   gl.clear(gl.COLOR_BUFFER_BIT);   
+   gl.drawArrays(gl.TRIANGLES, 0, n);
 
 }
 function move(){
@@ -60,11 +55,7 @@ function move(){
          angle = moveAngle*Math.PI/180
          
          pasosx = pasos*Math.sin(angle);
-         pasosz = pasos*Math.cos(angle);
-
-         
-
-
+         pasosz = -1*pasos*Math.cos(angle);
 }
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
@@ -74,13 +65,8 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
         
          move();
          vectorUnitario();
-         
-         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
-      
-         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-         gl.clear(gl.COLOR_BUFFER_BIT);   
-         gl.drawArrays(gl.TRIANGLES, 0, n);
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+
 
          break;  
       case 68: //Right
@@ -88,33 +74,17 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
       
          move();
          vectorUnitario();
-         
-         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
-      
-         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-         gl.clear(gl.COLOR_BUFFER_BIT);   
-         gl.drawArrays(gl.TRIANGLES, 0, n);
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+   
 
          break;  
       case 87:  //Up
-         //pasosx = pasosx +1;
          pasos = pasos -1;
 
          console.log("Paso1");
          move();
          vectorUnitario();
-         viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
-         
-         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-         gl.clear(gl.COLOR_BUFFER_BIT);   
-         gl.drawArrays(gl.TRIANGLES, 0, n);   
-  
-    //draw(pasosx,pasosz,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
-
-            /*pasosx += pasos*Math.sin(angulo);
-            pasosz -= pasos*Math.cos(angulo);*/
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
          break;  
       case 83:   //Down
@@ -122,13 +92,8 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
             move();
             vectorUnitario();
-            viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
-            mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-            gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-            gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
-            gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
-            //pasosx += pasos*Math.sin(angulo);
-            //pasosz -= pasos*Math.cos(angulo);
+            drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+
 
          break;  
       default: return; 
@@ -254,14 +219,4 @@ function main() {
       keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
    }
 
-
-
-　/*// Prepare the model matrix for another pair of triangles
- // modelMatrix.setTranslate(-0.75, 0, 0); //-->con esto pinto ostros dos triángulos.
-  // Calculate the model view projection matrix
-  mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-  // Pass the model view projection matrix to u_MvpMatrix
-  gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-
-  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles*/
 }
