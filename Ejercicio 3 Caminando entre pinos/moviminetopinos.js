@@ -4,11 +4,16 @@ var canvas;
 var gl;
 var u_MvpMatrix;
 var pasos=1.0, angle=0.0;
-var pasosx=2.0, pasosz=8.0 ;
+var pasosx=4.0, pasosz=8.0 ;
 var vectorVistax=0;
 var vectorVistaz=0;
 var moveAngle=0;
 var alturaOjos=1.70;
+
+var modelMatrix = new Matrix4(); // Model matrix
+var viewMatrix = new Matrix4();  // View matrix
+var projMatrix = new Matrix4();  // Projection matrix
+var mvpMatrix = new Matrix4();   // Model view projection matrix
 
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
@@ -41,7 +46,13 @@ function vectorUnitario(){
 
 }
 
-function drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
+function drawScene(){
+
+   var n = initVertexBuffers(gl);
+   if (n < 0) {
+      console.log('Failed to set the vertex information');
+      return;
+   }
 
    viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
@@ -49,23 +60,22 @@ function drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    gl.clear(gl.COLOR_BUFFER_BIT);   
    gl.drawArrays(gl.TRIANGLES, 0, n);
 
+console.log(n);
 }
 function move(){
-
-         angle = moveAngle*Math.PI/180
-         
-         pasosx = pasos*Math.sin(angle);
-         pasosz = -1*pasos*Math.cos(angle);
+   angle = moveAngle*Math.PI/180
+   pasosx = pasos*Math.sin(angle);
+   pasosz = -1*pasos*Math.cos(angle);
 }
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
       case 65: //left
          moveAngle= moveAngle -1;
-        
          move();
          vectorUnitario();
-         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+
+         //drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
 
          break;  
@@ -74,7 +84,7 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
       
          move();
          vectorUnitario();
-         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+         //drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
    
 
          break;  
@@ -84,7 +94,7 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          console.log("Paso1");
          move();
          vectorUnitario();
-         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+         drawScene();
 
          break;  
       case 83:   //Down
@@ -92,7 +102,7 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
             move();
             vectorUnitario();
-            drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+            drawScene();
 
 
          break;  
@@ -187,10 +197,10 @@ function main() {
     return;
   }
 
-  var modelMatrix = new Matrix4(); // Model matrix
+  /*var modelMatrix = new Matrix4(); // Model matrix
   var viewMatrix = new Matrix4();  // View matrix
   var projMatrix = new Matrix4();  // Projection matrix
-  var mvpMatrix = new Matrix4();   // Model view projection matrix
+  var mvpMatrix = new Matrix4(); */  // Model view projection matrix
 
    // Calculate the model, view and projection matrices
    modelMatrix.setTranslate(0, 0, 0);
@@ -208,10 +218,11 @@ function main() {
    // Pass the model view projection matrix to u_MvpMatrix
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
-   gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+ // gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
-   gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+  // gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
   
+  requestAnimationFrame(drawScene);
 
    //Función para detectar el control.
 
