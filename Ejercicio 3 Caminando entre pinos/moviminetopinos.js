@@ -7,6 +7,7 @@ var pasos=1.0, angle=0.0;
 var pasosx=0.8, pasosz=8.0 ;
 var vectorVistax=0;
 var vectorVistaz=0;
+var moveAngle=0;
 
 var alturaOjos=1.70;
 
@@ -55,20 +56,22 @@ function draw(delMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
 }
 function move(){
-         pasosx = pasosx*Math.sin(angle);
-         pasosz = pasosz*Math.cos(angle);
+
+         angle = moveAngle*Math.PI/180
+         
+         pasosx = pasos*Math.sin(angle);
+         pasosz = pasos*Math.cos(angle);
+
+         
 
 
 }
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
-      case 65:
-         var moveAngle= moveAngle +1;
-         angle += moveAngel*Math.PI/180; //Left
-
-         /*pasosx = pasosx*Math.sin(angle);
-         pasosz = pasosz*Math.cos(angle);*/
+      case 65: //left
+         moveAngle= moveAngle -1;
+        
          move();
          vectorUnitario();
          
@@ -80,11 +83,9 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          gl.drawArrays(gl.TRIANGLES, 0, n);
 
          break;  
-      case 68: 
-         angle -= 1*Math.PI/180; //Right
-
-         /*pasosx = pasosx*Math.sin(angle);
-         pasosz = pasosz*Math.cos(angle);*/
+      case 68: //Right
+         moveAngle= moveAngle +1
+      
          move();
          vectorUnitario();
          
@@ -98,7 +99,8 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          break;  
       case 87:  //Up
          //pasosx = pasosx +1;
-         pasosz = pasosz -1;
+         pasos = pasos -1;
+
          console.log("Paso1");
          move();
          vectorUnitario();
@@ -115,8 +117,9 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
             pasosz -= pasos*Math.cos(angulo);*/
 
          break;  
-      case 83: pasos = -1;  //Down
-            pasosz = pasosz +1;
+      case 83:   //Down
+            pasos = pasos +1;
+
             move();
             vectorUnitario();
             viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
