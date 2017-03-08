@@ -3,10 +3,12 @@
 var canvas;
 var gl;
 var u_MvpMatrix;
-var pasos=1.0, angle=0.0;
-var pasosx=4.0, pasosz=8.0 ;
-var vectorVistax=0;
-var vectorVistaz=0;
+var speed=1.0, angle=0.0 // Rad/s;
+var movePosition=0.0;
+var pasosx=-4.0, pasosy=-8.0 ;
+var vectorVistax=4.0 ;
+var vectorVistay=8.0;
+
 var moveAngle=0;
 var alturaOjos=1.70;
 
@@ -38,15 +40,15 @@ var FSHADER_SOURCE =
 
 function vectorUnitario(){
 
-   var cuadrado=Math.pow(pasosx,2)+ Math.pow(pasosz,2);
+   var cuadrado=Math.pow(pasosx,2)+ Math.pow(pasosy,2);
    var modulo=Math.sqrt(cuadrado);
-   
+
    vectorVistax=pasosx/modulo;
-   vectorVistaz=pasosz/modulo;
+   vectorVistay=pasosy/modulo;
 
 }
 
-function drawScene(){
+function drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix){
 
    var n = initVertexBuffers(gl);
    if (n < 0) {
@@ -54,59 +56,60 @@ function drawScene(){
       return;
    }
 
-   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,vectorVistax,vectorVistay, alturaOjos, 0,0,1);
    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-   gl.clear(gl.COLOR_BUFFER_BIT);   
+   gl.clear(gl.COLOR_BUFFER_BIT);
    gl.drawArrays(gl.TRIANGLES, 0, n);
 
 console.log(n);
 }
-function move(){
+function updatePosition(){
    angle = moveAngle*Math.PI/180
-   pasosx = pasos*Math.sin(angle);
-   pasosz = -1*pasos*Math.cos(angle);
-}
+   pasosx = movePosition*Math.sin(angle);
+   pasosy = movePosition*Math.cos(angle);
+
+  // vectorVistax = pasosx;
+   //vectorVistay = pasosy;
+ }
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
       case 65: //left
          moveAngle= moveAngle -1;
-         move();
-         vectorUnitario();
+         updatePosition();
+         //vectorUnitario();
 
-         //drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
-
-
-         break;  
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
+         break;
       case 68: //Right
          moveAngle= moveAngle +1
-      
-         move();
-         vectorUnitario();
-         //drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
-   
 
-         break;  
+         updatePosition();
+         //vectorUnitario();
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
+
+
+         break;
       case 87:  //Up
-         pasos = pasos -1;
+         movePosition = movePosition +1;
 
          console.log("Paso1");
-         move();
-         vectorUnitario();
-         drawScene();
+         updatePosition();
+         //vectorUnitario();
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
 
-         break;  
+         break;
       case 83:   //Down
-            pasos = pasos +1;
+            movePosition = movePosition -1;
 
-            move();
-            vectorUnitario();
-            drawScene();
+            updatePosition();
+            //vectorUnitario();
+            drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
 
 
-         break;  
-      default: return; 
+         break;
+      default: return;
   }
 
 }
@@ -115,22 +118,22 @@ function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
       // Three triangles on the right side
       //t1 Dibujo el primer
-      0.0, 0.5, 0.0,  0.0,  1.0,  0.0, // The back green one
-      0.25, 0.0, 0.25,  0.0,  1.0,  0.0,
-      -0.25, 0.0, -0.25,  0.0,  1.0,  0.0,
+      0.0, 0.0, 0.5,  0.0,  1.0,  0.0, // The back green one
+      0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
+      -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
 
       //t2 Dibujo el segundo
 
-      0.0, 0.5, 0.0,  0.0,  0.5,  0.0, // The back green one
-      -0.25, 0.0, 0.25,  0.0,  0.5,  0.0,
-      0.25, 0.0, -0.25,  0.0,  0.5,  0.0,
+      0.0, 0.0, 0.5,  0.0,  0.5,  0.0, // The back green one
+      -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
+      0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
 
       ]);
 
       var n =6;
 
   // Create a buffer object
-  var vertexColorBuffer = gl.createBuffer();  
+  var vertexColorBuffer = gl.createBuffer();
   if (!vertexColorBuffer) {
     console.log('Failed to create the buffer object');
     return -1;
@@ -192,7 +195,7 @@ function main() {
 
   // Get the storage location of u_MvpMatrix
   u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
-  if (!u_MvpMatrix) { 
+  if (!u_MvpMatrix) {
     console.log('Failed to get the storage location of u_MvpMatrix');
     return;
   }
@@ -206,9 +209,9 @@ function main() {
    modelMatrix.setTranslate(0, 0, 0);
    //COn esta matriz contrla la camara
 
-   vectorUnitario();
+   //vectorUnitario();
 
-   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, vectorVistax, alturaOjos, vectorVistaz, 0, 1.0,0.0);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos, vectorVistax, vectorVistay, alturaOjos, 0, 0.0,1.0);
 
    projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
 
@@ -218,15 +221,15 @@ function main() {
    // Pass the model view projection matrix to u_MvpMatrix
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
- // gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+ gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
-  // gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
-  
-  requestAnimationFrame(drawScene);
+  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+
+  //requestAnimationFrame(drawScene);
 
    //Función para detectar el control.
 
-   document.onkeydown = function(ev){ 
+   document.onkeydown = function(ev){
       keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
    }
 
