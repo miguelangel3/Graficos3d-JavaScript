@@ -1,4 +1,5 @@
 // Miguel Ángel Alba Blanco ISAM
+
 var canvas;
 var gl;
 var u_MvpMatrix;
@@ -6,13 +7,10 @@ var pasos=0.0, angle=0.0;
 var pasosx=4.0, pasosy=0.0;
 
 var posVistax=0.0,posVistay=0.0;
-
 var moveAngle=0;
-
 var alturaOjos=1.70;
 
 var bosquex=50,bosquey=50;
-
 var NumPinos=500;
 
 var modelMatrix = []; // Model matrix
@@ -25,7 +23,6 @@ var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'attribute vec4 a_Color;\n' +
   'uniform mat4 u_MvpMatrix;\n' +
-  //'uniform mat4 u_xformMatrix;\n' +
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
   '  gl_Position = u_MvpMatrix*a_Position;\n' +
@@ -61,10 +58,8 @@ function drawScene(){
       }
 
       viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,pasosx+Math.cos(angle),pasosy+Math.sin(angle), alturaOjos, 0,0,1);
-      
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[x].matrix);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-      //gl.clear(gl.COLOR_BUFFER_BIT);
       gl.drawArrays(gl.TRIANGLES, 0, n);
 
 }
@@ -79,29 +74,21 @@ function plantarPino(n){
       var Sz =  Math.floor(Math.random()*8)
       var Sx = Sz/2
       var Sy = Sx;
+      var angRotation = Math.floor(Math.random()*45);
 
       positionx = Math.floor(Math.random()*bosquex)-bosquex/2;
       positiony = Math.floor(Math.random()*bosquey)-bosquey/2;
 
       
       var matrixc = new Matrix4();
+
       modelMatrix.push(new Pino("P1",positionx,positiony,0,matrixc));
-   
-   
-      //gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
       modelMatrix[i].matrix=modelMatrix[i].matrix.translate(modelMatrix[i].x,modelMatrix[i].y,0);
-
       modelMatrix[i].matrix=modelMatrix[i].matrix.scale(Sx,Sy,Sz); //me sobre escribe la siguiente matriz
-      
-      //alturaPino(i);
-      mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
-      // Pass the model view projection matrix to u_MvpMatrix
-      //alturaPino(i);
-      gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-    
-      //alturaPino(i);
-      //gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+      modelMatrix[i].matrix=modelMatrix[i].matrix.rotate(angRotation,0,0,1); //me sobre escribe la siguiente matriz
 
+      mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
+      gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
       gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
   }
 
@@ -114,18 +101,22 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
          moveAngle=moveAngle +1;
          angle = moveAngle*Math.PI/180;
+
          break;  
       case 68:  //Left
+
          moveAngle=moveAngle -1;
          angle = moveAngle*Math.PI/180;
          
          break;  
       case 87: //Up
+
          pasosx =pasosx + 1*Math.cos(angle);
          pasosy =pasosy + 1*Math.sin(angle);
          
          break;  
       case 83: //Down
+
          pasosx =pasosx -1*Math.cos(angle);
          pasosy =pasosy -1*Math.sin(angle);
          
@@ -136,15 +127,14 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 }
 function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
-      // Three triangles on the right side
       //t1 Dibujo el primer
-      0.0, 0.0, 0.5,  0.0,  1.0,  0.0, // The back green one
+      0.0, 0.0, 0.5,  0.0,  1.0,  0.0,
       0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
       -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
 
       //t2 Dibujo el segundo
 
-      0.0, 0.0, 0.5,  0.0,  0.5,  0.0, // The back green one
+      0.0, 0.0, 0.5,  0.0,  0.5,  0.0, 
       -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
       0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
 
@@ -159,93 +149,69 @@ var verticesColors = new Float32Array([
     return -1;
   }
 
-  // Write the vertex information and enable it
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
-  var FSIZE = verticesColors.BYTES_PER_ELEMENT;
+   gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+   gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
 
-  var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
-  if(a_Position < 0) {
-    console.log('Failed to get the storage location of a_Position');
-    return -1;
+   var FSIZE = verticesColors.BYTES_PER_ELEMENT;
+
+   var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+   if(a_Position < 0) {
+      console.log('Failed to get the storage location of a_Position');
+      return -1;
   }
-  gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
-  gl.enableVertexAttribArray(a_Position);
+   gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
+   gl.enableVertexAttribArray(a_Position);
 
-  var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
-  if(a_Color < 0) {
-    console.log('Failed to get the storage location of a_Color');
-    return -1;
+   var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
+   if(a_Color < 0) {
+      console.log('Failed to get the storage location of a_Color');
+      return -1;
   }
-  gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
-  gl.enableVertexAttribArray(a_Color);
+   gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+   gl.enableVertexAttribArray(a_Color);
 
-  return n;
+   return n;
 }
 
 
 function main() {
-  // Retrieve <canvas> element
-  var canvas = document.getElementById('webgl');
+   var canvas = document.getElementById('webgl');
+   gl = getWebGLContext(canvas);
+   if (!gl) {
+      console.log('Failed to get the rendering context for WebGL');
+      return;
+   }
 
-  // Get the rendering context for WebGL
-  gl = getWebGLContext(canvas);
-  if (!gl) {
-    console.log('Failed to get the rendering context for WebGL');
-    return;
-  }
+   // Initialize shaders
+   if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
+      console.log('Failed to intialize shaders.');
+      return;
+   }
 
-  // Initialize shaders
-  if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
-    console.log('Failed to intialize shaders.');
-    return;
-  }
-
-  // Set the vertex coordinates and color
-  var n = initVertexBuffers(gl);
-  if (n < 0) {
-    console.log('Failed to set the vertex information');
-    return;
-  }
+   // Set the vertex coordinates and color
+   var n = initVertexBuffers(gl);
+   if (n < 0) {
+      console.log('Failed to set the vertex information');
+      return;
+   }
 
   // Specify the color for clearing <canvas>
-  gl.clearColor(0, 0, 0, 1);
+   gl.clearColor(0, 0, 0, 1);
   gl.enable(gl.DEPTH_TEST);
 
-  // Get the storage location of u_MvpMatrix
-  u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
-  if (!u_MvpMatrix) { 
-    console.log('Failed to get the storage location of u_MvpMatrix');
-    return;
-  }
+   // Get the storage location of u_MvpMatrix
+   u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+   if (!u_MvpMatrix) { 
+      console.log('Failed to get the storage location of u_MvpMatrix');
+      return;
+   }
   
-   /*var matrixc= new Matrix4();
-
-   modelMatrix.push(new Pino("P1",0,0,0,matrixc));
-
-   modelMatrix[0].matrix.setTranslate(0, 0, 0);
-
-   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay,alturaOjos, 0, 0.0,1.0);*/
-
    projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
-
-   /*mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[0].matrix);
-
-   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-
-   gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
-
-   gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles*/
-
-  
    plantarPino(n);
-
    drawScene();
-
-   //Función para detectar el control.
-  document.onkeydown = function(ev){ 
-   keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
-   
+ 
+   document.onkeydown = function(ev){ 
+      keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
    }
 }
