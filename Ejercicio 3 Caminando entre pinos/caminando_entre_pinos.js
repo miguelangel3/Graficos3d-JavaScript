@@ -84,8 +84,8 @@ function plantarPino(n){
 
       modelMatrix.push(new Pino("P1",positionx,positiony,0,matrixc));
       modelMatrix[i].matrix=modelMatrix[i].matrix.translate(modelMatrix[i].x,modelMatrix[i].y,0);
-      modelMatrix[i].matrix=modelMatrix[i].matrix.scale(Sx,Sy,Sz); //me sobre escribe la siguiente matriz
-      modelMatrix[i].matrix=modelMatrix[i].matrix.rotate(angRotation,0,0,1); //me sobre escribe la siguiente matriz
+      modelMatrix[i].matrix=modelMatrix[i].matrix.scale(Sx,Sy,Sz); 
+      modelMatrix[i].matrix=modelMatrix[i].matrix.rotate(angRotation,0,0,1); 
 
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
@@ -202,6 +202,7 @@ function main() {
 
    // Get the storage location of u_MvpMatrix
    u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+
    if (!u_MvpMatrix) { 
       console.log('Failed to get the storage location of u_MvpMatrix');
       return;
