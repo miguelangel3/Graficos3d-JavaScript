@@ -1,15 +1,19 @@
-// PerspectiveView_mvpMatrix.js (c) 2012 matsuda
-// Vertex shader program
+// Miguel Ángel Alba Blanco ISAM
 var canvas;
 var gl;
 var u_MvpMatrix;
-var pasos=0.0, angulo=0.0;
-var pasosx=0.8, pasosy=8.0;
+var pasos=0.0, angle=0.0;
+var pasosx=4.0, pasosy=0.0;
 
-var posVistax=0.0 ;
-var posVistay=0.0;
+var posVistax=0.0,posVistay=0.0;
+
+var moveAngle=0;
 
 var alturaOjos=1.70;
+
+var bosquex=50,bosquey=50;
+
+var NumPinos=500;
 
 var modelMatrix = []; // Model matrix
 var viewMatrix = new Matrix4();  // View matrix
@@ -38,10 +42,6 @@ var FSHADER_SOURCE =
   '  gl_FragColor = v_Color;\n' +
   '}\n';
 
-
-
-
-
 function Pino(id,x,y,z,matrix){
    this.id=id;
    this.x=x;
@@ -60,7 +60,7 @@ function drawScene(){
          return;
       }
 
-      viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay, alturaOjos, 0,0,1);
+      viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,pasosx+Math.cos(angle),pasosy+Math.sin(angle), alturaOjos, 0,0,1);
       
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[x].matrix);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
@@ -72,7 +72,7 @@ function drawScene(){
 
 function plantarPino(n){
 
-  for (var i = 0; i < 50; i++) {
+  for (var i = 0; i < NumPinos; i++) {
       
       var positionx;
       var positiony;
@@ -80,8 +80,8 @@ function plantarPino(n){
       var Sx = Sz/2
       var Sy = Sx;
 
-      positionx = Math.floor(Math.random()*10)-5;
-      positiony = Math.floor(Math.random()*10)-5;
+      positionx = Math.floor(Math.random()*bosquex)-bosquex/2;
+      positiony = Math.floor(Math.random()*bosquey)-bosquey/2;
 
       
       var matrixc = new Matrix4();
@@ -110,32 +110,30 @@ function plantarPino(n){
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
-      case 65: angulo = 1; //Right
+      case 65:  //Right
+
+         moveAngle=moveAngle +1;
+         angle = moveAngle*Math.PI/180;
          break;  
-      case 68: angulo  = 1; //Left
+      case 68:  //Left
+         moveAngle=moveAngle -1;
+         angle = moveAngle*Math.PI/180;
+         
          break;  
       case 87: //Up
-         pasosx =pasosx + 1;
-         pasosy =pasosy + 1;
-
-         posVistax = posVistax + 1;
-         posVistay = posVistay + 1;
+         pasosx =pasosx + 1*Math.cos(angle);
+         pasosy =pasosy + 1*Math.sin(angle);
+         
          break;  
       case 83: //Down
-         pasosx =pasosx -1;
-         pasosy =pasosy -1;
-
-         posVistax = posVistax -1;
-         posVistay = posVistay -1;
+         pasosx =pasosx -1*Math.cos(angle);
+         pasosy =pasosy -1*Math.sin(angle);
          
          break;  
       default: return; 
   }
 
 }
-
-
-
 function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
       // Three triangles on the right side
@@ -210,9 +208,6 @@ function main() {
     console.log('Failed to set the vertex information');
     return;
   }
-
-
-
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0, 0, 0, 1);

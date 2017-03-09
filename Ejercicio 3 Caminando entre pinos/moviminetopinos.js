@@ -6,8 +6,9 @@ var u_MvpMatrix;
 var speed=1.0, angle=0.0 // Rad/s;
 var movePosition=0.0;
 var pasosx=4.0, pasosy=0.0 ;
-var vectorVistax=1.0 ;
-var vectorVistay=1.0;
+
+var posVistax=0.0 ;
+var posVistay=0.0;
 
 var moveAngle=0;
 var alturaOjos=1.70;
@@ -43,8 +44,8 @@ function vectorUnitario(){
    var cuadrado=Math.pow(pasosx,2)+ Math.pow(pasosy,2);
    var modulo=Math.sqrt(cuadrado);
 
-   vectorVistax=pasosx/modulo;
-   vectorVistay=pasosy/modulo;
+   posVistax=pasosx/modulo;
+   posVistay=pasosy/modulo;
 
 }
 
@@ -56,13 +57,13 @@ function drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix){
       return;
    }
 
-   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,vectorVistax,vectorVistay, alturaOjos, 0,0,1);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,pasosx+Math.cos(angle),pasosy+Math.sin(angle), alturaOjos, 0,0,1);
    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
    gl.clear(gl.COLOR_BUFFER_BIT);
    gl.drawArrays(gl.TRIANGLES, 0, n);
 
-console.log(n);
+//console.log(n);
 }
 function updatePosition(){
 
@@ -72,8 +73,8 @@ function updatePosition(){
    //pasosx = movePosition*Math.cos(angle);
    //pasosy = movePosition*Math.sin(angle);
 
-  vectorVistax = pasosx +1;
-  vectorVistay = pasosy +1;
+  posVistax = pasosx +1;
+  posVistay = pasosy +1;
  }
 
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
@@ -83,12 +84,14 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
          angle = moveAngle*Math.PI/180;
 
+         //console.log(angle);
+         //posVistax =1 + 1*Math.cos(angle);
+         //posVistay =1+posVistay*Math.sin(angle);
+         console.log("Angulol: "+ angle);
 
-         vectorVistax =vectorVistax*Math.cos(angle);
-         vectorVistay =vectorVistay*Math.sin(angle);
-
-         //pasosx=pasosx*Math.cos(angle);
-         //pasosy=pasosy*Math.sin(angle);
+       
+         //posVistax =posVistax - 1*Math.cos(angle);
+         //posVistay =posVistay - 1*Math.sin(angle);
          
          //updatePosition();
          //vectorUnitario();
@@ -100,51 +103,31 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 
          angle = moveAngle*Math.PI/180;
 
-         
-         vectorVistax =vectorVistax*Math.cos(angle);
-         vectorVistay =vectorVistay*Math.sin(angle);
+         console.log("Angulor: "+ angle);
 
-         //pasosx=pasosx*Math.cos(angle);
-         //pasosy=pasosy*Math.sin(angle);
-
-
-         //updatePosition();
-         //vectorUnitario();
          drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix,n);
 
 
          break;
       case 87:  //Up
          //movePosition = movePosition +1;
-         //angle = 45*Math.PI/180;
-        
+         //angle = 90*Math.PI/180;
+         console.log(angle);
+
          pasosx =pasosx + 1*Math.cos(angle);
-         pasosy =pasosy - 1*Math.sin(angle);
+         pasosy =pasosy + 1*Math.sin(angle);
 
-         vectorVistax = vectorVistax + 1*Math.cos(angle);
-         vectorVistay = vectorVistay - 1*Math.sin(angle);
-
-         console.log("Paso1");
-         //updatePosition();
-         //vectorUnitario();
          drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
 
          break;
       case 83:   //Down
 
-      //angle = 45*Math.PI/180;
+      //angle = 90*Math.PI/180;
+                  console.log(angle);
+
          pasosx =pasosx -1*Math.cos(angle);
-         pasosy =pasosy +1*Math.sin(angle);
-
-         vectorVistax = vectorVistax -1*Math.cos(angle);
-         vectorVistay = vectorVistay +1*Math.sin(angle);
-            //movePosition = movePosition -1;
-            
-
-
-            //updatePosition();
-            //vectorUnitario();
-            drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
+         pasosy =pasosy -1*Math.sin(angle);
+         drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
 
 
          break;
@@ -250,7 +233,7 @@ function main() {
 
    //vectorUnitario();
 
-   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos, vectorVistax, vectorVistay, alturaOjos, 0, 0.0,1.0);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos, posVistax,posVistay, alturaOjos, 0, 0.0,1.0);
 
    projMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
 
