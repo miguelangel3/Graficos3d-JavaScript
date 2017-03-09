@@ -12,7 +12,6 @@ var posVistay=0.0;
 var alturaOjos=1.70;
 
 var modelMatrix = []; // Model matrix
-//var modelMatrix = new Matrix4();
 var viewMatrix = new Matrix4();  // View matrix
 var projMatrix = new Matrix4();  // Projection matrix
 var mvpMatrix = new Matrix4();   // Model view projection matrix
@@ -71,57 +70,29 @@ function drawScene(){
 }
 }
 
-function alturaPino(i){
-   
-
-   var Sz =  Math.floor(Math.random()*5)
-   var Sx = Sz/2
-   var Sy = Sx;
-
-   var xformMatrix = new Float32Array([
-      Sx,   0.0,  0.0,  0.0,
-      0.0,  Sy,   0.0,  0.0,
-      0.0,  0.0,  Sz,   0.0,
-      0.0,  0.0,  0.0,  1.0
-   ]);
-   // Pass the rotation matrix to the vertex shader
-   //var u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
-   //if (!u_xformMatrix) {
-   //   console.log('Failed to get the storage location of u_xformMatrix');
-   ///   return;
-   //}
-     //modelMatrix.setScale(Sx,Sy,Sz);
-     modelMatrix[i].x = Sx;
-     modelMatrix[i].y = Sy;
-     modelMatrix[i].z = Sz;
-     modelMatrix[i].mvpMatrix = xformMatrix;
-
-    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i]);
-
-   //gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
-
-}
-
-
 function plantarPino(n){
 
   for (var i = 0; i < 50; i++) {
+      
       var positionx;
       var positiony;
-      
+      var Sz =  Math.floor(Math.random()*8)
+      var Sx = Sz/2
+      var Sy = Sx;
 
       positionx = Math.floor(Math.random()*10)-5;
       positiony = Math.floor(Math.random()*10)-5;
 
+      
       var matrixc = new Matrix4();
       modelMatrix.push(new Pino("P1",positionx,positiony,0,matrixc));
    
    
       //gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-      modelMatrix[i].matrix=modelMatrix[i].matrix.setScale(5/2,5/2,5);
-      modelMatrix[i].matrix=modelMatrix[i].matrix.setTranslate(modelMatrix[i].x,modelMatrix[i].y,0);
+      modelMatrix[i].matrix=modelMatrix[i].matrix.translate(modelMatrix[i].x,modelMatrix[i].y,0);
+
+      modelMatrix[i].matrix=modelMatrix[i].matrix.scale(Sx,Sy,Sz); //me sobre escribe la siguiente matriz
       
-      //modelMatrix[i].matrix=modelMatrix[i].matrix.setScale(5/2,5/2,5);
       //alturaPino(i);
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
       // Pass the model view projection matrix to u_MvpMatrix
@@ -254,23 +225,23 @@ function main() {
     return;
   }
   
-   var matrixc= new Matrix4();
+   /*var matrixc= new Matrix4();
 
    modelMatrix.push(new Pino("P1",0,0,0,matrixc));
 
    modelMatrix[0].matrix.setTranslate(0, 0, 0);
 
-   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay,alturaOjos, 0, 0.0,1.0);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay,alturaOjos, 0, 0.0,1.0);*/
 
    projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
 
-   mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[0].matrix);
+   /*mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[0].matrix);
 
    gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
    gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
-   gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+   gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles*/
 
   
    plantarPino(n);

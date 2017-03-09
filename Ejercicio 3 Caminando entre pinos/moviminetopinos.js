@@ -79,9 +79,9 @@ function updatePosition(){
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
       case 65: //left
-         moveAngle=moveAngle -5;
+         moveAngle=moveAngle -1;
 
-         angle += moveAngle*Math.PI/180;
+         angle = moveAngle*Math.PI/180;
 
 
          vectorVistax =vectorVistax*Math.cos(angle);
@@ -96,9 +96,9 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
          break;
       case 68: //Right
-         moveAngle=moveAngle +5;
+         moveAngle=moveAngle +1;
 
-         angle += moveAngle*Math.PI/180;
+         angle = moveAngle*Math.PI/180;
 
          
          vectorVistax =vectorVistax*Math.cos(angle);
