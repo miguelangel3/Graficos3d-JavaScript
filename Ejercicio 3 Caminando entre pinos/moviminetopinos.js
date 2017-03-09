@@ -6,8 +6,8 @@ var u_MvpMatrix;
 var speed=1.0, angle=0.0 // Rad/s;
 var movePosition=0.0;
 var pasosx=4.0, pasosy=0.0 ;
-var vectorVistax=0.0 ;
-var vectorVistay=0.0;
+var vectorVistax=1.0 ;
+var vectorVistay=1.0;
 
 var moveAngle=0;
 var alturaOjos=1.70;
@@ -79,12 +79,16 @@ function updatePosition(){
 function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
       case 65: //left
-         moveAngle=moveAngle -1;
+         moveAngle=moveAngle -5;
 
-         angle = moveAngle*Math.PI/180;
+         angle += moveAngle*Math.PI/180;
 
-         vectorVistax = vectorVistax*Math.cos(angle);
-         vectorVistay = vectorVistay*Math.sin(angle);
+
+         vectorVistax =vectorVistax*Math.cos(angle);
+         vectorVistay =vectorVistay*Math.sin(angle);
+
+         //pasosx=pasosx*Math.cos(angle);
+         //pasosy=pasosy*Math.sin(angle);
          
          //updatePosition();
          //vectorUnitario();
@@ -92,12 +96,16 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          drawScene(modelMatrix,projMatrix,viewMatrix,mvpMatrix);
          break;
       case 68: //Right
-         moveAngle=moveAngle +1;
+         moveAngle=moveAngle +5;
 
-         angle = moveAngle*Math.PI/180;
+         angle += moveAngle*Math.PI/180;
 
-         vectorVistax = vectorVistax*Math.cos(angle);
-         vectorVistay = vectorVistay*Math.sin(angle);
+         
+         vectorVistax =vectorVistax*Math.cos(angle);
+         vectorVistay =vectorVistay*Math.sin(angle);
+
+         //pasosx=pasosx*Math.cos(angle);
+         //pasosy=pasosy*Math.sin(angle);
 
 
          //updatePosition();
@@ -108,13 +116,13 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          break;
       case 87:  //Up
          //movePosition = movePosition +1;
-         angle = 45*Math.PI/180;
+         //angle = 45*Math.PI/180;
         
-         pasosx =pasosx+1*Math.cos(angle);
-         pasosy =pasosy+1*Math.sin(angle);
+         pasosx =pasosx + 1*Math.cos(angle);
+         pasosy =pasosy - 1*Math.sin(angle);
 
-         vectorVistax = vectorVistax +1*Math.cos(angle);
-         vectorVistay = vectorVistay +1*Math.sin(angle);
+         vectorVistax = vectorVistax + 1*Math.cos(angle);
+         vectorVistay = vectorVistay - 1*Math.sin(angle);
 
          console.log("Paso1");
          //updatePosition();
@@ -125,11 +133,11 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
       case 83:   //Down
 
       //angle = 45*Math.PI/180;
-         pasosx =pasosx-1*Math.cos(angle);
-         pasosy =pasosy-1*Math.sin(angle);
+         pasosx =pasosx -1*Math.cos(angle);
+         pasosy =pasosy +1*Math.sin(angle);
 
          vectorVistax = vectorVistax -1*Math.cos(angle);
-         vectorVistay = vectorVistay -1*Math.sin(angle);
+         vectorVistay = vectorVistay +1*Math.sin(angle);
             //movePosition = movePosition -1;
             
 
