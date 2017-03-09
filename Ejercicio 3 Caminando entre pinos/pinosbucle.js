@@ -4,7 +4,11 @@ var canvas;
 var gl;
 var u_MvpMatrix;
 var pasos=0.0, angulo=0.0;
-var pasosx=0.8, pasosz=8.0 ;
+var pasosx=0.8, pasosy=8.0;
+
+var posVistax=0.0 ;
+var posVistay=0.0;
+
 var alturaOjos=1.70;
 
 var modelMatrix = []; // Model matrix
@@ -35,6 +39,10 @@ var FSHADER_SOURCE =
   '  gl_FragColor = v_Color;\n' +
   '}\n';
 
+
+
+
+
 function Pino(id,x,y,z,matrix){
    this.id=id;
    this.x=x;
@@ -43,13 +51,33 @@ function Pino(id,x,y,z,matrix){
    this.matrix= matrix;
 }
 
+function drawScene(){
+   gl.clear(gl.COLOR_BUFFER_BIT)
+   requestAnimationFrame(drawScene);
+   for (x in modelMatrix){
+      var n = initVertexBuffers(gl);
+      if (n < 0) {
+         console.log('Failed to set the vertex information');
+         return;
+      }
 
-function alturaPino(projMatrix,viewMatrix,mvpMatrix,i){
+      viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay, alturaOjos, 0,0,1);
+      
+      mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[x].matrix);
+      gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+      //gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, n);
+
+}
+}
+
+function alturaPino(i){
    
 
-   var Sy =  Math.floor(Math.random()*5)
-   var Sx = Sy/2
-   var Sz = Sx;
+   var Sz =  Math.floor(Math.random()*5)
+   var Sx = Sz/2
+   var Sy = Sx;
+
    var xformMatrix = new Float32Array([
       Sx,   0.0,  0.0,  0.0,
       0.0,  Sy,   0.0,  0.0,
@@ -57,46 +85,50 @@ function alturaPino(projMatrix,viewMatrix,mvpMatrix,i){
       0.0,  0.0,  0.0,  1.0
    ]);
    // Pass the rotation matrix to the vertex shader
-   var u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
-   if (!u_xformMatrix) {
-      console.log('Failed to get the storage location of u_xformMatrix');
-      return;
-   }
+   //var u_xformMatrix = gl.getUniformLocation(gl.program, 'u_xformMatrix');
+   //if (!u_xformMatrix) {
+   //   console.log('Failed to get the storage location of u_xformMatrix');
+   ///   return;
+   //}
      //modelMatrix.setScale(Sx,Sy,Sz);
-     //modelMatrix[i].x=Sx;
-     //modelMatrix[i].y=Sy;
-     //modelMatrix[i].z=Sz;
+     modelMatrix[i].x = Sx;
+     modelMatrix[i].y = Sy;
+     modelMatrix[i].z = Sz;
+     modelMatrix[i].mvpMatrix = xformMatrix;
 
     mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i]);
 
-   gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+   //gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
 
 }
 
 
-function plantarPino(projMatrix,viewMatrix,mvpMatrix,n){
+function plantarPino(n){
 
   for (var i = 0; i < 50; i++) {
       var positionx;
-      var positionz;
+      var positiony;
       
 
       positionx = Math.floor(Math.random()*10)-5;
-      positionz = Math.floor(Math.random()*10)-5;
+      positiony = Math.floor(Math.random()*10)-5;
 
       var matrixc = new Matrix4();
-      modelMatrix.push(new Pino("P1",positionx,0,positionz,matrixc));
+      modelMatrix.push(new Pino("P1",positionx,positiony,0,matrixc));
    
    
       //gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-    
-      modelMatrix[i].matrix.setTranslate(modelMatrix[i].x,0,modelMatrix[i].z);
-
+      modelMatrix[i].matrix=modelMatrix[i].matrix.setScale(5/2,5/2,5);
+      modelMatrix[i].matrix=modelMatrix[i].matrix.setTranslate(modelMatrix[i].x,modelMatrix[i].y,0);
+      
+      //modelMatrix[i].matrix=modelMatrix[i].matrix.setScale(5/2,5/2,5);
+      //alturaPino(i);
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
       // Pass the model view projection matrix to u_MvpMatrix
+      //alturaPino(i);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
     
-      //alturaPino(projMatrix,viewMatrix,mvpMatrix,i);
+      //alturaPino(i);
       //gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
       gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
@@ -111,9 +143,19 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
          break;  
       case 68: angulo  = 1; //Left
          break;  
-      case 87: pasos = 1;  //Up
+      case 87: //Up
+         pasosx =pasosx + 1;
+         pasosy =pasosy + 1;
+
+         posVistax = posVistax + 1;
+         posVistay = posVistay + 1;
          break;  
-      case 83: pasos = -1;  //Down
+      case 83: //Down
+         pasosx =pasosx -1;
+         pasosy =pasosy -1;
+
+         posVistax = posVistax -1;
+         posVistay = posVistay -1;
          
          break;  
       default: return; 
@@ -127,15 +169,15 @@ function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
       // Three triangles on the right side
       //t1 Dibujo el primer
-      0.0, 0.5, 0.0,  0.0,  1.0,  0.0, // The back green one
-      0.25, 0.0, 0.25,  0.0,  1.0,  0.0,
-      -0.25, 0.0, -0.25,  0.0,  1.0,  0.0,
+      0.0, 0.0, 0.5,  0.0,  1.0,  0.0, // The back green one
+      0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
+      -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
 
       //t2 Dibujo el segundo
 
-      0.0, 0.5, 0.0,  0.0,  0.5,  0.0, // The back green one
-      -0.25, 0.0, 0.25,  0.0,  0.5,  0.0,
-      0.25, 0.0, -0.25,  0.0,  0.5,  0.0,
+      0.0, 0.0, 0.5,  0.0,  0.5,  0.0, // The back green one
+      -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
+      0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
 
       ]);
 
@@ -218,7 +260,7 @@ function main() {
 
    modelMatrix[0].matrix.setTranslate(0, 0, 0);
 
-   viewMatrix.setLookAt(pasosx,alturaOjos,pasosz, 0.0, 0.0, 0.0, 0, 1.0,0.0);
+   viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,posVistax,posVistay,alturaOjos, 0, 0.0,1.0);
 
    projMatrix.setPerspective(60, canvas.width/canvas.height, 1, 100);
 
@@ -231,11 +273,13 @@ function main() {
    gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
 
   
-   plantarPino(projMatrix,viewMatrix,mvpMatrix,n);
+   plantarPino(n);
+
+   drawScene();
 
    //Función para detectar el control.
-  /*document.onkeydown = function(ev){ 
+  document.onkeydown = function(ev){ 
    keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
    
-   }*/
+   }
 }
