@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Caminando etre pinos</title>
+    <title>Moviendome entre pinos</title>
   </head>
 <style type="text/css">
   canvas{
@@ -18,6 +18,6 @@
     <script src="lib/webgl-debug.js"></script>
     <script src="lib/cuon-utils.js"></script>
     <script src="lib/cuon-matrix.js"></script>
-    <script src="caminando_entre_pinos.js"></script>
+    <script src="movimientopinos.js"></script>
   </body>
 </html>

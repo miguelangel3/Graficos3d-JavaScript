@@ -127,6 +127,13 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
   }
 
 }
+
+function initBuffers() {
+  //Buffer Pinos
+
+  
+
+}
 function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
       //t1 Dibujo el primer
@@ -174,6 +181,26 @@ var verticesColors = new Float32Array([
    gl.enableVertexAttribArray(a_Color);
 
    return n;
+}
+
+function initFloorBuffers(){
+
+  var floorColors = new Float32Array([
+        //t1 Dibujo el primer
+        0.0, 0.0, 0.5,  0.0,  1.0,  0.0,
+        0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
+        -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
+
+        //t2 Dibujo el segundo
+
+        0.0, 0.0, 0.5,  0.0,  0.5,  0.0,
+        -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
+        0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
+
+        ]);
+
+        var n =6;
+
 }
 
 
