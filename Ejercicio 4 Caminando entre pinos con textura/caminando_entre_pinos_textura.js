@@ -3,13 +3,6 @@
 var canvas;
 var gl;
 var u_MvpMatrix;
-var pasos=0.0, angle=0.0;
-var pasosx=4.0, pasosy=0.0;
-var speed=0.5;
-var posVistax=0.0,posVistay=0.0;
-var moveAngle=0;
-var alturaOjos=1.70;
-var anglez=0.0;
 
 var bosquex=50,bosquey=50;
 var NumPinos=100;
@@ -40,6 +33,19 @@ var FSHADER_SOURCE =
   '  gl_FragColor = v_Color;\n' +
   '}\n';
 
+function camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
+
+   this.pasos = pasos;
+   this.angle = angle;
+   this.pasosx = pasosx;
+   this.pasosy = pasosy;
+   this.speed = speed;
+   this.moveAngle = moveAngle;
+   this.alturaOjos = alturaOjos;
+   this.anglez = anglez;
+
+ }
+
 function Pino(id,x,y,z,matrix){
    this.id=id;
    this.x=x;
@@ -58,7 +64,9 @@ function drawScene(){
          return;
       }
 
-      viewMatrix.setLookAt(pasosx,pasosy,alturaOjos,pasosx+Math.cos(angle),pasosy+Math.sin(angle),alturaOjos+ 0.01*Math.sin(anglez), 0,0,1);
+      viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
+                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+ 0.01*Math.sin(camara1.anglez), 0,0,1);
+
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[x].matrix);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
       gl.drawArrays(gl.TRIANGLES, 0, n);
@@ -100,38 +108,31 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
    switch(ev.keyCode){
       case 65:  //Right
 
-         moveAngle=moveAngle +2;
-         angle = moveAngle*Math.PI/180;
+         camara1.moveAngle = camara1.moveAngle +2;
+         camara1.angle = camara1.moveAngle*Math.PI/180;
 
          break;
       case 68:  //Left
 
-         moveAngle=moveAngle -2;
-         angle = moveAngle*Math.PI/180;
+         camara1.moveAngle = camara1.moveAngle -2;
+         camara1.angle = camara1.moveAngle*Math.PI/180;
 
          break;
       case 87: //Up
 
-         anglez=anglez +1;
-         pasosx =pasosx + speed*Math.cos(angle);
-         pasosy =pasosy + speed*Math.sin(angle);
+         camara1.anglez = camara1.anglez + 1;
+         camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+         camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
          break;
       case 83: //Down
-         anglez=anglez -1;
-         pasosx =pasosx -speed*Math.cos(angle);
-         pasosy =pasosy -speed*Math.sin(angle);
+         camara1.anglez = camara1.anglez - 1;
+         camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+         camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
          break;
       default: return;
   }
-
-}
-
-function initBuffers() {
-  //Buffer Pinos
-
-  
 
 }
 function initVertexBuffers(gl) {
@@ -183,29 +184,21 @@ var verticesColors = new Float32Array([
    return n;
 }
 
-function initFloorBuffers(){
-
-  var floorColors = new Float32Array([
-        //t1 Dibujo el primer
-        0.0, 0.0, 0.5,  0.0,  1.0,  0.0,
-        0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
-        -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
-
-        //t2 Dibujo el segundo
-
-        0.0, 0.0, 0.5,  0.0,  0.5,  0.0,
-        -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
-        0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
-
-        ]);
-
-        var n =6;
-
-}
-
 
 function main() {
    var canvas = document.getElementById('webgl');
+
+   var pasos=0.0;
+   var angle=0.0;
+   var pasosx=4.0;
+   var pasosy=0.0;
+   var speed=0.5;
+   var moveAngle=0;
+   var alturaOjos=1.70;
+   var anglez=0.0;
+
+   camara1= new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
+
    gl = getWebGLContext(canvas);
    if (!gl) {
       console.log('Failed to get the rendering context for WebGL');
