@@ -4,9 +4,6 @@ var canvas;
 var gl;
 var u_MvpMatrix;
 
-var bosquex=50,bosquey=50;
-var NumPinos=100;
-
 var modelMatrix = []; // Model matrix
 var viewMatrix = new Matrix4();  // View matrix
 var projMatrix = new Matrix4();  // Projection matrix
@@ -47,16 +44,16 @@ function camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
  }
 
 function Pino(id,x,y,z,matrix){
-   this.id=id;
-   this.x=x;
-   this.y=y;
-   this.z=z;
-   this.matrix= matrix;
+   this.id = id;
+   this.x = x;
+   this.y = y;
+   this.z = z;
+   this.matrix = matrix;
 }
 
 function drawScene(){
    gl.clear(gl.COLOR_BUFFER_BIT)
-   requestAnimationFrame(drawScene);
+   requestAnimationFrame(drawScene,projMatrix,viewMatrix,mvpMatrix);
    for (x in modelMatrix){
       var n = initVertexBuffers(gl);
       if (n < 0) {
@@ -74,7 +71,7 @@ function drawScene(){
 }
 }
 
-function plantarPino(n){
+function plantarPino(n,NumPinos,bosquex,bosquey){
 
   for (var i = 0; i < NumPinos; i++) {
 
@@ -93,9 +90,9 @@ function plantarPino(n){
       var matrixc = new Matrix4();
 
       modelMatrix.push(new Pino("P1",positionx,positiony,0,matrixc));
-      modelMatrix[i].matrix=modelMatrix[i].matrix.translate(modelMatrix[i].x,modelMatrix[i].y,0);
-      modelMatrix[i].matrix=modelMatrix[i].matrix.scale(Sx,Sy,Sz);
-      modelMatrix[i].matrix=modelMatrix[i].matrix.rotate(angRotation,0,0,1);
+      modelMatrix[i].matrix = modelMatrix[i].matrix.translate(modelMatrix[i].x,modelMatrix[i].y,0);
+      modelMatrix[i].matrix = modelMatrix[i].matrix.scale(Sx,Sy,Sz);
+      modelMatrix[i].matrix = modelMatrix[i].matrix.rotate(angRotation,0,0,1);
 
       mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix[i].matrix);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
@@ -104,7 +101,7 @@ function plantarPino(n){
 
 }
 
-function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
+function keydown(ev){
    switch(ev.keyCode){
       case 65:  //Right
 
@@ -137,20 +134,20 @@ function keydown(ev, modelMatrix,projMatrix,viewMatrix,mvpMatrix,n){
 }
 function initVertexBuffers(gl) {
 var verticesColors = new Float32Array([
-      //t1 Dibujo el primer
-      0.0, 0.0, 0.5,  0.0,  1.0,  0.0,
-      0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
-      -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
+   //t1 Dibujo el primer
+   0.0, 0.0, 0.5,  0.0,  1.0,  0.0,
+   0.25, 0.25, 0.0,  0.0,  1.0,  0.0,
+   -0.25, -0.25, 0.0,  0.0,  1.0,  0.0,
 
       //t2 Dibujo el segundo
 
-      0.0, 0.0, 0.5,  0.0,  0.5,  0.0,
-      -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
-      0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
+   0.0, 0.0, 0.5,  0.0,  0.5,  0.0,
+   -0.25, 0.25, 0.0,  0.0,  0.5,  0.0,
+   0.25, -0.25, -0.0,  0.0,  0.5,  0.0,
 
-      ]);
+   ]);
 
-      var n =6;
+   var n =6;
 
   // Create a buffer object
   var vertexColorBuffer = gl.createBuffer();
@@ -188,14 +185,16 @@ var verticesColors = new Float32Array([
 function main() {
    var canvas = document.getElementById('webgl');
 
-   var pasos=0.0;
-   var angle=0.0;
-   var pasosx=4.0;
-   var pasosy=0.0;
-   var speed=0.5;
-   var moveAngle=0;
-   var alturaOjos=1.70;
-   var anglez=0.0;
+   var BOSQUEX = 50,BOSQUEY = 50;
+   var NUMPINOS = 100;
+   var pasos = 0.0;
+   var angle = 0.0;
+   var pasosx = 4.0;
+   var pasosy = 0.0;
+   var speed = 0.5;
+   var moveAngle = 0;
+   var alturaOjos = 1.70;
+   var anglez = 0.0;
 
    camara1= new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
 
@@ -229,12 +228,11 @@ function main() {
       console.log('Failed to get the storage location of u_MvpMatrix');
       return;
    }
-
    projMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
-   plantarPino(n);
+   plantarPino(n,NUMPINOS,BOSQUEX,BOSQUEY);
    drawScene();
 
    document.onkeydown = function(ev){
-      keydown(ev,modelMatrix,projMatrix,viewMatrix,mvpMatrix,n );
+      keydown(ev);
    }
 }
