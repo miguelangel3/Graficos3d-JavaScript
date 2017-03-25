@@ -30,7 +30,7 @@ var FSHADER_SOURCE =
   '  gl_FragColor = v_Color;\n' +
   '}\n';
 
-function camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
+function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 
    this.pasos = pasos;
    this.angle = angle;
@@ -187,6 +187,7 @@ function main() {
 
    var BOSQUEX = 50,BOSQUEY = 50;
    var NUMPINOS = 100;
+   
    var pasos = 0.0;
    var angle = 0.0;
    var pasosx = 4.0;

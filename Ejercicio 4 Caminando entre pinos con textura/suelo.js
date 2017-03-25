@@ -40,8 +40,12 @@ function initFloorBuffers(gl) {
    gl.bindBuffer(gl.ARRAY_BUFFER, objfloorvar1.floorVerticesBuffer);
 
    var floorVertices = new Float32Array([
+
+      //-1.0, -1.0, 0.0,  -1.0,  1.0, 0.0,  1.0,  1.0, 0.0,
+      //  1.0, -1.0, 0.0,    // Plano suelo
+
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
-       1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
+       1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
 
    ]);
 
@@ -54,8 +58,10 @@ function initFloorBuffers(gl) {
 
 
    var textureCoordinates = new Float32Array([
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0  //Botom*/
+      //0.0,  0.0, 50.0, 0.0, 50.0,  50.0, 0.0,  50.0,  // Plano suelo
+
+      0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0,  // Front
+      0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0  //Botom*/
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -64,6 +70,7 @@ function initFloorBuffers(gl) {
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, objfloorvar1.floorVerticesIndicesBuffer);
 
    var floorVerticesIndices = new Uint16Array([
+       //0,  1,  2,      0,  2,  3,
       0, 1, 2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
@@ -157,8 +164,9 @@ function drawScene(){
    var mvpMatrix = new Matrix4();
 
    pMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
-   vMatrix.lookAt(2, 2, 3, 1, 1, 0, 0, 0, 1);
-   mMatrix.translate(1.0, 1.0, 1.0);//*mMatrix.scale(100,100,0);
+   vMatrix.lookAt(2, 2,4, 1, 1, 0, 0, 0, 1);
+   //mMatrix.translate(1.0, 1.0, 1.0);
+   mMatrix.scale(100,100,0);
 
 
    mvpMatrix.set(pMatrix).multiply(vMatrix).multiply(mMatrix);
