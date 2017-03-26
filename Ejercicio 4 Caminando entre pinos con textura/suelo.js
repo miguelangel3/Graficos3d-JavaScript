@@ -71,7 +71,7 @@ function initFloorBuffers(gl) {
 
    var floorVerticesIndices = new Uint16Array([
        //0,  1,  2,      0,  2,  3,
-      0, 1, 2,  3,4,5 //floor
+      0,1,2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
 
@@ -86,7 +86,7 @@ function initTextures(gl) {
 
    var floorImage = new Image();
    floorImage.onload = function() { handleTextureLoaded(gl,floorImage); }
-   floorImage.src = "resources/hierba2.png";
+   floorImage.src = "resources/hierba2.jpg";
 }
 
 function handleTextureLoaded(gl,image) {
@@ -170,8 +170,9 @@ function drawScene(){
 
 
    mvpMatrix.set(pMatrix).multiply(vMatrix).multiply(mMatrix);
-   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
+
+   gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
    var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
    gl.enableVertexAttribArray(vertexPositionAttribute);
   
@@ -187,10 +188,11 @@ function drawScene(){
    console.log(objfloorvar1.floorTexture);
    gl.activeTexture(gl.TEXTURE0);
    gl.bindTexture(gl.TEXTURE_2D,objfloorvar1.floorTexture);
+
    gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
 
+   
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,objfloorvar1.floorVerticesIndicesBuffer);
-
    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
    requestAnimationFrame(drawScene);
