@@ -2,12 +2,12 @@
 
 var canvas;
 var gl;
-var u_MvpMatrix;
+//var u_MvpMatrix;
 
 var myScene = [];
 var myBuffers = [];
 
-var modelMatrix = []; // Model matrix
+//var modelMatrix = []; // Model matrix
 var viewMatrix = new Matrix4();  // View matrix
 var projMatrix = new Matrix4();  // Projection matrix
 var mvpMatrix = new Matrix4();   // Model view projection matrix
@@ -103,11 +103,12 @@ function getShape(array,id) {
 }
 
 function drawScene(){
-   //gl.clear(gl.COLOR_BUFFER_BIT)
+
    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-   requestAnimationFrame(drawScene);//,projMatrix,viewMatrix,mvpMatrix);
 
    var y; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
+         requestAnimationFrame(drawScene);
+
 
    for (x in myScene){
     
@@ -117,7 +118,6 @@ function drawScene(){
 
       //lamada a los buffers para pintar con texturas 
       if (myScene[x].id === "F1"){
-         console.log("encontrado F1")
          y = 0;
       }else{
          y = 1;
@@ -149,15 +149,6 @@ function drawScene(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
       gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
 
-      //var n = 0;
-
-      //n = n + 1;
-
-      //console.log("pinta: " + n);
-      //llamada a los buffers para pintar sin texturas 
-
-      //gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-      //gl.drawArrays(gl.TRIANGLES, 0, n);
 
    }
 }
@@ -186,12 +177,6 @@ function plantarPino(NumPinos,bosquex,bosquey){
       myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
       myScene[i].mMatrix = myScene[i].mMatrix.rotate(angRotation,0,0,1);
 
-      //mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(myScene[i].mMatrix);
-
-      //Esto de auí abajo sería para pintar la primera vez sin el bucle.
-
-      //gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-      //gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
   }
 
 }
@@ -234,11 +219,8 @@ function initFloorBuffers() {
 
    myBuffers[0].VerticesBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesBuffer);
-
+   //pino
    var floorVertices = new Float32Array([
-
-      //-1.0, -1.0, 0.0,  -1.0,  1.0, 0.0,  1.0,  1.0, 0.0,
-      //  1.0, -1.0, 0.0,    // Plano suelo
 
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
@@ -254,7 +236,6 @@ function initFloorBuffers() {
 
 
    var textureCoordinates = new Float32Array([
-      //0.0,  0.0, 50.0, 0.0, 50.0,  50.0, 0.0,  50.0,  // Plano suelo
 
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0,  // Front
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0  //Botom*/
@@ -266,7 +247,6 @@ function initFloorBuffers() {
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[0].VerticesIndicesBuffer);
 
    var floorVerticesIndices = new Uint16Array([
-       //0,  1,  2,      0,  2,  3,
       0,1,2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
@@ -281,6 +261,7 @@ function initPinoBuffers(){
    
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesBuffer);
 
+   //Suelo
    var pinoVertices = new Float32Array([
 
       0.0, 0.0, 0.5,   0.25, 0.25, 0.0,  -0.25,-0.25, 0.0, //Triangulo 1
@@ -293,9 +274,8 @@ function initPinoBuffers(){
    myBuffers[1].VerticesTextureCoordBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesTextureCoordBuffer);
 
-
+   
    var textureCoordinates = new Float32Array([
-      //0.0,  0.0, 50.0, 0.0, 50.0,  50.0, 0.0,  50.0,  // Plano suelo
 
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // t1 
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0  //t2
@@ -312,8 +292,8 @@ function initPinoBuffers(){
 
    }
 
-   function initFloorTextures() {
-      var y = 0;
+function initTextures(y,imagen) {
+
    myBuffers[y].Texture = gl.createTexture();
    console.log(myBuffers[y].Texture);
 
@@ -323,32 +303,14 @@ function initPinoBuffers(){
 
    var image = new Image();
    image.onload = function() { handleTextureLoaded(y,image); }
-   image.src = "resources/hierba2.jpg";
-}
-
-
-function initPinoTextures() {
-   var y = 1;
-   myBuffers[y].Texture = gl.createTexture();
-
-   console.log(myBuffers[y].Texture);
-
-   gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);//esto se puede borrar
-   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, //esto se puede borrar
-              new Uint8Array([0, 0, 255, 255])); //esto se puede borrar
-
-   var image = new Image();
-   image.onload = function() { handleTextureLoaded(y,image); }
-   image.src = "resources/pino.jpg";
+   image.src = "resources/" + imagen;
 }
 
 function handleTextureLoaded(y,image) {
    console.log("handleTextureLoaded, image = " + image);
 
    gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
-   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
-        gl.UNSIGNED_BYTE, image);
-   //console.log(objfloorvar1.floorTexture);
+   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,gl.UNSIGNED_BYTE, image);
    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
    gl.generateMipmap(gl.TEXTURE_2D);
@@ -357,7 +319,7 @@ function handleTextureLoaded(y,image) {
 }
 
 function main() {
-   var canvas = document.getElementById('webgl');
+   
 
    //CONSTANTES
    
@@ -375,36 +337,24 @@ function main() {
    var alturaOjos = 1.70;
    var anglez = 0.0;
 
-   //variables buffer texturas pino
+   //Variables buffer texturas pino
+
    var Texture;
    var VerticesBuffer
    var VerticesTextureCoordBuffer;
    var VerticesIndicesBuffer; 
 
    //Arrays
+   //var myBuffers = [];
 
-   //Por el momento voy a probar con variables glovaless, después las pondré aquí.
    //var myScene = [];
 
 
-   camara1 = new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
-
-   myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
-               VerticesIndicesBuffer));
-
-   myBuffers.push(new pinoVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
-               VerticesIndicesBuffer));
-
-
-   projMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
-   mMatrix = new Matrix4();
-   mMatrix.scale(BOSQUEX,BOSQUEY,1);
-
-   myScene.push(new Floor(mMatrix));
-
-
+   //Variables canvas
+   var canvas = document.getElementById('webgl');
 
    gl = getWebGLContext(canvas);
+
    if (!gl) {
       console.log('Failed to get the rendering context for WebGL');
       return;
@@ -413,6 +363,13 @@ function main() {
    // Initialize shaders
    if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
       console.log('Failed to intialize shaders.');
+      return;
+   }
+
+   u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+
+   if (!u_MvpMatrix) {
+      console.log('Failed to get the storage location of u_MvpMatrix');
       return;
    }
 
@@ -426,22 +383,29 @@ function main() {
    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
    // Get the storage location of u_MvpMatrix
-   u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+  
 
-   if (!u_MvpMatrix) {
-      console.log('Failed to get the storage location of u_MvpMatrix');
-      return;
-   }
+   camara1 = new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
+   //Meto el buffer de suelo
+   myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
+   //Meto el buffer de pino
+   myBuffers.push(new pinoVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
+
+
+   projMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
+
+   mMatrix = new Matrix4();
+   mMatrix.scale(BOSQUEX,BOSQUEY,1);
+
+   myScene.push(new Floor(mMatrix));
    
    plantarPino(NUMPINOS,BOSQUEX,BOSQUEY);
-
-   
+ 
    initPinoBuffers();
    initFloorBuffers();
-  
-   initPinoTextures();
-   initFloorTextures();
-
+   
+   initTextures(0,"hierba2.jpg");//Inicializo las texturas de suelo
+   initTextures(1,"pino.jpg");// Inicializo las texturas de pino
 
    drawScene();
 
