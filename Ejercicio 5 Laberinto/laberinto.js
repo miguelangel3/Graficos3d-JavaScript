@@ -39,7 +39,7 @@ var FSHADER_SOURCE =
 
 
 
-function pinoVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
+function cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
                VerticesIndicesBuffer) {
 
    this.id = "PB1"
@@ -47,6 +47,7 @@ function pinoVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
    this.VerticesBuffer = VerticesBuffer;
    this.VerticesTextureCoordBuffer = VerticesTextureCoordBuffer;
    this.VerticesIndicesBuffer = VerticesIndicesBuffer;
+   this.numIndices = 36;
 
 }
 
@@ -58,6 +59,7 @@ function floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
    this.VerticesBuffer = VerticesBuffer;
    this.VerticesTextureCoordBuffer = VerticesTextureCoordBuffer;
    this.VerticesIndicesBuffer = VerticesIndicesBuffer;
+   this.numIndices = 6;
    this.getid = function(){
 
       return this.id;
@@ -86,7 +88,7 @@ function Floor(mMatrix){
    this.mMatrix = mMatrix;
 }
 
-function Pino(x,y,z,mMatrix){
+function Cubo(x,y,z,mMatrix){
 
    this.id = "P";
    this.x = x;
@@ -96,7 +98,7 @@ function Pino(x,y,z,mMatrix){
 }
 
 function getShape(array,id) {
-  for(x in array) {
+   for(x in array) {
       if(array[x].id === id)
       return array[x];
   }
@@ -106,17 +108,17 @@ function drawScene(){
 
    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-   var y; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
+   var y  =1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
          requestAnimationFrame(drawScene);
 
 
    for (x in myScene){
-    
+
       viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
                   camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+ 0.01*Math.sin(camara1.anglez), 0,0,1);
 
 
-      //lamada a los buffers para pintar con texturas 
+      //lamada a los buffers para pintar con texturas
       if (myScene[x].id === "F1"){
          y = 0;
       }else{
@@ -129,7 +131,7 @@ function drawScene(){
 
       var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
       gl.enableVertexAttribArray(vertexPositionAttribute);
-  
+
       var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
       gl.enableVertexAttribArray(textureCoordAttribute);
 
@@ -145,36 +147,41 @@ function drawScene(){
 
       gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
 
-   
+
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
-      gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
 
 
    }
 }
 
-function plantarPino(NumPinos,bosquex,bosquey){
+function ponerCubo(numCubos,laberintox,laberintoy){
 
-  for (var i = 1; i < NumPinos; i++) {
+  for (var i = 1; i < numCubos; i++) {
 
-      var positionx;
+      /*var positionx;
       var positiony;
       var alturaPino= 20;
       var Sz =  Math.floor(Math.random()*alturaPino)+(alturaPino-10);
       var Sx = Sz/5
-      var Sy = Sx;
+      var Sy = Sx;*/
+
+      var Sz = 2;
+      var Sx = 2;
+      var Sy = 2;
+
       var angRotation = Math.floor(Math.random()*360);
-      
-      positionx = Math.floor(Math.random()*bosquex)-bosquex/2;
-      positiony = Math.floor(Math.random()*bosquey)-bosquey/2;
+
+      positionx = Math.floor(Math.random()*laberintox) - laberintox/2;
+      positiony = Math.floor(Math.random()*laberintoy) - laberintoy/2;
 
 
       var matrixc = new Matrix4();
 
-      myScene.push(new Pino(positionx,positiony,0,matrixc));
+      myScene.push(new Cubo(positionx,positiony,0,matrixc));
 
       myScene[i].mMatrix = myScene[i].mMatrix.translate(myScene[i].x,myScene[i].y,0);
-      myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
+      //myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
       myScene[i].mMatrix = myScene[i].mMatrix.rotate(angRotation,0,0,1);
 
   }
@@ -230,7 +237,7 @@ function initFloorBuffers() {
    gl.bufferData(gl.ARRAY_BUFFER, floorVertices, gl.STATIC_DRAW);
 
 
-   
+
    myBuffers[0].VerticesTextureCoordBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesTextureCoordBuffer);
 
@@ -255,31 +262,33 @@ function initFloorBuffers() {
 
 
 
-function initPinoBuffers(){
+function initCuboBuffers(){
 
    myBuffers[1].VerticesBuffer = gl.createBuffer();
-   
+
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesBuffer);
 
-   //Suelo
-   var pinoVertices = new Float32Array([
-
-      0.0, 0.0, 0.5,   0.25, 0.25, 0.0,  -0.25,-0.25, 0.0, //Triangulo 1
-      0.0, 0.0, 0.5,  -0.25, 0.25, 0.0,   0.25,-0.25,-0.0  //Triangulo 2
-
-
+   var vertices = new Float32Array([
+      -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+      -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
+      -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
+      -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
+       1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
+      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0    // Left face
    ]);
 
-   gl.bufferData(gl.ARRAY_BUFFER, pinoVertices, gl.STATIC_DRAW);
+   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
    myBuffers[1].VerticesTextureCoordBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesTextureCoordBuffer);
 
-   
    var textureCoordinates = new Float32Array([
-
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // t1 
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0  //t2
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Back
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Top
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Bottom
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Right
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0   // Left
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -287,10 +296,16 @@ function initPinoBuffers(){
    myBuffers[1].VerticesIndicesBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[1].VerticesIndicesBuffer);
 
-   var pinoVerticesIndices = new Uint16Array([
-         0,1,2,  3,4,5 //pino
-   ])
-   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, pinoVerticesIndices, gl.STATIC_DRAW);
+   var cubeVertexIndices = new Uint16Array([
+      0,  1,  2,      0,  2,  3,    // front
+      4,  5,  6,      4,  6,  7,    // back
+      8,  9,  10,     8,  10, 11,   // top
+      12, 13, 14,     12, 14, 15,   // bottom
+      16, 17, 18,     16, 18, 19,   // right
+      20, 21, 22,     20, 22, 23    // left
+   ]);
+
+   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndices, gl.STATIC_DRAW);
 
    }
 
@@ -321,13 +336,13 @@ function handleTextureLoaded(y,image) {
 }
 
 function main() {
-   
+
 
    //CONSTANTES
-   
-   var BOSQUEX = 50,BOSQUEY = 50;
-   var NUMPINOS = 100;
-   
+
+   var LABERINTOX = 50,LABERINTOY = 50;
+   var NUMCUBOS = 50;
+
    //Variables de cámara
 
    var pasos = 0.0;
@@ -344,7 +359,7 @@ function main() {
    var Texture;
    var VerticesBuffer
    var VerticesTextureCoordBuffer;
-   var VerticesIndicesBuffer; 
+   var VerticesIndicesBuffer;
 
    //Arrays
    //var myBuffers = [];
@@ -385,29 +400,29 @@ function main() {
    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
    // Get the storage location of u_MvpMatrix
-  
+
 
    camara1 = new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
    //Meto el buffer de suelo
    myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
    //Meto el buffer de pino
-   myBuffers.push(new pinoVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
+   myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
 
 
-   projMatrix.setPerspective(90, canvas.width/canvas.height, 1, 100);
+   projMatrix.setPerspective(100, canvas.width/canvas.height, 1, 100);
 
    mMatrix = new Matrix4();
-   mMatrix.scale(BOSQUEX,BOSQUEY,1);
+   mMatrix.scale(LABERINTOX,LABERINTOY,1);
 
    myScene.push(new Floor(mMatrix));
-   
-   plantarPino(NUMPINOS,BOSQUEX,BOSQUEY);
- 
-   initPinoBuffers();
+
+   ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
+
+   initCuboBuffers();
    initFloorBuffers();
-   
-   initTextures(0,"hierba2.jpg");//Inicializo las texturas de suelo
-   initTextures(1,"pino.jpg");// Inicializo las texturas de pino
+
+   initTextures(0,"cobblestone.png");//Inicializo las texturas de suelo
+   initTextures(1,"brick.png");// Inicializo las texturas de pino
 
    drawScene();
 
