@@ -266,7 +266,7 @@ function keydown(ev){
 
          myMaze.pos.x = camara1.pasosx*0.4;
          myMaze.pos.y = camara1.pasosy*0.4;
-         myMaze.draw(ctx_2d, 0, 0, 5, 0)
+         myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
          break;
       default: return;
