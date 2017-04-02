@@ -12,6 +12,11 @@ var viewMatrix = new Matrix4();  // View matrix
 var projMatrix = new Matrix4();  // Projection matrix
 var mvpMatrix = new Matrix4();   // Model view projection matrix
 
+
+var myMaze = new Maze(MAZESZ);
+var canvas2d = document.getElementById('2d');
+var ctx_2d = canvas2d.getContext("2d");
+
  //Shader con textura
 
 var VSHADER_SOURCE =
@@ -151,9 +156,35 @@ function drawScene(){
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
       gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
 
-
+      
    }
 }
+
+function ponerCuboLaberinto(myMaze){
+   var n = 1;
+   for (var i = 0; i < myMaze.rooms.length; i++){
+      for (var j = 0; j < myMaze.rooms.length; j++){
+         if(myMaze.rooms[i][j] === false){
+
+            var Sz = 2;
+            var Sx = 2;
+            var Sy = 2;
+
+            positionx = i;
+            positiony = j;
+
+            var matrixc = new Matrix4();
+
+            myScene.push(new Cubo(positionx,positiony,1,matrixc));
+
+            myScene[n].mMatrix = myScene[n].mMatrix.translate(myScene[n].x*4,myScene[n].y*4,1);
+            myScene[n].mMatrix = myScene[n].mMatrix.scale(Sx,Sy,Sz);
+            n = n + 1;
+         }
+      }   
+   }
+}
+
 
 function ponerCubo(numCubos,laberintox,laberintoy){
 
@@ -180,12 +211,27 @@ function ponerCubo(numCubos,laberintox,laberintoy){
 
       myScene.push(new Cubo(positionx,positiony,0,matrixc));
 
-      myScene[i].mMatrix = myScene[i].mMatrix.translate(myScene[i].x,myScene[i].y,0);
-      //myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
-      myScene[i].mMatrix = myScene[i].mMatrix.rotate(angRotation,0,0,1);
+      myScene[i].mMatrix = myScene[i].mMatrix.translate(myScene[i].x,myScene[i].y,2);
+      myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
+      //myScene[i].mMatrix = myScene[i].mMatrix.rotate(angRotation,0,0,1);
 
   }
 
+}
+
+function mueveRaton(captura){
+
+   var mouse = new Array();
+   mouse.x = captura.pageX;
+   mouse.y = captura.pageY;
+
+      console.log("posxraton:" + mouse.x, mouse.y);
+
+   if ((mouse.x) > 0) {
+      camara1.moveAngle = camara1.moveAngle + 2;
+      camara1.angle = camara1.moveAngle*Math.PI/180;
+
+   }
 }
 
 function keydown(ev){
@@ -208,11 +254,19 @@ function keydown(ev){
          camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
          camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
+         myMaze.pos.x = camara1.pasosx*0.4;
+         myMaze.pos.y = camara1.pasosy*0.4;
+         myMaze.draw(ctx_2d, 0, 0, 5, 0)
+
          break;
       case 83: //Down
          camara1.anglez = camara1.anglez - 1;
          camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
          camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+
+         myMaze.pos.x = camara1.pasosx*0.4;
+         myMaze.pos.y = camara1.pasosy*0.4;
+         myMaze.draw(ctx_2d, 0, 0, 5, 0)
 
          break;
       default: return;
@@ -348,7 +402,7 @@ function main() {
    var pasos = 0.0;
    var angle = 0.0;
    var pasosx = 4.0;
-   var pasosy = 0.0;
+   var pasosy = 4.0;
    var speed = 0.5;
    var moveAngle = 0;
    var alturaOjos = 1.70;
@@ -369,6 +423,7 @@ function main() {
 
    //Variables canvas
    var canvas = document.getElementById('webgl');
+   
 
    gl = getWebGLContext(canvas);
 
@@ -415,8 +470,16 @@ function main() {
    mMatrix.scale(LABERINTOX,LABERINTOY,1);
 
    myScene.push(new Floor(mMatrix));
+   
+   //var myMaze = new Maze(MAZESZ);
 
-   ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
+   myMaze.randPrim(new Pos(0, 0));
+   myMaze.pos.x = 1;
+   myMaze.pos.y = 1;
+   myMaze.draw(ctx_2d, 0, 0, 5, 0);
+
+   ponerCuboLaberinto(myMaze);
+   //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
 
    initCuboBuffers();
    initFloorBuffers();
@@ -425,6 +488,9 @@ function main() {
    initTextures(1,"brick.png");// Inicializo las texturas de pino
 
    drawScene();
+   //document.addEventListener('mousemove',mueveRaton);
+
+
 
    document.onkeydown = function(ev){
       keydown(ev);
