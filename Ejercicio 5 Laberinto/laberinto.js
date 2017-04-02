@@ -102,6 +102,35 @@ function Cubo(x,y,z,mMatrix){
    this.mMatrix = mMatrix;
 }
 
+function Raton(){
+
+   this.mouse = new Array();
+   this.mouseantesx = 0;
+   this.mouseantesy = 0;
+   this.mouse.x = 0;
+   this.mouse.y = 0;
+   that = this;
+   this.mueveRaton = function(captura){
+
+      //console.log("posxraton:" + this.mouse.x, this.mouse.y);
+      that.mouse.x = captura.pageX;
+      that.mouse.y = captura.pageY;
+
+      if ((that.mouse.x) > (that.mouseantesx)) {
+         camara1.moveAngle = camara1.moveAngle - captura.pageX/180;
+         camara1.angle = camara1.moveAngle * Math.PI/180;
+
+      }else if ((that.mouse.x) < (that.mouseantesx)) {
+         camara1.moveAngle = camara1.moveAngle + captura.pageY/180;
+         camara1.angle = camara1.moveAngle * Math.PI/180;
+      }
+
+      that.mouseantesx = captura.pageX
+      that.mouseantesy = captura.pageY
+   }
+
+}
+
 function getShape(array,id) {
    for(x in array) {
       if(array[x].id === id)
@@ -177,7 +206,7 @@ function ponerCuboLaberinto(myMaze){
 
             myScene.push(new Cubo(positionx,positiony,1,matrixc));
 
-            myScene[n].mMatrix = myScene[n].mMatrix.translate(myScene[n].x*4,myScene[n].y*4,1);
+            myScene[n].mMatrix = myScene[n].mMatrix.translate(myScene[n].x*4,myScene[n].y*4,2);
             myScene[n].mMatrix = myScene[n].mMatrix.scale(Sx,Sy,Sz);
             n = n + 1;
          }
@@ -487,8 +516,10 @@ function main() {
    initTextures(0,"cobblestone.png");//Inicializo las texturas de suelo
    initTextures(1,"brick.png");// Inicializo las texturas de pino
 
+   Raton1 = new Raton();
+
    drawScene();
-   //document.addEventListener('mousemove',mueveRaton);
+   document.addEventListener('mousemove', Raton1.mueveRaton);
 
 
 
