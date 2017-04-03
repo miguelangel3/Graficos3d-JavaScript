@@ -77,10 +77,12 @@ function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
    this.id = "C1"
    this.pasos = pasos;
    this.angle = angle;
+   this.angley = 0;
    this.pasosx = pasosx;
    this.pasosy = pasosy;
    this.speed = speed;
    this.moveAngle = moveAngle;
+   this.moveAngley = 0;
    this.alturaOjos = alturaOjos;
    this.anglez = anglez;
 
@@ -117,19 +119,60 @@ function Raton(){
       that.mouse.y = captura.pageY;
 
       if ((that.mouse.x) > (that.mouseantesx)) {
-         camara1.moveAngle = camara1.moveAngle - captura.pageX/180;
+         camara1.moveAngle = camara1.moveAngle - 5;
          camara1.angle = camara1.moveAngle * Math.PI/180;
 
       }else if ((that.mouse.x) < (that.mouseantesx)) {
-         camara1.moveAngle = camara1.moveAngle + captura.pageY/180;
+         camara1.moveAngle = camara1.moveAngle + 5;
+
          camara1.angle = camara1.moveAngle * Math.PI/180;
       }
+
+      if ((that.mouse.y) > (that.mouseantesy)) {
+
+         camara1.moveAngley = checkAngley(camara1.moveAngley - 5);
+         camara1.angley = camara1.moveAngley * Math.PI/180;
+
+      }else if ((that.mouse.y) < (that.mouseantesy)){
+
+         camara1.moveAngley = checkAngley(camara1.moveAngley + 5);
+         camara1.angley = camara1.moveAngley * Math.PI/180;
+
+      }
+
+
 
       that.mouseantesx = captura.pageX
       that.mouseantesy = captura.pageY
    }
 
 }
+
+function checkAngley(angle){
+   console.log ("Ángulo antes de modifcar" + angle);
+
+   if (angle > 90){
+
+
+      angle = 90;
+      console.log("Despuesde de modificar" + angle);
+      return angle;
+
+   }else if (angle < -90){
+
+      angle = -90;
+      console.log("Después de modificar" + angle)
+      return angle;
+
+   }else{
+
+      return angle;
+   }
+
+}
+
+
+
 
 function getShape(array,id) {
    for(x in array) {
@@ -149,7 +192,7 @@ function drawScene(){
    for (x in myScene){
 
       viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
-                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+ 0.01*Math.sin(camara1.anglez), 0,0,1);
+                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) /*0.01*Math.sin(camara1.anglez)*/, 0,0,1);
 
 
       //lamada a los buffers para pintar con texturas
@@ -268,6 +311,7 @@ function keydown(ev){
       case 65:  //Right
 
          camara1.moveAngle = camara1.moveAngle + 2;
+
          camara1.angle = camara1.moveAngle*Math.PI/180;
 
          break;
