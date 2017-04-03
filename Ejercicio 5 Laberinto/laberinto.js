@@ -1,5 +1,8 @@
 // Miguel Ángel Alba Blanco ISAM
 
+const TORAD = Math.pi/180;
+
+
 var canvas;
 var gl;
 //var u_MvpMatrix;
@@ -115,32 +118,34 @@ function Raton(){
    this.mueveRaton = function(captura){
 
       //console.log("posxraton:" + this.mouse.x, this.mouse.y);
+
+      //En esta parte los ejes los considero en 2d con los del canvas
       that.mouse.x = captura.pageX;
       that.mouse.y = captura.pageY;
 
       if ((that.mouse.x) > (that.mouseantesx)) {
+
          camara1.moveAngle = camara1.moveAngle - 5;
          camara1.angle = camara1.moveAngle * Math.PI/180;
 
       }else if ((that.mouse.x) < (that.mouseantesx)) {
-         camara1.moveAngle = camara1.moveAngle + 5;
 
+         camara1.moveAngle = camara1.moveAngle + 5;
+         //camara1.moveAngle = checkAngle(camara1.moveAngle + 5,"x");
          camara1.angle = camara1.moveAngle * Math.PI/180;
       }
 
       if ((that.mouse.y) > (that.mouseantesy)) {
 
-         camara1.moveAngley = checkAngley(camara1.moveAngley - 5);
+         camara1.moveAngley = checkAngle(camara1.moveAngley - 5,"y");
          camara1.angley = camara1.moveAngley * Math.PI/180;
 
       }else if ((that.mouse.y) < (that.mouseantesy)){
 
-         camara1.moveAngley = checkAngley(camara1.moveAngley + 5);
+         camara1.moveAngley = checkAngle(camara1.moveAngley + 5,"y");
          camara1.angley = camara1.moveAngley * Math.PI/180;
 
       }
-
-
 
       that.mouseantesx = captura.pageX
       that.mouseantesy = captura.pageY
@@ -148,24 +153,30 @@ function Raton(){
 
 }
 
-function checkAngley(angle){
+function checkAngle(angle,eje){
    console.log ("Ángulo antes de modifcar" + angle);
+   var max;
+   var min;
 
-   if (angle > 90){
+   switch(eje){
 
+      case "x":
+         max = 180;
+         min = -180;
+      break;
+      case "y":
+         max = 90;
+         min = -90;
+      break;
+   }
 
-      angle = 90;
-      console.log("Despuesde de modificar" + angle);
+   if (angle > max){
+      angle = max;
       return angle;
-
-   }else if (angle < -90){
-
-      angle = -90;
-      console.log("Después de modificar" + angle)
+   }else if (angle < min){
+      angle = min;
       return angle;
-
    }else{
-
       return angle;
    }
 
@@ -192,7 +203,7 @@ function drawScene(){
    for (x in myScene){
 
       viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
-                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) /*0.01*Math.sin(camara1.anglez)*/, 0,0,1);
+                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
 
 
       //lamada a los buffers para pintar con texturas
