@@ -182,9 +182,6 @@ function checkAngle(angle,eje){
 
 }
 
-
-
-
 function getShape(array,id) {
    for(x in array) {
       if(array[x].id === id)
@@ -338,8 +335,8 @@ function keydown(ev){
          camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
          camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
-         myMaze.pos.x = camara1.pasosx*0.4;
-         myMaze.pos.y = camara1.pasosy*0.4;
+         myMaze.pos.x = Math.round(camara1.pasosx/4);
+         myMaze.pos.y = Math.round(camara1.pasosy/4);
          myMaze.draw(ctx_2d, 0, 0, 5, 0)
 
          break;
@@ -348,8 +345,8 @@ function keydown(ev){
          camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
          camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-         myMaze.pos.x = camara1.pasosx*0.4;
-         myMaze.pos.y = camara1.pasosy*0.4;
+         myMaze.pos.x = Math.round(camara1.pasosx/4);
+         myMaze.pos.y = Math.round(camara1.pasosy/4);
          myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
          break;
@@ -485,8 +482,8 @@ function main() {
 
    var pasos = 0.0;
    var angle = 0.0;
-   var pasosx = 4.0;
-   var pasosy = 4.0;
+   var pasosx = 0.0;
+   var pasosy = 0.0;
    var speed = 0.5;
    var moveAngle = 0;
    var alturaOjos = 1.70;
@@ -558,8 +555,8 @@ function main() {
    //var myMaze = new Maze(MAZESZ);
 
    myMaze.randPrim(new Pos(0, 0));
-   myMaze.pos.x = 1;
-   myMaze.pos.y = 1;
+   myMaze.pos.x = pasosx;
+   myMaze.pos.y = pasosy;
    myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
    ponerCuboLaberinto(myMaze);
