@@ -1,6 +1,6 @@
 // Miguel Ángel Alba Blanco ISAM
 
-const TORAD = Math.pi/180;
+var TORAD = Math.pi/180;
 
 
 var canvas;
@@ -239,6 +239,30 @@ function drawScene(){
    }
 }
 
+function rndPosition(){
+
+   var position = new Array();
+   var i;
+   var j;
+
+   i = Math.round (Math.random() * (myMaze.rooms.length -1));
+   j = Math.round (Math.random() * (myMaze.rooms.length -1));
+   
+   console.log("i" + i);
+   console.log("j" + j);
+   while (myMaze.rooms[i][j] === false){
+      i = Math.round (Math.random() * (myMaze.rooms.length -1));
+      j = Math.round (Math.random() * (myMaze.rooms.length -1)); 
+      console.log("i" + i);
+      console.log("j" + j);
+   }
+   
+   position.x = i;
+   position.y = j;
+   return position;
+
+}
+
 function ponerCuboLaberinto(myMaze){
    var n = 1; //Empiezo en uno para que al empezar nose cargue el suelo
    for (var i = 0; i < myMaze.rooms.length; i++){
@@ -473,8 +497,11 @@ function main() {
 
    var pasos = 0.0;
    var angle = 0.0;
-   var pasosx = 0.0;
-   var pasosy = 0.0;
+   var pos = new Array();
+   pos.x = 0.0;
+   pos.y = 0.0
+   //var pasosx = 0.0;
+   //var pasosy = 0.0;
    var speed = 0.1;
    var moveAngle = 0;
    var alturaOjos = 0.50;
@@ -527,9 +554,20 @@ function main() {
    gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
    // Get the storage location of u_MvpMatrix
+   //var myMaze = new Maze(MAZESZ);
 
+   myMaze.randPrim(new Pos(0, 0));
 
-   camara1 = new camara(pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez);
+   pos = rndPosition(); 
+
+   pos.x = pos.x + 1/2;
+   pos.y = pos.y + 1/2;
+
+   myMaze.pos.x = pos.x;
+   myMaze.pos.y = pos.y;
+   myMaze.draw(ctx_2d, 0, 0, 5, 0);
+
+   camara1 = new camara(pasos,angle,pos.x,pos.y,speed,moveAngle,alturaOjos,anglez);
    //Meto el buffer de suelo
    myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
    //Meto el buffer de pino
@@ -543,12 +581,9 @@ function main() {
 
    myScene.push(new Floor(mMatrix));
    
-   //var myMaze = new Maze(MAZESZ);
+   
 
-   myMaze.randPrim(new Pos(0, 0));
-   myMaze.pos.x = pasosx;
-   myMaze.pos.y = pasosy;
-   myMaze.draw(ctx_2d, 0, 0, 5, 0);
+   
 
    ponerCuboLaberinto(myMaze);
    //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
