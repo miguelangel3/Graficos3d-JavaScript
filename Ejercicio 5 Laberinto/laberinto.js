@@ -310,7 +310,7 @@ function keydown(ev){
          futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
          console.log ("futurospasosx:" + futuropasosx);
          console.log ("futurospasosy:" + futuropasosy);
-         //if ((checkCubo(Math.round(futuropasosx/4),Math.round(futuropasosx/4)) === false)){
+         if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
 
             camara1.anglez = camara1.anglez + 1;
             camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
@@ -319,10 +319,10 @@ function keydown(ev){
             console.log ("pasosx:" + camara1.pasosx);
             console.log ("pasosy:" + camara1.pasosy);
 
-            myMaze.pos.x = Math.round(camara1.pasosx/4);
-            myMaze.pos.y = Math.round(camara1.pasosy/4);
+            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
             myMaze.draw(ctx_2d, 0, 0, 5, 0)
-         //}
+         }
 
          break;
       case 83: //Down
@@ -330,15 +330,15 @@ function keydown(ev){
          futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
          futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-         //if ((checkCubo(Math.round(futuropasosx/4),Math.round(futuropasosx/4)) === false)){
+         if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2)) === false)){
             camara1.anglez = camara1.anglez - 1;
             camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
             camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-            myMaze.pos.x = Math.round(camara1.pasosx/4);
-            myMaze.pos.y = Math.round(camara1.pasosy/4);
+            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
             myMaze.draw(ctx_2d, 0, 0, 5, 0);
-         //}
+         }
 
          break;
       default: return;
@@ -475,7 +475,7 @@ function main() {
    var angle = 0.0;
    var pasosx = 0.0;
    var pasosy = 0.0;
-   var speed = 0.5;
+   var speed = 0.1;
    var moveAngle = 0;
    var alturaOjos = 0.50;
    var anglez = 0.0;
