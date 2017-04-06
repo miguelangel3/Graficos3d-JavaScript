@@ -154,7 +154,6 @@ function Raton(){
 }
 
 function checkAngle(angle,eje){
-   console.log ("Ángulo antes de modifcar" + angle);
    var max;
    var min;
 
@@ -241,14 +240,14 @@ function drawScene(){
 }
 
 function ponerCuboLaberinto(myMaze){
-   var n = 1;
+   var n = 1; //Empiezo en uno para que al empezar nose cargue el suelo
    for (var i = 0; i < myMaze.rooms.length; i++){
       for (var j = 0; j < myMaze.rooms.length; j++){
          if(myMaze.rooms[i][j] === false){
 
-            var Sz = 2;
-            var Sx = 2;
-            var Sy = 2;
+            var Sz = 1/2;
+            var Sx = 1/2;
+            var Sy = 1/2;
 
             positionx = i;
             positiony = j;
@@ -257,7 +256,7 @@ function ponerCuboLaberinto(myMaze){
 
             myScene.push(new Cubo(positionx,positiony,1,matrixc));
 
-            myScene[n].mMatrix = myScene[n].mMatrix.translate(myScene[n].x*4,myScene[n].y*4,2);
+            myScene[n].mMatrix = myScene[n].mMatrix.translate(myScene[n].x + Sx,myScene[n].y + Sy,Sz);
             myScene[n].mMatrix = myScene[n].mMatrix.scale(Sx,Sy,Sz);
             n = n + 1;
          }
@@ -265,38 +264,12 @@ function ponerCuboLaberinto(myMaze){
    }
 }
 
-
-function ponerCubo(numCubos,laberintox,laberintoy){
-
-  for (var i = 1; i < numCubos; i++) {
-
-      /*var positionx;
-      var positiony;
-      var alturaPino= 20;
-      var Sz =  Math.floor(Math.random()*alturaPino)+(alturaPino-10);
-      var Sx = Sz/5
-      var Sy = Sx;*/
-
-      var Sz = 2;
-      var Sx = 2;
-      var Sy = 2;
-
-      var angRotation = Math.floor(Math.random()*360);
-
-      positionx = Math.floor(Math.random()*laberintox) - laberintox/2;
-      positiony = Math.floor(Math.random()*laberintoy) - laberintoy/2;
-
-
-      var matrixc = new Matrix4();
-
-      myScene.push(new Cubo(positionx,positiony,0,matrixc));
-
-      myScene[i].mMatrix = myScene[i].mMatrix.translate(myScene[i].x,myScene[i].y,2);
-      myScene[i].mMatrix = myScene[i].mMatrix.scale(Sx,Sy,Sz);
-      //myScene[i].mMatrix = myScene[i].mMatrix.rotate(angRotation,0,0,1);
-
-  }
-
+function checkCubo(posx,posy){
+   if(myMaze.rooms[posx][posy] === false){
+      return true;
+   }else{
+      return false;
+   }
 }
 
 function mueveRaton(captura){
@@ -315,6 +288,8 @@ function mueveRaton(captura){
 }
 
 function keydown(ev){
+   var futuropasosx;
+   var futuropasosy;
    switch(ev.keyCode){
       case 65:  //Right
 
@@ -331,23 +306,39 @@ function keydown(ev){
          break;
       case 87: //Up
 
-         camara1.anglez = camara1.anglez + 1;
-         camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
-         camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+         futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+         futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+         console.log ("futurospasosx:" + futuropasosx);
+         console.log ("futurospasosy:" + futuropasosy);
+         //if ((checkCubo(Math.round(futuropasosx/4),Math.round(futuropasosx/4)) === false)){
 
-         myMaze.pos.x = Math.round(camara1.pasosx/4);
-         myMaze.pos.y = Math.round(camara1.pasosy/4);
-         myMaze.draw(ctx_2d, 0, 0, 5, 0)
+            camara1.anglez = camara1.anglez + 1;
+            camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+            camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+
+            console.log ("pasosx:" + camara1.pasosx);
+            console.log ("pasosy:" + camara1.pasosy);
+
+            myMaze.pos.x = Math.round(camara1.pasosx/4);
+            myMaze.pos.y = Math.round(camara1.pasosy/4);
+            myMaze.draw(ctx_2d, 0, 0, 5, 0)
+         //}
 
          break;
       case 83: //Down
-         camara1.anglez = camara1.anglez - 1;
-         camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
-         camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-         myMaze.pos.x = Math.round(camara1.pasosx/4);
-         myMaze.pos.y = Math.round(camara1.pasosy/4);
-         myMaze.draw(ctx_2d, 0, 0, 5, 0);
+         futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+         futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+
+         //if ((checkCubo(Math.round(futuropasosx/4),Math.round(futuropasosx/4)) === false)){
+            camara1.anglez = camara1.anglez - 1;
+            camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+            camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+
+            myMaze.pos.x = Math.round(camara1.pasosx/4);
+            myMaze.pos.y = Math.round(camara1.pasosy/4);
+            myMaze.draw(ctx_2d, 0, 0, 5, 0);
+         //}
 
          break;
       default: return;
@@ -486,7 +477,7 @@ function main() {
    var pasosy = 0.0;
    var speed = 0.5;
    var moveAngle = 0;
-   var alturaOjos = 1.70;
+   var alturaOjos = 0.50;
    var anglez = 0.0;
 
    //Variables buffer texturas pino
@@ -545,7 +536,7 @@ function main() {
    myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
 
 
-   projMatrix.setPerspective(100, canvas.width/canvas.height, 1, 100);
+   projMatrix.setPerspective(100, canvas.width/canvas.height, 0.2, 10);
 
    mMatrix = new Matrix4();
    mMatrix.scale(LABERINTOX,LABERINTOY,1);
