@@ -21,27 +21,45 @@ var canvas2d = document.getElementById('2d');
 var ctx_2d = canvas2d.getContext("2d");
 
  //Shader con textura
+ var VSHADER_SOURCE =
+   'attribute highp vec3 a_VertexPosition;\n' +
+   'attribute highp vec2 a_TextureCoord;\n' +
+   'attribute highp vec3 a_VertexNormal;\n' +
 
-var VSHADER_SOURCE =
-  'attribute vec3 a_VertexPosition;\n' +
-  'attribute vec2 a_TextureCoord;\n' +
-  'uniform mat4 u_MvpMatrix;\n' +
-  'varying highp vec2 v_TextureCoord;\n' +
-  'void main() {\n' +
-  '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
-  '  v_TextureCoord = a_TextureCoord;\n' +
-  '}\n';
+   'uniform highp mat4 u_NormalMatrix;\n' +
+   'uniform highp mat4 u_MvpMatrix;\n' +
+   'uniform highp mat4 u_ModelMatrix;\n' +
 
-// Fragment shader program
-var FSHADER_SOURCE =
-  '#ifdef GL_ES\n' +
-  'precision mediump float;\n' +
-  '#endif\n' +
-  'varying highp vec2 v_TextureCoord;\n' +
-  'uniform sampler2D u_Sampler;\n' + // El sampler es la textura
-  'void main() {\n' +
-  '  gl_FragColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-  '}\n';
+   'varying highp vec2 v_TextureCoord;\n' +
+   'varying highp vec3 v_Lighting;\n' +
+   'void main() {\n' +
+   '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
+   '  v_TextureCoord = a_TextureCoord;\n' +
+
+   '  highp vec3 ambientLight = vec3(0.2, 0.2, 0.2);\n' +
+   '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
+   '  highp vec3 pointLightPosition = vec3(1.0, -10.0, 0.0);\n' +
+
+   '  vec4 vertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
+   '  highp vec3 lightDirection = normalize(pointLightPosition - vec3(vertexPosition));\n' +
+   '  highp vec4 transformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
+   '  highp float directionalW = max(dot(transformedNormal.xyz, lightDirection), 0.0);\n' +
+
+   '  v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+   '}\n';
+
+ // Fragment shader program
+ var FSHADER_SOURCE =
+   'varying highp vec3 v_Lighting;\n' +
+   'varying highp vec2 v_TextureCoord;\n' +
+   'uniform sampler2D u_Sampler;\n' +
+   'void main() {\n' +
+   '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+   '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+   '}\n';
+
+
+
 
 
 function cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
@@ -215,7 +233,18 @@ function drawScene(){
 
       var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
       gl.enableVertexAttribArray(textureCoordAttribute);
-     
+      //Luz
+      /*vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
+      gl.enableVertexAttribArray(vertexNormalAttribute);
+
+      var normalMatrix = new Matrix4();
+      normalMatrix.set(mMatrix);
+      normalMatrix.invert();
+      normalMatrix.transpose();
+      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");*/
+
+      //gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
+
       gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesBuffer);
       gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -314,37 +343,35 @@ function keydown(ev){
    switch(ev.keyCode){
       case 65:  //Right
 
-         //camara1.moveAngle = camara1.moveAngle + 2;
+         camara1.moveAngle = camara1.moveAngle + 2;
 
-         //camara1.angle = camara1.moveAngle*Math.PI/180;
+         camara1.angle = camara1.moveAngle*Math.PI/180;
 
          break;
       case 68:  //Left
 
-         //camara1.moveAngle = camara1.moveAngle - 2;
-         //camara1.angle = camara1.moveAngle*Math.PI/180;
+         camara1.moveAngle = camara1.moveAngle - 2;
+         camara1.angle = camara1.moveAngle*Math.PI/180;
 
          break;
       case 87: //Up
 
          futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
          futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
-      
-
          console.log ("futurospasosx:" + futuropasosx);
          console.log ("futurospasosy:" + futuropasosy);
          if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
 
-            if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2)) === false) &&
-               (checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
+            camara1.anglez = camara1.anglez + 1;
+            camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+            camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
-               camara1.anglez = camara1.anglez + 1;
-               camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
-               camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
-               myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
-               myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
-               myMaze.draw(ctx_2d, 0, 0, 5, 0);
-            }
+            console.log ("pasosx:" + camara1.pasosx);
+            console.log ("pasosy:" + camara1.pasosy);
+
+            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
+            myMaze.draw(ctx_2d, 0, 0, 5, 0)
          }
 
          break;
@@ -354,17 +381,13 @@ function keydown(ev){
          futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
          if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2)) === false)){
+            camara1.anglez = camara1.anglez - 1;
+            camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+            camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-            if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2)) === false) &&
-               (checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
-
-               camara1.anglez = camara1.anglez - 1;
-               camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
-               camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
-               myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
-               myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
-               myMaze.draw(ctx_2d, 0, 0, 5, 0);
-            }
+            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
+            myMaze.draw(ctx_2d, 0, 0, 5, 0);
          }
 
          break;
@@ -584,6 +607,10 @@ function main() {
    mMatrix.scale(LABERINTOX,LABERINTOY,1);
 
    myScene.push(new Floor(mMatrix));
+
+
+
+
 
    ponerCuboLaberinto(myMaze);
    //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
