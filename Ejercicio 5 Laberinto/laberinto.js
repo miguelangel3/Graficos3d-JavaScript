@@ -1,8 +1,5 @@
 // Miguel Ángel Alba Blanco ISAM
 
-var TORAD = Math.pi/180;
-
-
 var canvas;
 var gl;
 //var u_MvpMatrix;
@@ -123,12 +120,11 @@ function Raton(){
       if ((that.mouse.x) > (that.mouseantesx)) {
 
          camara1.moveAngle = camara1.moveAngle - 5;
-         camara1.angle = camara1.moveAngle * Math.PI/180;
+         camara1.angle = camara1.moveAngle *  Math.PI/180;
 
       }else if ((that.mouse.x) < (that.mouseantesx)) {
 
          camara1.moveAngle = camara1.moveAngle + 5;
-         //camara1.moveAngle = checkAngle(camara1.moveAngle + 5,"x");
          camara1.angle = camara1.moveAngle * Math.PI/180;
       }
 
@@ -330,9 +326,6 @@ function keydown(ev){
          futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
          futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
       
-
-         console.log ("futurospasosx:" + futuropasosx);
-         console.log ("futurospasosy:" + futuropasosy);
          if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
 
             if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2)) === false) &&
@@ -566,8 +559,8 @@ function main() {
    pos.x = pos.x + 1/2;
    pos.y = pos.y + 1/2;
 
-   myMaze.pos.x = pos.x;
-   myMaze.pos.y = pos.y;
+   myMaze.pos.x = Math.round(pos.x - 1/2);
+   myMaze.pos.y = Math.round(pos.y - 1/2);
 
    myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
