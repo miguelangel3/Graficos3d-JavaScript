@@ -2,48 +2,72 @@
 
  //Shader con textura
 
-var VSHADER_SOURCE =
-  'attribute vec3 a_VertexPosition;\n' +
-  'attribute vec2 a_TextureCoord;\n' +
-  'uniform mat4 u_MvpMatrix;\n' +
+   var VSHADER_SOURCE =
+  'attribute highp vec3 a_VertexPosition;\n' +
+  'attribute highp vec2 a_TextureCoord;\n' +
+  'attribute highp vec3 a_VertexNormal;\n' +
+
+  'uniform highp vec3 u_LightPosition;\n' +
+  'uniform highp mat4 u_NormalMatrix;\n' +
+  'uniform highp mat4 u_MvpMatrix;\n' +
+  'uniform highp mat4 u_ModelMatrix;\n' +
   'varying highp vec2 v_TextureCoord;\n' +
+  'varying highp vec3 v_Lighting;\n' +
+  
   'void main() {\n' +
   '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
   '  v_TextureCoord = a_TextureCoord;\n' +
+
+  '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+  '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
+  '  highp vec3 pointLightPosition = (u_LightPosition);\n' +
+  //'  highp vec3 inverse = vec3(-1.0,-1.0,-1.0);\n' +
+  //'  highp vec3 pointLightPosition = vec3(1.0, -10.0, 0.0);\n' +
+
+  '  vec4 vertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
+   '  highp vec3 lightDirection =  normalize(vec3(vertexPosition) - pointLightPosition);\n' +
+  '  highp vec4 transformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
+  '  highp float directionalW = max(dot(transformedNormal.xyz, lightDirection), 0.0);\n' +
+
+  '  v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
   '}\n';
 
 // Fragment shader program
 var FSHADER_SOURCE =
-  '#ifdef GL_ES\n' +
-  'precision mediump float;\n' +
-  '#endif\n' +
+  'varying highp vec3 v_Lighting;\n' +
   'varying highp vec2 v_TextureCoord;\n' +
-  'uniform sampler2D u_Sampler;\n' + // El sampler es la textura
+  'uniform sampler2D u_Sampler;\n' +
   'void main() {\n' +
-  '  gl_FragColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+  '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+  '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
   '}\n';
 
 
+
+
+
 function cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
-               VerticesIndicesBuffer) {
+               VerticesIndicesBuffer,VerticesNormalBuffer) {
 
    this.id = "PB1"
    this.Texture = Texture;
    this.VerticesBuffer = VerticesBuffer;
    this.VerticesTextureCoordBuffer = VerticesTextureCoordBuffer;
    this.VerticesIndicesBuffer = VerticesIndicesBuffer;
+   this.VerticesNormalBuffer =  VerticesNormalBuffer
    this.numIndices = 36;
 
 }
 
 function floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
-               VerticesIndicesBuffer){
+               VerticesIndicesBuffer,VerticesNormalBuffer){
 
    this.id = "FB1";
    this.Texture = Texture;
    this.VerticesBuffer = VerticesBuffer;
    this.VerticesTextureCoordBuffer = VerticesTextureCoordBuffer;
    this.VerticesIndicesBuffer = VerticesIndicesBuffer;
+   this.VerticesNormalBuffer =  VerticesNormalBuffer
    this.numIndices = 6;
    this.getid = function(){
 
@@ -169,51 +193,89 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
 
    function drawScene(){
 
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-      var y  =1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
+   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+
+   if (!u_MvpMatrix) {
+      console.log('Failed to get the storage location of u_MvpMatrix');
+      return;
+   }
+   var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+   if (!u_ModelMatrix) {
+    console.log('Failed to get the storage location of u_ModelMatrix');
+    return;
+  }
+
+   var y  = 1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
          requestAnimationFrame(drawScene);
 
 
-      for (x in myScene){
+   for (x in myScene){
 
-         viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
-                     camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
-
-
-         //lamada a los buffers para pintar con texturas
-         if (myScene[x].id === "F1"){
-            y = 0;
-         }else{
-            y = 1;
-         }
-
-         mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(myScene[x].mMatrix);
-
-         gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
-
-         var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
-         gl.enableVertexAttribArray(vertexPositionAttribute);
-
-         var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
-         gl.enableVertexAttribArray(textureCoordAttribute);
-        
-         gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesBuffer);
-         gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-         gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesTextureCoordBuffer);
-         gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
-
-         //console.log(objfloorvar1.floorTexture);
-         gl.activeTexture(gl.TEXTURE0);
-         gl.bindTexture(gl.TEXTURE_2D,myBuffers[y].Texture);
-
-         gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
+      viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
+                  camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
 
 
-         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
-         gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
+      //lamada a los buffers para pintar con texturas
+      if (myScene[x].id === "F1"){
+         y = 0;
+      }else{
+         y = 1;
+      }
 
+      mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(myScene[x].mMatrix);
+
+      gl.uniformMatrix4fv(u_ModelMatrix, false, myScene[x].mMatrix.elements);
+      gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+
+      lightposx = camara1.pasosx + Math.cos(camara1.angle);
+      lightposy = camara1.pasosy + Math.sin(camara1.angle),camara1.alturaOjos + Math.sin(camara1.angley);
+      lightposz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
+     
+     //lightposx= -1*lightposx;
+     //lightposy = -1*lightposy;
+      lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos
+
+      
+      var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
+      gl.uniform3fv(pointLightPosition,[lightposx,lightposy,lightposz]);
+
+      var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
+      gl.enableVertexAttribArray(vertexPositionAttribute);
+
+      var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
+      gl.enableVertexAttribArray(textureCoordAttribute);
+      //Luz
+      vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
+      gl.enableVertexAttribArray(vertexNormalAttribute);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[y].VerticesNormalBuffer);
+      gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+
+      var normalMatrix = new Matrix4();
+      normalMatrix.set(mMatrix);
+      normalMatrix.invert();
+      normalMatrix.transpose();
+      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");
+      gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesBuffer);
+      gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+      gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesTextureCoordBuffer);
+      gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+
+      //console.log(objfloorvar1.floorTexture);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D,myBuffers[y].Texture);
+
+      gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
+
+
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
+      gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
 
       }
    }
@@ -373,6 +435,16 @@ function initFloorBuffers(myBuffers,gl) {
 
    gl.bufferData(gl.ARRAY_BUFFER, floorVertices, gl.STATIC_DRAW);
 
+   myBuffers[0].VerticesNormalBuffer = gl.createBuffer();
+   gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesNormalBuffer);
+
+   var vertexNormals = new Float32Array([
+      -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
+       1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
+     
+   ]);
+
+  gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
 
 
    myBuffers[0].VerticesTextureCoordBuffer = gl.createBuffer();
@@ -415,6 +487,24 @@ function initCuboBuffers(myBuffers,gl){
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+   myBuffers[1].VerticesNormalBuffer = gl.createBuffer();
+   gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesNormalBuffer);
+
+   var vertexNormals = new Float32Array([
+      -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+      -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
+      -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
+      -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
+       1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
+      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0    
+   ]);
+
+   gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
+
+
+
+
 
    myBuffers[1].VerticesTextureCoordBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesTextureCoordBuffer);
@@ -498,6 +588,7 @@ function main() {
    var VerticesBuffer
    var VerticesTextureCoordBuffer;
    var VerticesIndicesBuffer;
+   var VerticesNormalBuffer;
 
    //Variables de Matrices
    var viewMatrix = new Matrix4();  // View matrix
@@ -517,6 +608,7 @@ function main() {
    var ctx_2d = canvas2d.getContext("2d");
    var gl = getWebGLContext(canvas);
 
+
    if (!gl) {
       console.log('Failed to get the rendering context for WebGL');
       return;
@@ -525,13 +617,6 @@ function main() {
    // Initialize shaders
    if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
       console.log('Failed to intialize shaders.');
-      return;
-   }
-
-   u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
-
-   if (!u_MvpMatrix) {
-      console.log('Failed to get the storage location of u_MvpMatrix');
       return;
    }
 
@@ -561,9 +646,9 @@ function main() {
 
    camara1 = new camara(pasos,angle,pos.x,pos.y,speed,moveAngle,alturaOjos,anglez);
    //Meto el buffer de suelo
-   myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
+   myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
    //Meto el buffer de pino
-   myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer));
+   myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 
 
    projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 10);

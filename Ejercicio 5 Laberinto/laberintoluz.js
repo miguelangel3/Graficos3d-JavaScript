@@ -40,7 +40,7 @@ var ctx_2d = canvas2d.getContext("2d");
   '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
   '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
   '  highp vec3 pointLightPosition = (u_LightPosition);\n' +
-  '  highp vec3 inverse = vec3(-1.0,-1.0,-1.0);\n' +
+  //'  highp vec3 inverse = vec3(-1.0,-1.0,-1.0);\n' +
   //'  highp vec3 pointLightPosition = vec3(1.0, -10.0, 0.0);\n' +
 
   '  vec4 vertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
@@ -249,7 +249,10 @@ function drawScene(){
       lightposx = camara1.pasosx + Math.cos(camara1.angle);
       lightposy = camara1.pasosy + Math.sin(camara1.angle),camara1.alturaOjos + Math.sin(camara1.angley);
       lightposz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
-      lightposz = -1*lightposz;
+     
+     //lightposx= -1*lightposx;
+     //lightposy = -1*lightposy;
+      lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos
 
       
       var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
@@ -446,8 +449,8 @@ function initFloorBuffers() {
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesNormalBuffer);
 
    var vertexNormals = new Float32Array([
-     -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
-       1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
+      -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
+       1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
      
    ]);
 
