@@ -2,6 +2,8 @@
 
  //Shader con textura
 
+ //Shader con textura
+
    var VSHADER_SOURCE =
   'attribute highp vec3 a_VertexPosition;\n' +
   'attribute highp vec2 a_TextureCoord;\n' +
@@ -40,7 +42,7 @@ var FSHADER_SOURCE =
   'void main() {\n' +
   '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
   '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
-  '}\n';
+'}\n';
 
 
 
@@ -229,15 +231,15 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
       gl.uniformMatrix4fv(u_ModelMatrix, false, myScene[x].mMatrix.elements);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
-      lightposx = camara1.pasosx + Math.cos(camara1.angle);
-      lightposy = camara1.pasosy + Math.sin(camara1.angle),camara1.alturaOjos + Math.sin(camara1.angley);
-      lightposz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
-     
+      var lightposx = camara1.pasosx;// + Math.cos(camara1.angle);
+      var lightposy = camara1.pasosy;// + Math.sin(camara1.angle) + camara1.alturaOjos + Math.sin(camara1.angley);
+      var lightposz = camara1.alturaOjos;// + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
+
      //lightposx= -1*lightposx;
      //lightposy = -1*lightposy;
-      lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos
+      //lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos chapuza
 
-      
+
       var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
       gl.uniform3fv(pointLightPosition,[lightposx,lightposy,lightposz]);
 
@@ -247,20 +249,12 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
       var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
       gl.enableVertexAttribArray(textureCoordAttribute);
       //Luz
-      vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
+      var vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
       gl.enableVertexAttribArray(vertexNormalAttribute);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[y].VerticesNormalBuffer);
+
       gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-
-      var normalMatrix = new Matrix4();
-      normalMatrix.set(mMatrix);
-      normalMatrix.invert();
-      normalMatrix.transpose();
-      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");
-      gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
-
       gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesBuffer);
       gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -273,8 +267,19 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
 
       gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
 
-
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
+
+
+      var normalMatrix = new Matrix4();
+      normalMatrix.set(mMatrix);
+      normalMatrix.invert();
+      normalMatrix.transpose();
+      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");
+      gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
+
+      
+
+
       gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
 
       }
@@ -378,7 +383,7 @@ function argumentsToMove(myMaze,ctx_2d){
             myMaze.rooms;
             futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
             futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
-         
+
             if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
 
                if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze) === false) &&
@@ -425,12 +430,16 @@ function initFloorBuffers(myBuffers,gl) {
 
    myBuffers[0].VerticesBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesBuffer);
-   //pino
+   //suelo
    var floorVertices = new Float32Array([
-
+      -1.0,  -1.0, 0,
+     -1.0,   1.0, 0,
+      1.0,   1.0, 0,
+      1.0,  -1.0, 0
+      /*
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
-
+      */
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, floorVertices, gl.STATIC_DRAW);
@@ -439,9 +448,12 @@ function initFloorBuffers(myBuffers,gl) {
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesNormalBuffer);
 
    var vertexNormals = new Float32Array([
+      -1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0,  1.0,  1.0,
+       -1.0,  1.0,  1.0
+     /* 
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
-     
+*/
    ]);
 
   gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
@@ -453,8 +465,11 @@ function initFloorBuffers(myBuffers,gl) {
 
    var textureCoordinates = new Float32Array([
 
+      0.0,  0.0,     50,  50,    0.0,  50,   50,  0.0
+/*
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0,  // Front
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0  //Botom*/
+  
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -463,7 +478,8 @@ function initFloorBuffers(myBuffers,gl) {
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[0].VerticesIndicesBuffer);
 
    var floorVerticesIndices = new Uint16Array([
-      0,1,2,  3,4,5 //floor
+     0,  1,  2,      0,  2,  3
+     // 0,1,2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
 
@@ -478,12 +494,21 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesBuffer);
 
    var vertices = new Float32Array([
+
+   /*  -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+    -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
+    -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
+    -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
+     1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
+    -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0   */ // Left face
+
       -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
       -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
       -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
        1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
       -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0    // Left face
+        
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -492,12 +517,20 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesNormalBuffer);
 
    var vertexNormals = new Float32Array([
-      -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+
+   /*  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,   // Front face
+     0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,   // Back face
+     0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,   // Top face
+     0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,   // Bottom face
+     1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,   // Right face
+    -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0 */
+   
+     -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
       -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
       -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
        1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
-      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0    
+      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
@@ -510,12 +543,21 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesTextureCoordBuffer);
 
    var textureCoordinates = new Float32Array([
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
+
+   /* 0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Front
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Back
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Top
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Bottom
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0, // Right
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0 // Left
+    */
+     0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Back
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Top
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Bottom
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Right
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0   // Left
+   
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -524,12 +566,18 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[1].VerticesIndicesBuffer);
 
    var cubeVertexIndices = new Uint16Array([
+
+   //   0,  1,  2,      0,  2,  3,  /*Front*/ 4,  5,  6,    4,  6,  7,  //Back
+   // 8,  9,  10,     8,  10, 11, /*Top*/   12, 13, 14,   12, 14, 15, //Bottom
+   // 16, 17, 18,     16, 18, 19, /*Right*/ 20, 21, 22,   20, 22, 23  //Left
+
+
       0,  1,  2,      0,  2,  3,    // front
       4,  5,  6,      4,  6,  7,    // back
       8,  9,  10,     8,  10, 11,   // top
       12, 13, 14,     12, 14, 15,   // bottom
       16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23    // left
+      20, 21, 22,     20, 22, 23    // left*/
    ]);
 
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndices, gl.STATIC_DRAW);
@@ -582,7 +630,7 @@ function main() {
    var alturaOjos = 0.50;
    var anglez = 0.0;
 
-   //Variables buffer texturas 
+   //Variables buffer texturas
 
    var Texture;
    var VerticesBuffer
@@ -647,7 +695,7 @@ function main() {
    camara1 = new camara(pasos,angle,pos.x,pos.y,speed,moveAngle,alturaOjos,anglez);
    //Meto el buffer de suelo
    myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
-   //Meto el buffer de pino
+   //Meto el buffer de cubo
    myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 
 
@@ -665,7 +713,7 @@ function main() {
    initFloorBuffers(myBuffers,gl);
 
    initTextures(0,"cobblestone.png",myBuffers,gl);//Inicializo las texturas de suelo
-   initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de pino
+   initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de cubo
 
    Raton1 = new Raton();
 
@@ -674,7 +722,4 @@ function main() {
    //drawScene();
    document.addEventListener('mousemove', Raton1.mueveRaton);
 
-   /*document.onkeydown = function(ev){
-      keydown(ev);
-   }*/
 }
