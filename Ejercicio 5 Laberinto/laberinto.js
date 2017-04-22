@@ -13,25 +13,22 @@
   'uniform highp mat4 u_NormalMatrix;\n' +
   'uniform highp mat4 u_MvpMatrix;\n' +
   'uniform highp mat4 u_ModelMatrix;\n' +
+
   'varying highp vec2 v_TextureCoord;\n' +
   'varying highp vec3 v_Lighting;\n' +
   
   'void main() {\n' +
-  '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
-  '  v_TextureCoord = a_TextureCoord;\n' +
+      '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
+      '  v_TextureCoord = a_TextureCoord;\n' +
 
-  '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-  '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
-  '  highp vec3 pointLightPosition = (u_LightPosition);\n' +
-  //'  highp vec3 inverse = vec3(-1.0,-1.0,-1.0);\n' +
-  //'  highp vec3 pointLightPosition = vec3(1.0, -10.0, 0.0);\n' +
-
-  '  vec4 vertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
-   '  highp vec3 lightDirection =  normalize(vec3(vertexPosition) - pointLightPosition);\n' +
-  '  highp vec4 transformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
-  '  highp float directionalW = max(dot(transformedNormal.xyz, lightDirection), 0.0);\n' +
-
-  '  v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+      '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+      '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
+      '  highp vec3 pointLightPosition = (u_LightPosition);\n' +
+      '  vec4 vertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
+      '  highp vec3 lightDirection =  normalize(vec3(vertexPosition) - pointLightPosition);\n' +
+      '  highp vec4 transformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
+      '  highp float directionalW = max(dot(transformedNormal.xyz, lightDirection), 0.0);\n' +
+      '  v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
   '}\n';
 
 // Fragment shader program
@@ -40,8 +37,8 @@ var FSHADER_SOURCE =
   'varying highp vec2 v_TextureCoord;\n' +
   'uniform sampler2D u_Sampler;\n' +
   'void main() {\n' +
-  '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-  '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+      '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+      '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
 '}\n';
 
 
@@ -432,14 +429,14 @@ function initFloorBuffers(myBuffers,gl) {
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesBuffer);
    //suelo
    var floorVertices = new Float32Array([
-      -1.0,  -1.0, 0,
+     /* -1.0,  -1.0, 0,
      -1.0,   1.0, 0,
       1.0,   1.0, 0,
-      1.0,  -1.0, 0
-      /*
+      1.0,  -1.0, 0*/
+      
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
-      */
+      
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, floorVertices, gl.STATIC_DRAW);
@@ -448,12 +445,12 @@ function initFloorBuffers(myBuffers,gl) {
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesNormalBuffer);
 
    var vertexNormals = new Float32Array([
-      -1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0,  1.0,  1.0,
-       -1.0,  1.0,  1.0
-     /* 
+     // -1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0,  1.0,  1.0,
+      // -1.0,  1.0,  1.0
+     
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
-*/
+
    ]);
 
   gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
@@ -465,8 +462,8 @@ function initFloorBuffers(myBuffers,gl) {
 
    var textureCoordinates = new Float32Array([
 
-      0.0,  0.0,     50,  50,    0.0,  50,   50,  0.0
-/*
+     // 0.0,  0.0,     50,  50,    0.0,  50,   50,  0.0
+
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0,  // Front
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0  //Botom*/
   
@@ -478,8 +475,8 @@ function initFloorBuffers(myBuffers,gl) {
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[0].VerticesIndicesBuffer);
 
    var floorVerticesIndices = new Uint16Array([
-     0,  1,  2,      0,  2,  3
-     // 0,1,2,  3,4,5 //floor
+     //0,  1,  2,      0,  2,  3
+      0,1,2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
 
@@ -494,13 +491,6 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesBuffer);
 
    var vertices = new Float32Array([
-
-   /*  -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
-    -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
-    -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
-    -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
-     1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
-    -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0   */ // Left face
 
       -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
@@ -518,14 +508,7 @@ function initCuboBuffers(myBuffers,gl){
 
    var vertexNormals = new Float32Array([
 
-   /*  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,   // Front face
-     0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,   // Back face
-     0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,   // Top face
-     0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,   // Bottom face
-     1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,   // Right face
-    -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0 */
-   
-     -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+      -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
       -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
       -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
@@ -544,14 +527,7 @@ function initCuboBuffers(myBuffers,gl){
 
    var textureCoordinates = new Float32Array([
 
-   /* 0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Front
-    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Back
-    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Top
-    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Bottom
-    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0, // Right
-    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0 // Left
-    */
-     0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
+      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Back
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Top
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Bottom
@@ -566,11 +542,6 @@ function initCuboBuffers(myBuffers,gl){
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[1].VerticesIndicesBuffer);
 
    var cubeVertexIndices = new Uint16Array([
-
-   //   0,  1,  2,      0,  2,  3,  /*Front*/ 4,  5,  6,    4,  6,  7,  //Back
-   // 8,  9,  10,     8,  10, 11, /*Top*/   12, 13, 14,   12, 14, 15, //Bottom
-   // 16, 17, 18,     16, 18, 19, /*Right*/ 20, 21, 22,   20, 22, 23  //Left
-
 
       0,  1,  2,      0,  2,  3,    // front
       4,  5,  6,      4,  6,  7,    // back
