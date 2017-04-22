@@ -1,32 +1,12 @@
 // Miguel Ángel Alba Blanco ISAM
 
-var TORAD = Math.pi/180;
-
-
-var canvas;
-var gl;
-//var u_MvpMatrix;
-
-var myScene = [];
-var myBuffers = [];
-
-//var modelMatrix = []; // Model matrix
-var viewMatrix = new Matrix4();  // View matrix
-var projMatrix = new Matrix4();  // Projection matrix
-var mvpMatrix = new Matrix4();   // Model view projection matrix
-
-
-var myMaze = new Maze(MAZESZ);
-var canvas2d = document.getElementById('2d');
-var ctx_2d = canvas2d.getContext("2d");
-
+ //Shader con textura
 
    var VSHADER_SOURCE =
   'attribute highp vec3 a_VertexPosition;\n' +
   'attribute highp vec2 a_TextureCoord;\n' +
   'attribute highp vec3 a_VertexNormal;\n' +
 
-  'uniform highp vec3 u_LightPosition;\n' +
   'uniform highp mat4 u_NormalMatrix;\n' +
   'uniform highp mat4 u_MvpMatrix;\n' +
   'uniform highp mat4 u_ModelMatrix;\n' +
@@ -49,20 +29,26 @@ var FSHADER_SOURCE =
   '  varying highp vec4 v_TransformedNormal;\n' +
 
   '  uniform highp vec4 u_LightPosition;\n' +
+  //'  varying highp vec3 v_Lighting;\n' +
 
-  'uniform sampler2D u_Sampler;\n' +
-
+  'uniform sampler2D u_Sampler;\n' + 
 
 
   'void main() {\n' +
-      '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-      '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
-      '  highp vec4 pointLightPosition = (u_LightPosition);\n' +
-      '  highp vec3 lightDirection = normalize((pointLightPosition - v_VertexPosition).xyz);\n' +
-      '  highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
-      '  highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' + //
-      '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-      '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+  '  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+  '  highp vec3 directionalLightColor = vec3(1.0, 1.0, 1.0);\n' +
+
+  '  highp vec4 pointLightPosition = (u_LightPosition);\n' +
+  '  highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
+
+  '  highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
+
+  '   highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+
+
+  '  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+
+  '  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
   '}\n';
 
 
@@ -150,12 +136,11 @@ function Raton(){
       if ((that.mouse.x) > (that.mouseantesx)) {
 
          camara1.moveAngle = camara1.moveAngle - 5;
-         camara1.angle = camara1.moveAngle * Math.PI/180;
+         camara1.angle = camara1.moveAngle *  Math.PI/180;
 
       }else if ((that.mouse.x) < (that.mouseantesx)) {
 
          camara1.moveAngle = camara1.moveAngle + 5;
-         //camara1.moveAngle = checkAngle(camara1.moveAngle + 5,"x");
          camara1.angle = camara1.moveAngle * Math.PI/180;
       }
 
@@ -212,9 +197,12 @@ function getShape(array,id) {
   }
 }
 
-function drawScene(){
+function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
+   requestAnimationFrame(drawScene);
 
-   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+   function drawScene(){
+
+     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
    var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
 
@@ -250,17 +238,17 @@ function drawScene(){
       gl.uniformMatrix4fv(u_ModelMatrix, false, myScene[x].mMatrix.elements);
       gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
 
-      lightposx = camara1.pasosx + Math.cos(camara1.angle);
-      lightposy = camara1.pasosy + Math.sin(camara1.angle),camara1.alturaOjos + Math.sin(camara1.angley);
-      lightposz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
+      var lightposx = camara1.pasosx;// + Math.cos(camara1.angle);
+      var lightposy = camara1.pasosy;// + Math.sin(camara1.angle) + camara1.alturaOjos + Math.sin(camara1.angley);
+      var lightposz = camara1.alturaOjos;// + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez);
 
      //lightposx= -1*lightposx;
      //lightposy = -1*lightposy;
-      lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos
+      //lightposz = -1*lightposz; // Al invertirlo puedo ver la luz reflejada en los cubos chapuza
 
 
       var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
-      gl.uniform3fv(pointLightPosition,[lightposx,lightposy,lightposz]);
+      gl.uniform4fv(pointLightPosition,[lightposx,lightposy,lightposz,1.0]);
 
       var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
       gl.enableVertexAttribArray(vertexPositionAttribute);
@@ -268,20 +256,12 @@ function drawScene(){
       var textureCoordAttribute = gl.getAttribLocation(gl.program, "a_TextureCoord");
       gl.enableVertexAttribArray(textureCoordAttribute);
       //Luz
-      vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
+      var vertexNormalAttribute = gl.getAttribLocation(gl.program, "a_VertexNormal");
       gl.enableVertexAttribArray(vertexNormalAttribute);
 
       gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[y].VerticesNormalBuffer);
+
       gl.vertexAttribPointer(vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-
-      var normalMatrix = new Matrix4();
-      normalMatrix.set(mMatrix);
-      normalMatrix.invert();
-      normalMatrix.transpose();
-      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");
-      gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
-
       gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesBuffer);
       gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
@@ -294,15 +274,27 @@ function drawScene(){
 
       gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
 
-
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
+
+
+      var normalMatrix = new Matrix4();
+      normalMatrix.set(mMatrix);
+      normalMatrix.invert();
+      normalMatrix.transpose();
+      var nUniform = gl.getUniformLocation(gl.program, "u_NormalMatrix");
+      gl.uniformMatrix4fv(nUniform, false, normalMatrix.elements);
+
+      
+
+
       gl.drawElements(gl.TRIANGLES, myBuffers[y].numIndices, gl.UNSIGNED_SHORT, 0);
 
-
+      }
    }
 }
 
-function rndPosition(){
+
+function rndPosition(myMaze){
 
    var position = new Array();
    var i;
@@ -326,7 +318,7 @@ function rndPosition(){
 
 }
 
-function ponerCuboLaberinto(myMaze){
+function ponerCuboLaberinto(myMaze,myScene){
    var n = 1; //Empiezo en uno para que al empezar nose cargue el suelo
    for (var i = 0; i < myMaze.rooms.length; i++){
       for (var j = 0; j < myMaze.rooms.length; j++){
@@ -351,7 +343,7 @@ function ponerCuboLaberinto(myMaze){
    }
 }
 
-function checkCubo(posx,posy){
+function checkCubo(posx,posy,myMaze){
    if(myMaze.rooms[posx][posy] === false){
       return true;
    }else{
@@ -373,78 +365,88 @@ function mueveRaton(captura){
 
    }
 }
+function argumentsToMove(myMaze,ctx_2d){
+   document.onkeydown = function(ev){
+      keydown(ev);
+   }
+   function keydown(ev){
+      var futuropasosx;
+      var futuropasosy;
+      switch(ev.keyCode){
+         case 65:  //Right
 
-function keydown(ev){
-   var futuropasosx;
-   var futuropasosy;
-   switch(ev.keyCode){
-      case 65:  //Right
+            //camara1.moveAngle = camara1.moveAngle + 2;
 
-         camara1.moveAngle = camara1.moveAngle + 2;
+            //camara1.angle = camara1.moveAngle*Math.PI/180;
 
-         camara1.angle = camara1.moveAngle*Math.PI/180;
+            break;
+         case 68:  //Left
 
-         break;
-      case 68:  //Left
+            //camara1.moveAngle = camara1.moveAngle - 2;
+            //camara1.angle = camara1.moveAngle*Math.PI/180;
 
-         camara1.moveAngle = camara1.moveAngle - 2;
-         camara1.angle = camara1.moveAngle*Math.PI/180;
+            break;
+         case 87: //Up
+            myMaze.rooms;
+            futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+            futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
-         break;
-      case 87: //Up
+            if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
 
-         futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
-         futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
-         console.log ("futurospasosx:" + futuropasosx);
-         console.log ("futurospasosy:" + futuropasosy);
-         if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2)) === false)){
+               if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze) === false) &&
+                  (checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
 
-            camara1.anglez = camara1.anglez + 1;
-            camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
-            camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+                  camara1.anglez = camara1.anglez + 1;
+                  camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
+                  camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+                  myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+                  myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
+                  myMaze.draw(ctx_2d, 0, 0, 5, 0);
+               }
+            }
 
-            console.log ("pasosx:" + camara1.pasosx);
-            console.log ("pasosy:" + camara1.pasosy);
+            break;
+         case 83: //Down
 
-            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
-            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
-            myMaze.draw(ctx_2d, 0, 0, 5, 0)
-         }
+            futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+            futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-         break;
-      case 83: //Down
+            if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2),myMaze) === false)){
 
-         futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
-         futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+               if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze) === false) &&
+                  (checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
 
-         if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2)) === false)){
-            camara1.anglez = camara1.anglez - 1;
-            camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
-            camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+                  camara1.anglez = camara1.anglez - 1;
+                  camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
+                  camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+                  myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
+                  myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
+                  myMaze.draw(ctx_2d, 0, 0, 5, 0);
+               }
+            }
 
-            myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
-            myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
-            myMaze.draw(ctx_2d, 0, 0, 5, 0);
-         }
-
-         break;
-      default: return;
-  }
-
+            break;
+         default: return;
+     }
+   }
 }
 
-function initFloorBuffers() {
+function initFloorBuffers(myBuffers,gl) {
 
    //objfloorvar1.n = objfloorvar1.n+1;
 
    myBuffers[0].VerticesBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesBuffer);
-   //pino
+   //suelo
    var floorVertices = new Float32Array([
-
+      -1.0,  -1.0, 0,
+     -1.0,   1.0, 0,
+      1.0,   1.0, 0,
+      1.0,  -1.0, 0
+      /*
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0,  //t2 derecho
-
+      */
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, floorVertices, gl.STATIC_DRAW);
@@ -453,15 +455,15 @@ function initFloorBuffers() {
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesNormalBuffer);
 
    var vertexNormals = new Float32Array([
+      -1.0, -1.0,  1.0, 1.0, -1.0, 1.0,  1.0,  1.0,  1.0,
+       -1.0,  1.0,  1.0
+     /* 
       -1.0, -1.0, 0.0,  1.0, -1.0, 0.0, -1.0, 1.0, 0.0, //t1 izquierdo
        1.0, -1.0, 0.0, -1.0,  1.0, 0.0,  1.0, 1.0, 0.0  //t2 derecho
-
+*/
    ]);
 
   gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
-
-
-
 
 
    myBuffers[0].VerticesTextureCoordBuffer = gl.createBuffer();
@@ -470,8 +472,11 @@ function initFloorBuffers() {
 
    var textureCoordinates = new Float32Array([
 
+      0.0,  0.0,     50,  50,    0.0,  50,   50,  0.0
+/*
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0,  // Front
       0.0,  0.0,     50.0,  0.0,     50.0,  50.0,     0.0,  50.0  //Botom*/
+  
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -480,7 +485,8 @@ function initFloorBuffers() {
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[0].VerticesIndicesBuffer);
 
    var floorVerticesIndices = new Uint16Array([
-      0,1,2,  3,4,5 //floor
+     0,  1,  2,      0,  2,  3
+     // 0,1,2,  3,4,5 //floor
    ])
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
 
@@ -488,19 +494,28 @@ function initFloorBuffers() {
 
 
 
-function initCuboBuffers(){
+function initCuboBuffers(myBuffers,gl){
 
    myBuffers[1].VerticesBuffer = gl.createBuffer();
 
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesBuffer);
 
    var vertices = new Float32Array([
+
+   /*  -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+    -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
+    -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
+    -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
+     1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
+    -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0   */ // Left face
+
       -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
       -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
       -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
        1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
       -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0    // Left face
+        
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -510,27 +525,46 @@ function initCuboBuffers(){
 
    var vertexNormals = new Float32Array([
 
-      
-      -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
+     0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,   // Front face
+     0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,   // Back face
+     0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,   // Top face
+     0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,   // Bottom face
+     1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,  1.0,  0.0,  0.0,   // Right face
+    -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0, -1.0,  0.0,  0.0 
+   /*
+     -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,  1.0,   // Front face
       -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0, -1.0,   // Back face
       -1.0,  1.0, -1.0, -1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0,   // Top face
       -1.0, -1.0, -1.0,  1.0, -1.0, -1.0,  1.0, -1.0,  1.0, -1.0, -1.0,  1.0,   // Bottom face
        1.0, -1.0, -1.0,  1.0,  1.0, -1.0,  1.0,  1.0,  1.0,  1.0, -1.0,  1.0,   // Right face
-      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0
+      -1.0, -1.0, -1.0, -1.0, -1.0,  1.0, -1.0,  1.0,  1.0, -1.0,  1.0, -1.0*/
    ]);
 
-  gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
+   gl.bufferData(gl.ARRAY_BUFFER, vertexNormals, gl.STATIC_DRAW);
+
+
+
+
 
    myBuffers[1].VerticesTextureCoordBuffer = gl.createBuffer();
    gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[1].VerticesTextureCoordBuffer);
 
    var textureCoordinates = new Float32Array([
-      0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
+
+   /* 0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Front
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Back
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Top
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0,  // Bottom
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0, // Right
+    0.0,  0.0,     1,  1,    0.0,  1,   1,  0.0 // Left
+    */
+     0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Front
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Back
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Top
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Bottom
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0,  // Right
       0.0,  0.0,     1.0,  0.0,     1.0,  1.0,     0.0,  1.0   // Left
+   
    ]);
 
    gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
@@ -539,19 +573,25 @@ function initCuboBuffers(){
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, myBuffers[1].VerticesIndicesBuffer);
 
    var cubeVertexIndices = new Uint16Array([
-      0,  1,  2,      0,  2,  3,    // front
+
+      0,  1,  2,      0,  2,  3,  /*Front*/ 4,  5,  6,    4,  6,  7,  //Back
+    8,  9,  10,     8,  10, 11, /*Top*/   12, 13, 14,   12, 14, 15, //Bottom
+    16, 17, 18,     16, 18, 19, /*Right*/ 20, 21, 22,   20, 22, 23  //Left
+
+
+      /*0,  1,  2,      0,  2,  3,    // front
       4,  5,  6,      4,  6,  7,    // back
       8,  9,  10,     8,  10, 11,   // top
       12, 13, 14,     12, 14, 15,   // bottom
       16, 17, 18,     16, 18, 19,   // right
-      20, 21, 22,     20, 22, 23    // left
+      20, 21, 22,     20, 22, 23    // left*/
    ]);
 
    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndices, gl.STATIC_DRAW);
 
    }
 
-function initTextures(y,imagen) {
+function initTextures(y,imagen,myBuffers,gl) {
 
    myBuffers[y].Texture = gl.createTexture();
    console.log(myBuffers[y].Texture);
@@ -561,11 +601,11 @@ function initTextures(y,imagen) {
               new Uint8Array([0, 0, 255, 255])); //esto se puede borrar
 
    var image = new Image();
-   image.onload = function() { handleTextureLoaded(y,image); }
+   image.onload = function() { handleTextureLoaded(y,image,myBuffers,gl); }
    image.src = "resources/" + imagen;
 }
 
-function handleTextureLoaded(y,image) {
+function handleTextureLoaded(y,image,myBuffers,gl) {
    console.log("handleTextureLoaded, image = " + image);
 
    gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
@@ -592,14 +632,12 @@ function main() {
    var pos = new Array();
    pos.x = 0.0;
    pos.y = 0.0
-   //var pasosx = 0.0;
-   //var pasosy = 0.0;
    var speed = 0.08;
    var moveAngle = 0;
    var alturaOjos = 0.50;
    var anglez = 0.0;
 
-   //Variables buffer texturas pino
+   //Variables buffer texturas
 
    var Texture;
    var VerticesBuffer
@@ -607,17 +645,24 @@ function main() {
    var VerticesIndicesBuffer;
    var VerticesNormalBuffer;
 
+   //Variables de Matrices
+   var viewMatrix = new Matrix4();  // View matrix
+   var projMatrix = new Matrix4();  // Projection matrix
+   var mvpMatrix = new Matrix4();   // Model view projection matrix
+
    //Arrays
-   //var myBuffers = [];
+   var myBuffers = [];
+   var myScene = [];
 
-   //var myScene = [];
-
+   //Variable laberinto
+   var myMaze = new Maze(MAZESZ);
 
    //Variables canvas
    var canvas = document.getElementById('webgl');
+   var canvas2d = document.getElementById('2d');
+   var ctx_2d = canvas2d.getContext("2d");
+   var gl = getWebGLContext(canvas);
 
-
-   gl = getWebGLContext(canvas);
 
    if (!gl) {
       console.log('Failed to get the rendering context for WebGL');
@@ -629,9 +674,6 @@ function main() {
       console.log('Failed to intialize shaders.');
       return;
    }
-
-
-
 
   // Specify the color for clearing <canvas>
 
@@ -647,20 +689,20 @@ function main() {
 
    myMaze.randPrim(new Pos(0, 0));
 
-   pos = rndPosition();
+   pos = rndPosition(myMaze);
 
    pos.x = pos.x + 1/2;
    pos.y = pos.y + 1/2;
 
-   myMaze.pos.x = pos.x;
-   myMaze.pos.y = pos.y;
+   myMaze.pos.x = Math.round(pos.x - 1/2);
+   myMaze.pos.y = Math.round(pos.y - 1/2);
 
    myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
    camara1 = new camara(pasos,angle,pos.x,pos.y,speed,moveAngle,alturaOjos,anglez);
    //Meto el buffer de suelo
    myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
-   //Meto el buffer de pino
+   //Meto el buffer de cubo
    myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 
 
@@ -671,27 +713,20 @@ function main() {
 
    myScene.push(new Floor(mMatrix));
 
-
-
-
-
-   ponerCuboLaberinto(myMaze);
+   ponerCuboLaberinto(myMaze,myScene);
    //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
 
-   initCuboBuffers();
-   initFloorBuffers();
+   initCuboBuffers(myBuffers,gl);
+   initFloorBuffers(myBuffers,gl);
 
-   initTextures(0,"cobblestone.png");//Inicializo las texturas de suelo
-   initTextures(1,"brick.png");// Inicializo las texturas de pino
+   initTextures(0,"cobblestone.png",myBuffers,gl);//Inicializo las texturas de suelo
+   initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de cubo
 
    Raton1 = new Raton();
 
-   drawScene();
+   argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl);
+   argumentsToMove(myMaze,ctx_2d);
+   //drawScene();
    document.addEventListener('mousemove', Raton1.mueveRaton);
 
-
-
-   document.onkeydown = function(ev){
-      keydown(ev);
-   }
 }
