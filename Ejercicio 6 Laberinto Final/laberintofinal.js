@@ -87,18 +87,24 @@ function floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
 
 function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 
-	 this.id = "C1"
-	 this.pasos = pasos;
-	 this.angle = angle;
-	 this.angley = 0;
-	 this.pasosx = pasosx;
-	 this.pasosy = pasosy;
-	 this.speed = speed;
-	 this.moveAngle = moveAngle;
-	 this.moveAngley = 0;
-	 this.alturaOjos = alturaOjos;
-	 this.anglez = anglez;
+	this.id = "C1"
+	this.pasos = pasos;
+	this.angle = angle;
+	this.angley = 0;
+	this.moveAngle = moveAngle;
+	this.moveAngley = 0;
+	this.alturaOjos = alturaOjos;
+	this.anglez = anglez;
+	this.pasosx = pasosx;
+	this.pasosy = pasosy;
 
+	that = this;
+	this.viewx = that.pasosx+Math.cos(that.angle)
+	this.viewy = that.pasosy+Math.sin(that.angle)
+	this.viewz = that.alturaOjos+Math.sin(that.angley) + 0.02*Math.sin(that.anglez)
+
+	this.speed = speed;
+	
  }
 
 
@@ -155,6 +161,11 @@ function Raton(){
 				 camara1.angley = camara1.moveAngley * Math.PI/180;
 
 			}
+
+			camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
+			camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
+			camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
+
 
 			that.mouseantesx = captura.pageX
 			that.mouseantesy = captura.pageY
@@ -224,8 +235,10 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
 
 	 for (x in myScene){
 
-			viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
-									camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
+	 	viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.viewx,camara1.viewy,camara1.viewz, 0,0,1);
+
+		//	viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
+		//							camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
 
 
 			//lamada a los buffers para pintar con texturas
@@ -393,6 +406,10 @@ function argumentsToMove(myMaze,ctx_2d){
 									camara1.anglez = camara1.anglez + 1;
 									camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
 									camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
+
+									camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
+									camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
+									camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
 									myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 									myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
 									myMaze.draw(ctx_2d, 0, 0, 5, 0);
@@ -413,6 +430,10 @@ function argumentsToMove(myMaze,ctx_2d){
 									camara1.anglez = camara1.anglez - 1;
 									camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
 									camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
+
+									camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
+									camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
+									camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
 									myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 									myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
 									myMaze.draw(ctx_2d, 0, 0, 5, 0);
