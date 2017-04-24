@@ -35,7 +35,7 @@ var FSHADER_SOURCE =
 
 
 	'void main() {\n' +
-	'  highp vec3 ambientLight = vec3(0.0, 0.0, 0.0);\n' +
+	'  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
 	'  highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
 
 	'  highp vec4 pointLightPosition = (u_LightPosition);\n' +
@@ -97,13 +97,14 @@ function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 	this.anglez = anglez;
 	this.pasosx = pasosx;
 	this.pasosy = pasosy;
+	this.caminar = 1;
 
 	that = this;
-	this.viewx = that.pasosx+Math.cos(that.angle)
-	this.viewy = that.pasosy+Math.sin(that.angle)
-	this.viewz = that.alturaOjos+Math.sin(that.angley) + 0.02*Math.sin(that.anglez)
+	this.viewx = that.pasosx + Math.cos(that.angle)
+	this.viewy = that.pasosy + Math.sin(that.angle)
+	this.viewz = that.alturaOjos + Math.sin(that.angley) + 0.02*Math.sin(that.anglez) * that.caminar;
 
-	this.speed = speed;
+	this.speed = speed;;
 	
  }
 
@@ -123,53 +124,50 @@ function Cubo(x,y,z,mMatrix){
 	 this.mMatrix = mMatrix;
 }
 
-function Raton(){
+function Raton(topOjos){
 
-	 this.mouse = new Array();
-	 this.mouseantesx = 0;
-	 this.mouseantesy = 0;
-	 this.mouse.x = 0;
-	 this.mouse.y = 0;
-	 that = this;
-	 this.mueveRaton = function(captura){
+	this.mouse = new Array();
+	this.mouseantesx = 0;
+	this.mouseantesy = 0;
+	this.mouse.x = 0;
+	this.mouse.y = 0;
+	that = this;
+	this.mueveRaton = function(captura){
 
-			//console.log("posxraton:" + this.mouse.x, this.mouse.y);
+		//console.log("posxraton:" + this.mouse.x, this.mouse.y);
 
-			//En esta parte los ejes los considero en 2d con los del canvas
-			that.mouse.x = captura.pageX;
-			that.mouse.y = captura.pageY;
+		//En esta parte los ejes los considero en 2d con los del canvas
+		that.mouse.x = captura.pageX;
+		that.mouse.y = captura.pageY;
+		if ((that.mouse.x) > (that.mouseantesx)) {
+			camara1.moveAngle = camara1.moveAngle - 5;
+			camara1.angle = camara1.moveAngle *  Math.PI/180;
 
-			if ((that.mouse.x) > (that.mouseantesx)) {
+		}else if ((that.mouse.x) < (that.mouseantesx)) {
 
-				 camara1.moveAngle = camara1.moveAngle - 5;
-				 camara1.angle = camara1.moveAngle *  Math.PI/180;
-
-			}else if ((that.mouse.x) < (that.mouseantesx)) {
-
-				 camara1.moveAngle = camara1.moveAngle + 5;
-				 camara1.angle = camara1.moveAngle * Math.PI/180;
+			camara1.moveAngle = camara1.moveAngle + 5;
+			camara1.angle = camara1.moveAngle * Math.PI/180;
 			}
-
+			console.log(topOjos);
+		if (topOjos === camara1.alturaOjos){
 			if ((that.mouse.y) > (that.mouseantesy)) {
 
-				 camara1.moveAngley = checkAngle(camara1.moveAngley - 5,"y");
-				 camara1.angley = camara1.moveAngley * Math.PI/180;
+				camara1.moveAngley = checkAngle(camara1.moveAngley - 5,"y");
+				camara1.angley = camara1.moveAngley * Math.PI/180;
 
 			}else if ((that.mouse.y) < (that.mouseantesy)){
 
-				 camara1.moveAngley = checkAngle(camara1.moveAngley + 5,"y");
-				 camara1.angley = camara1.moveAngley * Math.PI/180;
+				camara1.moveAngley = checkAngle(camara1.moveAngley + 5,"y");
+				camara1.angley = camara1.moveAngley * Math.PI/180;
 
 			}
-
-			camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
-			camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
-			camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
-
-
-			that.mouseantesx = captura.pageX
-			that.mouseantesy = captura.pageY
-	 }
+		}
+				cameraView();
+		console.log("Ángulo de la camara: "+camara1.angley);
+				that.mouseantesx = captura.pageX
+				that.mouseantesy = captura.pageY
+			
+	}
 
 }
 
@@ -208,7 +206,16 @@ function getShape(array,id) {
 	}
 }
 
-function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
+function cameraView(){
+
+	camara1.viewx = camara1.pasosx + Math.cos(camara1.angle);
+	camara1.viewy = camara1.pasosy + Math.sin(camara1.angle);
+	camara1.viewz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez) * camara1.caminar;
+
+
+}
+
+function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl,alturaLuz){
 	 requestAnimationFrame(drawScene);
 
 	 function drawScene(){
@@ -255,7 +262,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl){
 
 			var lightposx = camara1.pasosx;
 			var lightposy = camara1.pasosy;
-			var lightposz = camara1.alturaOjos;
+			var lightposz = alturaLuz;
 
 			var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
 			gl.uniform4fv(pointLightPosition,[lightposx,lightposy,lightposz,1.0]);
@@ -369,10 +376,11 @@ function mueveRaton(captura){
 	 if ((mouse.x) > 0) {
 			camara1.moveAngle = camara1.moveAngle + 2;
 			camara1.angle = camara1.moveAngle*Math.PI/180;
+			camara1.anglez = 1;
 
 	 }
 }
-function argumentsToMove(myMaze,ctx_2d){
+function argumentsToMove(myMaze,ctx_2d,alturaOjos){
 	 document.onkeydown = function(ev){
 			keydown(ev);
 	 }
@@ -406,10 +414,8 @@ function argumentsToMove(myMaze,ctx_2d){
 									camara1.anglez = camara1.anglez + 1;
 									camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
 									camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
-
-									camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
-									camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
-									camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
+									cameraView();
+									
 									myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 									myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
 									myMaze.draw(ctx_2d, 0, 0, 5, 0);
@@ -431,9 +437,11 @@ function argumentsToMove(myMaze,ctx_2d){
 									camara1.pasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
 									camara1.pasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-									camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
+									cameraView();
+
+									/*camara1.viewx = camara1.pasosx+Math.cos(camara1.angle)
 									camara1.viewy = camara1.pasosy+Math.sin(camara1.angle)
-									camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)
+									camara1.viewz = camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez)*/
 									myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 									myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
 									myMaze.draw(ctx_2d, 0, 0, 5, 0);
@@ -441,7 +449,26 @@ function argumentsToMove(myMaze,ctx_2d){
 						}
 
 						break;
+				case 50:
+					camara1.alturaOjos = 5;
+					console.log("anngulo antes"+camara1.angley);
+
+					cameraViewz = camara1.viewx + camara1.viewy;
+					camara1.angley = -90*Math.PI/180;
+					camara1.caminar = 0;
+					cameraView();
+						//				console.log("anngulo antes"+camara1.angley);
+
+					break;
+				case 49: 
+					camara1.alturaOjos = alturaOjos;
+					camara1.angley = Math.PI/180;
+					camara1.caminar = 1;
+					cameraView();
+
+					break;
 				 default: return;
+
 		 }
 	 }
 }
@@ -622,9 +649,11 @@ function main() {
 	 pos.y = 0.0
 	 var speed = 0.08;
 	 var moveAngle = 0;
-	 var alturaOjos = 0.50;
+	 const alturaOjos = 0.50;
 	 var anglez = 0.0;
 
+	//variables luz
+	const alturaLuz = alturaOjos;
 	 //Variables buffer texturas
 
 	 var Texture;
@@ -694,7 +723,7 @@ function main() {
 	 myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 
 
-	 projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 10);
+	 projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 100);
 
 	 mMatrix = new Matrix4();
 	 mMatrix.scale(LABERINTOX,LABERINTOY,1);
@@ -710,10 +739,10 @@ function main() {
 	 initTextures(0,"cobblestone.png",myBuffers,gl);//Inicializo las texturas de suelo
 	 initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de cubo
 
-	 Raton1 = new Raton();
+	 Raton1 = new Raton(alturaOjos);
 
-	 argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl);
-	 argumentsToMove(myMaze,ctx_2d);
+	 argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl,alturaLuz);
+	 argumentsToMove(myMaze,ctx_2d,alturaOjos);
 	 //drawScene();
 	 document.addEventListener('mousemove', Raton1.mueveRaton);
 
