@@ -47,22 +47,25 @@ var FSHADER_SOURCE =
 	'  uniform highp vec4 u_LightPosition;\n' +
 	//'  varying highp vec3 v_Lighting;\n' +
 
-	'uniform sampler2D u_Sampler;\n' + 
+	'uniform sampler2D u_image0;\n' +
+  	'uniform sampler2D u_image1;\n' +  
 
 
 	'void main() {\n' +
-	'  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-	'  highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
+		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+		'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
 
-	'  highp vec4 pointLightPosition = (u_LightPosition);\n' +
-	'  highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
+		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
+		'highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
 
-	'  highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
+		'highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
 
-	'   highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
-
-
-	'  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+		'highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+	
+		'highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+		'highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+		
+		'highp vec4 texelColor = color0 * color1;\n' +
 
 	'  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
 	'}\n';
@@ -75,6 +78,7 @@ function maze(){
 	this.myScene = [];
 	this.level = 0;
 	this.size = 20;
+	this.combinedTexture = false;
 
 
 	this.createMaze = function(){
@@ -116,6 +120,10 @@ function floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
 			return this.id;
 	 }
 
+}
+
+function texturacombinada(Texture){
+	this.Texture = Texture;
 }
 
 function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
@@ -315,11 +323,23 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 			gl.bindBuffer(gl.ARRAY_BUFFER,myBuffers[y].VerticesTextureCoordBuffer);
 			gl.vertexAttribPointer(textureCoordAttribute, 2, gl.FLOAT, false, 0, 0);
 
-			//console.log(objfloorvar1.floorTexture);
-			gl.activeTexture(gl.TEXTURE0);
-			gl.bindTexture(gl.TEXTURE_2D,myBuffers[y].Texture);
+			//aquí añado las texturas combinadas
+			var u_image0Location = gl.getUniformLocation(gl.program, "u_image0");
+  			var u_image1Location = gl.getUniformLocation(gl.program, "u_image1");
 
-			gl.uniform1i(gl.getUniformLocation(gl.program, "u_Sampler"), 0);
+ 			gl.activeTexture(gl.TEXTURE0);
+  			gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
+  			gl.activeTexture(gl.TEXTURE1);
+
+  			if (mazes[0].combinedTexture === true){
+  				console.log("activo la textura combinada");
+  				var n = 2; //el 2 es la posición en la que está guardada la textura;
+  			}else{ n = y; }
+  			
+  			gl.bindTexture(gl.TEXTURE_2D, myBuffers[n].Texture);
+  			gl.uniform1i(u_image0Location, 0);
+  			gl.uniform1i(u_image1Location, 1);
+
 
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
 
@@ -675,6 +695,7 @@ function checkLevel(mazes){
 			mazes[0].size = 25;
 			break;
 		case 2:
+			mazes[0].combinedTexture = true;
 
 		default: return;
 	}
@@ -798,6 +819,7 @@ function main() {
 	myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 	//Meto el buffer de cubo
 	myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
+	myBuffers.push(new texturacombinada(Texture));
 
 
 	projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 100);
@@ -814,6 +836,7 @@ function main() {
 
 	initTextures(0,"cobblestone.png",myBuffers,gl);//Inicializo las texturas de suelo
 	initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de cubo
+	initTextures(2,"verde256.jpg",myBuffers,gl);//Inicio la textura que quiero combinar
 
 	Raton1 = new Raton(alturaOjos);
 
