@@ -490,6 +490,16 @@ function argumentsToMove(myMaze,ctx_2d,alturaOjos,myScene){
 						//console.log("anngulo antes"+camara1.angley);
 
 					break;
+				case 51:
+					camara1.alturaOjos = 1;
+					console.log("anngulo antes"+camara1.angley);
+
+					cameraViewz = camara1.viewx + camara1.viewy;
+					camara1.angley = -90*Math.PI/180;
+					camara1.caminar = 0;
+					cameraView();
+
+					break;
 				case 49: 
 					camara1.alturaOjos = alturaOjos;
 					camara1.angley = Math.PI/180;
