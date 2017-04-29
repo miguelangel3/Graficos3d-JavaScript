@@ -1,5 +1,21 @@
 // Miguel Ángel Alba Blanco ISAM
 
+//Constantes de la cámara
+const LABERINTOX = 50,LABERINTOY = 50;
+const NUMCUBOS = 50;
+const pasos = 0.0;
+const angle = 0.0;
+const speed = 0.08;
+const moveAngle = 0;
+const alturaOjos = 0.50;
+const anglez = 0.0;
+
+
+const canvas = document.getElementById('webgl');
+const canvas2d = document.getElementById('2d');
+const ctx_2d = canvas2d.getContext("2d");
+const gl = getWebGLContext(canvas);
+
  //Shader con textura
 
 	 var VSHADER_SOURCE =
@@ -103,7 +119,6 @@ function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 	this.viewx = that.pasosx + Math.cos(that.angle)
 	this.viewy = that.pasosy + Math.sin(that.angle)
 	this.viewz = that.alturaOjos + Math.sin(that.angley) + 0.02*Math.sin(that.anglez) * that.caminar;
-
 	this.speed = speed;;
 	
  }
@@ -148,7 +163,6 @@ function Raton(topOjos){
 			camara1.moveAngle = camara1.moveAngle + 5;
 			camara1.angle = camara1.moveAngle * Math.PI/180;
 			}
-			console.log(topOjos);
 		if (topOjos === camara1.alturaOjos){
 			if ((that.mouse.y) > (that.mouseantesy)) {
 
@@ -163,7 +177,6 @@ function Raton(topOjos){
 			}
 		}
 				cameraView();
-		console.log("Ángulo de la camara: "+camara1.angley);
 				that.mouseantesx = captura.pageX
 				that.mouseantesy = captura.pageY
 			
@@ -357,21 +370,29 @@ function ponerCuboLaberinto(myMaze,myScene){
 	 }
 }
 
-function checkCubo(posx,posy,myMaze){
-	 if(myMaze.rooms[posx][posy] === false){
+function checkCubo(posx,posy,myMaze,ctx_2d,myScene){
+	if (posx === 0 & posy === 0){
+
+		console.log("HAS llegado al final del laberinto");
+		changeLevel(myMaze,ctx_2d,myScene);
+
+	}else{
+
+		if(myMaze.rooms[posx][posy] === false){
 			return true;
-	 }else{
+		}else{
 			return false;
-	 }
+		}
+	}
 }
-function move (signo){
+function cameraMove (signo){
 	camara1.anglez = camara1.anglez + signo;
 	camara1.pasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle)*signo;
 	camara1.pasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle)*signo;
 
 }
 
-function argumentsToMove(myMaze,ctx_2d,alturaOjos){
+function argumentsToMove(myMaze,ctx_2d,alturaOjos,myScene){
 	 document.onkeydown = function(ev){
 			keydown(ev);
 	 }
@@ -397,12 +418,12 @@ function argumentsToMove(myMaze,ctx_2d,alturaOjos){
 					futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
 					futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
-					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
+					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),myMaze,ctx_2d,myScene) === false)){
 
-					   if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze) === false) &&
-									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
+					   if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze,ctx_2d,myScene) === false) &&
+									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze,ctx_2d,myScene) === false)){
 
-							move(1);
+							cameraMove(1);
 							cameraView();
 							myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 							myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
@@ -416,12 +437,12 @@ function argumentsToMove(myMaze,ctx_2d,alturaOjos){
 					futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
 					futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2),myMaze) === false)){
+					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2),myMaze,ctx_2d,myScene) === false)){
 
-						if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze) === false) &&
-									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze) === false)){
-						 	move(-1);
-							cameraView();
+						if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),myMaze,ctx_2d,myScene) === false) &&
+									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),myMaze,ctx_2d,myScene) === false)){
+						 	cameraMove(-1); 
+							cameraView(); 
 							myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
 							myMaze.pos.y = Math.round(camara1.pasosy - 1/2);
 							myMaze.draw(ctx_2d, 0, 0, 5, 0);
@@ -601,25 +622,79 @@ function handleTextureLoaded(y,image,myBuffers,gl) {
 
 }
 
+function resetCamera(posx,posy){
+
+	camara1.pasos = pasos;
+	camara1.angle = angle;
+	camara1.angley = 0;
+	camara1.moveAngle = moveAngle;
+	camara1.moveAngley = 0;
+	camara1.alturaOjos = alturaOjos;
+	camara1.anglez = anglez;
+	camara1.pasosx = posx;
+	camara1.pasosy = posy;
+	camara1.caminar = 1;
+	camara1.speed = speed;
+}
+
+resetMyscene
+
+function changeLevel(myMaze,ctx_2d,myScene){
+
+	console.log("estoy cambiando de nivel");
+
+	gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+	gl.clearDepth(1.0);                 // Clear everything
+	gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
+
+	var pos = new Array();
+	pos.x = 0.0;
+	pos.y = 0.0;
+	myMaze = new Maze(30);
+	myMaze.randPrim(new Pos(0, 0));
+	
+	pos = rndPosition(myMaze);
+   pos.x = pos.x + 1/2;
+	pos.y = pos.y + 1/2;
+
+	myMaze.pos.x = Math.round(pos.x - 1/2);
+	myMaze.pos.y = Math.round(pos.y - 1/2);
+
+	myMaze.draw(ctx_2d, 0, 0, 5, 0);
+
+	resetCamera(pos.x,pos.y);
+	//Reset myyscene
+	myScene = [];
+	mMatrix = new Matrix4();
+	mMatrix.scale(LABERINTOX,LABERINTOY,1);
+	myScene.push(new Floor(mMatrix));
+	ponerCuboLaberinto(myMaze,myScene);
+
+
+}
+//function createMaze()
+
 function main() {
 
 
 	//CONSTANTES
 
-	var LABERINTOX = 50,LABERINTOY = 50;
-	var NUMCUBOS = 50;
+	
 
 	//Variables de cámara
 
-	var pasos = 0.0;
-	var angle = 0.0;
+	//var pasos = 0.0;
+	//var angle = 0.0;
+
 	var pos = new Array();
 	pos.x = 0.0;
-	pos.y = 0.0
-	var speed = 0.08;
-	var moveAngle = 0;
-	const alturaOjos = 0.50;
-	var anglez = 0.0;
+	pos.y = 0.0;
+
+	//var speed = 0.08;
+	//var moveAngle = 0;
+	//const alturaOjos = 0.50;
+	//var anglez = 0.0;
 
 	//variables luz
 	const alturaLuz = alturaOjos;
@@ -644,10 +719,10 @@ function main() {
 	var myMaze = new Maze(MAZESZ);
 
 	//Variables canvas
-	var canvas = document.getElementById('webgl');
+	/*var canvas = document.getElementById('webgl');
 	var canvas2d = document.getElementById('2d');
 	var ctx_2d = canvas2d.getContext("2d");
-	var gl = getWebGLContext(canvas);
+	var gl = getWebGLContext(canvas);*/
 
 
 	if (!gl) {
@@ -671,7 +746,8 @@ function main() {
 	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
 	// Get the storage location of u_MvpMatrix
-	//var myMaze = new Maze(MAZESZ);
+
+	//createMaze(myMaze,pos)
 
 	myMaze.randPrim(new Pos(0, 0));
 	
@@ -709,7 +785,7 @@ function main() {
 	Raton1 = new Raton(alturaOjos);
 
 	argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,myScene,gl,alturaLuz);
-	argumentsToMove(myMaze,ctx_2d,alturaOjos);
+	argumentsToMove(myMaze,ctx_2d,alturaOjos,myScene);
 	//drawScene();
 	 document.addEventListener('mousemove', Raton1.mueveRaton);
 }
