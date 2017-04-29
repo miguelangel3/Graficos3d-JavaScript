@@ -432,7 +432,7 @@ function ponerCuboLaberinto(mazes/*,myScene*/){
 	 }
 }
 
-function checkCubo(posx,posy,mazes,ctx_2d/*,myScene*/){
+function checkCubo(posx,posy,mazes/*,ctx_2d/*,myScene*/){
 	if (posx === 0 & posy === 0){
 
 		console.log("HAS llegado al final del laberinto");
@@ -454,7 +454,7 @@ function cameraMove (signo){
 
 }
 
-function argumentsToMove(mazes,ctx_2d,alturaOjos/*,myScene*/){
+function argumentsToMove(mazes/*ctx_2d*/,alturaOjos/*,myScene*/){
 	 document.onkeydown = function(ev){
 			keydown(ev);
 	 }
@@ -480,10 +480,10 @@ function argumentsToMove(mazes,ctx_2d,alturaOjos/*,myScene*/){
 					futuropasosx = camara1.pasosx + camara1.speed*Math.cos(camara1.angle);
 					futuropasosy = camara1.pasosy + camara1.speed*Math.sin(camara1.angle);
 
-					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),mazes,ctx_2d/*,myScene*/) === false)){
+					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),mazes/*,ctx_2d/*,myScene*/) === false)){
 
-					   if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),mazes,ctx_2d,/*myScene*/) === false) &&
-									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),mazes,ctx_2d,/*myScene*/) === false)){
+					   if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),mazes/*,ctx_2d,/*myScene*/) === false) &&
+									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),mazes/*,ctx_2d,/*myScene*/) === false)){
 
 							cameraMove(1);
 							cameraView();
@@ -499,10 +499,10 @@ function argumentsToMove(mazes,ctx_2d,alturaOjos/*,myScene*/){
 					futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle);
 					futuropasosy = camara1.pasosy - camara1.speed*Math.sin(camara1.angle);
 
-					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2),mazes,ctx_2d,/*myScene*/) === false)){
+					if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy - 1/2),mazes/*,ctx_2d,/*myScene*/) === false)){
 
-						if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),mazes,ctx_2d,/*myScene*/) === false) &&
-									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),mazes,ctx_2d,/*myScene*/) === false)){
+						if((checkCubo(Math.round(futuropasosx - 1/2),Math.round(camara1.pasosy -1/2),mazes/*,ctx_2d,/*myScene*/) === false) &&
+									(checkCubo(Math.round(camara1.pasosx - 1/2),Math.round(futuropasosy -1/2),mazes/*,ctx_2d,/*myScene*/) === false)){
 						 	cameraMove(-1); 
 							cameraView(); 
 							mazes[0].myMaze.pos.x = Math.round(camara1.pasosx - 1/2);
@@ -711,7 +711,7 @@ function resetCamera(posx,posy){
 
 //resetMyscene
 
-function changeLevel(mazes,ctx_2d/*,myScene*/){
+function changeLevel(mazes/*,ctx_2d/*,myScene*/){
 
 	console.log("estoy cambiando de nivel");
 
@@ -736,6 +736,9 @@ function changeLevel(mazes,ctx_2d/*,myScene*/){
 	pos.y = pos.y + 1/2;
 
 	resetCamera(pos.x,pos.y);
+	
+	ctx_2d.clearRect(0,0,300,600);
+
 	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
 
@@ -892,7 +895,7 @@ function main() {
 	Raton1 = new Raton(alturaOjos);
 
 	argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,alturaLuz);
-	argumentsToMove(mazes/*myMaze*/,ctx_2d,alturaOjos/*,myScene*/);
+	argumentsToMove(mazes/*myMaze*//*,ctx_2d*/,alturaOjos/*,myScene*/);
 	//drawScene();
 	 document.addEventListener('mousemove', Raton1.mueveRaton);
 }
