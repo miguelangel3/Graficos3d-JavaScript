@@ -692,9 +692,10 @@ function checkLevel(mazes){
 
 			break;
 		case 1:
-			mazes[0].size = 25;
+			mazes[0].size = 22;
 			break;
 		case 2:
+			mazes[0].size = 25;
 			mazes[0].combinedTexture = true;
 
 		default: return;
@@ -731,7 +732,7 @@ console.log("estoy cambiando de nivel");
 
 	resetCamera(pos.x,pos.y);
 
-	ctx_2d.clearRect(0,0,100,700);
+	ctx_2d.clearRect(0,0,200,1000);
 
 	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
