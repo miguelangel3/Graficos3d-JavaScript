@@ -5,3 +5,8 @@ Retroceder --> "s"
 
 El ángulo de avance se modificará moviendo el ratón.
 Además se puede mover la cabeza hacia arriba y hacia abajo.
+
+Niveles -->>
+
+Nivel 0 --->> Laberinto básico con luz puntual de tamaño 20 
+Nivel 1 --->> Laberinto básico con luz puntual de tamaño 25 

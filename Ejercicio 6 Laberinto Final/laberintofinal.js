@@ -73,15 +73,16 @@ function maze(){
 
 	this.myMaze;
 	this.myScene = [];
-	this.level = 1;
+	this.level = 0;
+	this.size = 20;
 
 
-	this.createMaze = function(numMaze){
+	this.createMaze = function(){
 		var pos = new Array();
 		pos.x = 0.0;
 		pos.y = 0.0;
 
-		this.myMaze = new Maze(numMaze);
+		this.myMaze = new Maze(this.size);
 		this.myMaze.randPrim(new Pos(0, 0));
 		
 	}
@@ -664,6 +665,21 @@ function resetCamera(posx,posy){
 	camara1.speed = speed;
 }
 
+function checkLevel(mazes){
+	switch(mazes[0].level){
+		case 0:  //Right
+		
+
+			break;
+		case 1:
+			mazes[0].size = 25;
+			break;
+		case 2:
+
+		default: return;
+	}
+}
+
 function changeLevel(mazes){
 
 console.log("estoy cambiando de nivel");
@@ -673,14 +689,18 @@ console.log("estoy cambiando de nivel");
 	gl.enable(gl.DEPTH_TEST);           // Enable depth testing
 	gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
+
 	var pos = new Array();
 	pos.x = 0.0;
 	pos.y = 0.0;
-
-	mazes[0].createMaze(30);
-
+	mazes[0].level = mazes[0].level + 1;
+	
+	checkLevel(mazes);
+	
+	mazes[0].createMaze();
+	
 	mazes[0].myMaze.randPrim(new Pos(0, 0));
-
+	
 	mazes[0].myMaze.pos.x = Math.round(pos.x - 1/2);
 	mazes[0].myMaze.pos.y = Math.round(pos.y - 1/2);
 	
@@ -760,7 +780,7 @@ function main() {
 
 	mazes.push( new maze);
 
-	mazes[0].createMaze(20);
+	mazes[0].createMaze();
 	mazes[0].myMaze.randPrim(new Pos(0, 0));
 
 	pos = rndPosition(mazes);
