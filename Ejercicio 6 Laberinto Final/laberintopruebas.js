@@ -40,38 +40,45 @@ const gl = getWebGLContext(canvas);
 
 // Fragment shader program
 var FSHADER_SOURCE =
-	'  varying highp vec2 v_TextureCoord;\n' +
-	'  varying highp vec4 v_VertexPosition;\n' +
-	'  varying highp vec4 v_TransformedNormal;\n' +
+	'varying highp vec2 v_TextureCoord;\n' +
+	'varying highp vec4 v_VertexPosition;\n' +
+	'varying highp vec4 v_TransformedNormal;\n' +
+	//'varying highp vec4 v_vertexPosition;\n' +
 
-	'  uniform highp vec4 u_LightPosition;\n' +
-	//'  varying highp vec3 v_Lighting;\n' +
+	'uniform highp vec4 u_LightPosition;\n' +
 
-	'uniform sampler2D u_Sampler;\n' +
+	'const highp vec3 fogColor = vec3(0.0, 0.9, 0.0);\n' +
+	'const highp float FogDensity = 0.9;\n' +
+	'const highp float fogStart = -2.0;\n' +
+	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
+
+
 	'uniform sampler2D u_image0;\n' +
   	'uniform sampler2D u_image1;\n' + 
 
 
 	'void main() {\n' +
-	'  highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-	'  highp vec3 directionalLightColor = vec3(0.8, 0.8, 0.8);\n' +
-
-	'  highp vec4 pointLightPosition = (u_LightPosition);\n' +
-	'  highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
-
-	'  highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
-
-	'   highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
-
-	'  highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-	'  highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-
-	'  highp vec4 texelColor = color0 * color1;\n' +
+		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+		'highp vec3 directionalLightColor = vec3(0.8, 0.8, 0.8);\n' +
+		
+		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
+		//Niebla
+		'highp float fogFactor = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
 
 
 
-	//'  highp vec4 texelColor = texture2D(u_Sampler, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
-	'  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+		'highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
+		'highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
+		'highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+		
+		'highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+		'highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
+		
+		'highp vec4 texelColor = color0 * color1;\n' +
+
+		' gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' +
+		//'gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
 
 	'}\n';
 
