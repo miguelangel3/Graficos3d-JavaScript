@@ -40,12 +40,21 @@ const gl = getWebGLContext(canvas);
 
 // Fragment shader program
 var FSHADER_SOURCE =
-	'  varying highp vec2 v_TextureCoord;\n' +
-	'  varying highp vec4 v_VertexPosition;\n' +
-	'  varying highp vec4 v_TransformedNormal;\n' +
+	'varying highp vec2 v_TextureCoord;\n' +
+	'varying highp vec4 v_VertexPosition;\n' +
+	'varying highp vec4 v_TransformedNormal;\n' +
 
-	'  uniform highp vec4 u_LightPosition;\n' +
-	//'  varying highp vec3 v_Lighting;\n' +
+	'uniform highp vec4 u_LightPosition;\n' +
+	'uniform highp vec3 u_directionalLightColor;\n' +
+	'uniform highp vec3 u_fogColor;\n' +
+
+
+	//'const highp vec3 fogColor = vec3(0.0, 0.0, 0.0);\n' +
+	'const highp float FogDensity = 0.9;\n' +
+	'const highp float fogStart = -2.0;\n' +
+	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
+
+
 
 	'uniform sampler2D u_image0;\n' +
   	'uniform sampler2D u_image1;\n' +  
@@ -53,7 +62,11 @@ var FSHADER_SOURCE =
 
 	'void main() {\n' +
 		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-		'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
+		//'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
+
+		'highp vec3 directionalLightColor = (u_directionalLightColor);\n' +
+		'highp vec3 fogColor = (u_fogColor);\n' +
+
 
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
 		'highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
@@ -67,7 +80,12 @@ var FSHADER_SOURCE =
 		
 		'highp vec4 texelColor = color0 * color1;\n' +
 
-	'  gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+		//Niebla
+		'highp float fogFactor = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
+
+
+		' gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' +
 	'}\n';
 
 
@@ -77,8 +95,17 @@ function maze(){
 	this.myMaze;
 	this.myScene = [];
 	this.level = 0;
-	this.size = 20;
+	this.size = 12;
 	this.combinedTexture = false;
+	this.directionalColor = new Array();
+	this.directionalColor.r = 0.4;
+	this.directionalColor.g = 0.4;
+	this.directionalColor.b = 0.4;
+	this.fogColor = new Array(); //Con esto anulo el color de la niebla para que no se vea.
+	this.fogColor.r = 0.0;
+	this.fogColor.g = 0.0;
+	this.fogColor.b = 0.0;
+	
 
 
 	this.createMaze = function(){
@@ -305,6 +332,13 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 			var pointLightPosition = gl.getUniformLocation (gl.program, "u_LightPosition");
 			gl.uniform4fv(pointLightPosition,[lightposx,lightposy,lightposz,1.0]);
 
+			var directionalLightColor = gl.getUniformLocation (gl.program, "u_directionalLightColor");
+			gl.uniform3fv(directionalLightColor,[mazes[0].directionalColor.r,mazes[0].directionalColor.g,mazes[0].directionalColor.b]);
+
+			var fogColor =  gl.getUniformLocation (gl.program, "u_fogColor");
+			gl.uniform3fv(fogColor,[mazes[0].fogColor.r,mazes[0].fogColor.g,mazes[0].fogColor.b]);
+
+
 			var vertexPositionAttribute = gl.getAttribLocation(gl.program, "a_VertexPosition");
 			gl.enableVertexAttribArray(vertexPositionAttribute);
 
@@ -332,7 +366,6 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
   			gl.activeTexture(gl.TEXTURE1);
 
   			if (mazes[0].combinedTexture === true){
-  				console.log("activo la textura combinada");
   				var n = 2; //el 2 es la posición en la que está guardada la textura;
   			}else{ n = y; }
   			
@@ -692,11 +725,22 @@ function checkLevel(mazes){
 
 			break;
 		case 1:
-			mazes[0].size = 22;
+			mazes[0].size = 15;
 			break;
 		case 2:
-			mazes[0].size = 25;
+			mazes[0].size = 20;
 			mazes[0].combinedTexture = true;
+			mazes[0].directionalColor.r = 0.8;
+			mazes[0].directionalColor.g = 0.8;
+			mazes[0].directionalColor.b = 0.8;
+			break;
+		case 3:
+			mazes[0].fogColor.r = 0.0;
+			mazes[0].fogColor.g = 0.9;
+			mazes[0].fogColor.b = 0.0;
+
+			break;
+
 
 		default: return;
 	}
