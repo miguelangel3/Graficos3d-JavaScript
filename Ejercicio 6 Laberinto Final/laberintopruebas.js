@@ -58,7 +58,7 @@ var FSHADER_SOURCE =
 	'const highp float fogEnd = 20.0;\n' + //altura de la niebla*/
 
 	'const highp vec3 fogColor = vec3(0.0, 0.5, 0.0);\n' +
-	'const highp float FogDensity = 0.5;\n' +
+	'const highp float FogDensity = 0.1;\n' +
 	'const highp float fogStart = -2.0;\n' +
 	'const highp float fogEnd = 0.5;\n' +
 
@@ -74,10 +74,10 @@ var FSHADER_SOURCE =
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
 		//Niebla
 		' highp float dist = length(v_viewSpace);\n' +
-		'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + //Exponential podemos ir viendolo comentando y descomentando
+		//'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + //Exponential podemos ir viendolo comentando y descomentando
 		'highp float fogFactor2 = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
 		
-		//'highp float fogFactor2 = 0.0;\n' +
+		'highp float fogFactor1 = 0.0;\n' +
 
 		'highp float fogFactor = fogFactor1 + fogFactor2;\n' + //Exponential podemos ir viendolo comentando y descomentando
 
@@ -153,6 +153,9 @@ function floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,
 function texturacombinada(Texture){
 	this.Texture = Texture;
 }
+function TexturaEnemy(Texture){
+	this.Texture = Texture;
+}
 function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 
 	this.id = "C1"
@@ -189,6 +192,16 @@ function Cubo(x,y,z,mMatrix){
 	 this.y = y;
 	 this.z = z;
 	 this.mMatrix = mMatrix;
+}
+
+function Enemy(x,y,z,mMatrix){
+
+	this.id = "E";
+	this.x = x;
+	this.y = y;
+	this.z = z;
+	this.mMatrix = mMatrix;
+
 }
 
 function Raton(topOjos){
@@ -366,9 +379,18 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 
 			var u_image0Location = gl.getUniformLocation(gl.program, "u_image0");
   			var u_image1Location = gl.getUniformLocation(gl.program, "u_image1");
+  			
+  			if (mazes[0].myScene[x].id === "E"){
 
- 			gl.activeTexture(gl.TEXTURE0);
-  			gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
+  				gl.activeTexture(gl.TEXTURE0);
+  				gl.bindTexture(gl.TEXTURE_2D, myBuffers[3].Texture);
+  				//enemyMove(mazes,x);
+				 
+			}else{
+				gl.activeTexture(gl.TEXTURE0);
+  				gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
+  			}
+  			
   			gl.activeTexture(gl.TEXTURE1);
   			gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
   			gl.uniform1i(u_image0Location, 0);
@@ -452,6 +474,36 @@ function checkCubo(posx,posy,mazes/*,ctx_2d/*,myScene*/){
 			return false;
 		}
 	}
+}
+
+function enemyMove(mazes,n){
+
+	var pos = new Array(); 
+	
+	var futuropasosax = mazes[0].myScene[n].x + 1;
+	var futuropasosay = mazes[0].myScene[n].y + 1;
+
+	var futuropasosdx = mazes[0].myScene[n].x - 1;
+	var futuropasosdy = mazes[0].myScene[n].y - 1;
+
+	if ((checkCubo(Math.round(futuropasosax - 1/2),Math.round(mazes[0].myScene[n].y-1/2),mazes) === false)){
+	
+		mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speed;
+	
+	}else if((checkCubo(Math.round(mazes[0].myScene[n].x - 1/2),Math.round(futuropasosay - 1/2),mazes) ===false)){
+		mazes[0].myScene[n].y = mazes[0].myScene[n].y + 1*speed;
+
+	}else if((checkCubo(Math.round(futuropasosdx - 1/2),Math.round(mazes[0].myScene[n].y - 1/2),mazes) ===false)){
+				mazes[0].myScene[n].x = mazes[0].myScene[n].x - 1*speed;
+
+	}else {
+		mazes[0].myScene[n].y = mazes[0].myScene[n].y - 1*speed;
+	}
+
+	pos.x = mazes[0].myScene[n].x;
+	pos.y = mazes[0].myScene[n].y;
+ 	mazes[0].myScene[n].mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
+
 }
 function cameraMove (signo){
 	camara1.anglez = camara1.anglez + signo;
@@ -700,6 +752,31 @@ function handleTextureLoaded(y,image,myBuffers,gl) {
 
 }
 
+function createEnemys(mazes){
+	var pos = new Array();
+	pos.x = 0.0;
+	pos.y = 0.0;
+	
+	pos = rndPosition(mazes);
+
+   pos.x = pos.x + 1/2;
+	pos.y = pos.y + 1/2;
+
+	var Sz = 1/4;
+	var Sx = 1/4;
+	var Sy = 1/4;
+
+	var mMatrix = new Matrix4();
+
+	mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
+	mMatrix = mMatrix.scale(Sx,Sy,Sz);
+	
+	mazes[0].myScene.push(new Enemy(pos.x,pos.y,alturaOjos,mMatrix));
+
+}
+
+
+
 function resetCamera(posx,posy){
 
 	camara1.pasos = pasos;
@@ -862,11 +939,13 @@ function main() {
 	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
 	camara1 = new camara(pasos,angle,pos.x,pos.y,speed,moveAngle,alturaOjos,anglez);
+	//createEnemys(mazes);
 	//Meto el buffer de suelo
 	myBuffers.push(new floorVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 	//Meto el buffer de cubo
 	myBuffers.push(new cuboVarBuffer(Texture,VerticesBuffer,VerticesTextureCoordBuffer,VerticesIndicesBuffer,VerticesNormalBuffer));
 	myBuffers.push(new texturacombinada(Texture));
+	myBuffers.push(new TexturaEnemy(Texture));
 
 	projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 100);
 	mMatrix = new Matrix4();
@@ -875,6 +954,8 @@ function main() {
 	mazes[0].myScene.push(new Floor(mMatrix));
 
 	ponerCuboLaberinto(mazes/*.myMaze,myScene*/);
+	createEnemys(mazes);
+
 	 //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
 
 	initCuboBuffers(myBuffers,gl);
@@ -883,6 +964,7 @@ function main() {
 	initTextures(0,"cobblestone.png",myBuffers,gl);//Inicializo las texturas de suelo
 	initTextures(1,"brick.png",myBuffers,gl);// Inicializo las texturas de cubo
 	initTextures(2,"verde256.jpg",myBuffers,gl);//Inicio la textura que quiero combinar
+	initTextures(3,"fantasma256.jpg",myBuffers,gl);
 
 	Raton1 = new Raton(alturaOjos);
 
