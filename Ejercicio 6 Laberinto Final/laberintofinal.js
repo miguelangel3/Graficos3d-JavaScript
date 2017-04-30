@@ -120,7 +120,7 @@ function maze(){
 	this.fogColor.r = 0.0;
 	this.fogColor.g = 0.0;
 	this.fogColor.b = 0.0;
-	this.lightDensity = 0.6;//cuanto mas alto menos luz
+	this.lightDensity = 0.1;//cuanto mas alto menos luz
 	this.lightDensityview2 = 0.1;
 	
 
@@ -752,17 +752,17 @@ function checkLevel(mazes){
 	switch(mazes[0].level){
 		case 0:  //Right
 		
-
 			break;
 		case 1:
 			mazes[0].size = 15;
+			mazes[0].lightDensity = 0.6;
 			break;
 		case 2:
 			mazes[0].size = 20;
 			mazes[0].combinedTexture = true;
-			mazes[0].directionalColor.r = 0.8;
-			mazes[0].directionalColor.g = 0.8;
-			mazes[0].directionalColor.b = 0.8;
+			mazes[0].directionalColor.r = 0.9;
+			mazes[0].directionalColor.g = 0.9;
+			mazes[0].directionalColor.b = 0.9;
 			break;
 		case 3:
 			mazes[0].fogColor.r = 0.0;
