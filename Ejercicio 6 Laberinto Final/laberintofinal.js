@@ -26,16 +26,22 @@ const gl = getWebGLContext(canvas);
 	'uniform highp mat4 u_NormalMatrix;\n' +
 	'uniform highp mat4 u_MvpMatrix;\n' +
 	'uniform highp mat4 u_ModelMatrix;\n' +
+	'uniform highp mat4 u_ViewMatrix;\n' +
+
 
 	'varying highp vec4 v_VertexPosition;\n' +
 	'varying highp vec2 v_TextureCoord;\n' +
 	'varying highp vec4 v_TransformedNormal;\n' +
+	'varying highp vec4 v_viewSpace;\n' +
+
 
 	'void main() {\n' +
 		 '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
 		 '  v_TextureCoord = a_TextureCoord;\n' +
 		 '  v_VertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
 		 '  v_TransformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
+		 '  v_viewSpace = u_ViewMatrix * u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
+
 	'}\n';
 
 // Fragment shader program
@@ -43,29 +49,37 @@ var FSHADER_SOURCE =
 	'varying highp vec2 v_TextureCoord;\n' +
 	'varying highp vec4 v_VertexPosition;\n' +
 	'varying highp vec4 v_TransformedNormal;\n' +
+	'varying highp vec4 v_viewSpace;\n' +
+
 
 	'uniform highp vec4 u_LightPosition;\n' +
 	'uniform highp vec3 u_directionalLightColor;\n' +
 	'uniform highp vec3 u_fogColor;\n' +
+	'uniform highp float u_lightDensity;\n' +
+
 
 
 	//'const highp vec3 fogColor = vec3(0.0, 0.0, 0.0);\n' +
+
+	//'const highp float lightDensity = 0.5;\n' + //gracias a esto puedo ilumniar solo lo cercano junto con la función exp de abajo
 	'const highp float FogDensity = 0.9;\n' +
 	'const highp float fogStart = -2.0;\n' +
 	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
-
-
 
 	'uniform sampler2D u_image0;\n' +
   	'uniform sampler2D u_image1;\n' +  
 
 
 	'void main() {\n' +
-		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+		'highp vec3 ambientLight = vec3(0.4, 0.4, 0.4);\n' +
 		//'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
 
 		'highp vec3 directionalLightColor = (u_directionalLightColor);\n' +
 		'highp vec3 fogColor = (u_fogColor);\n' +
+		'highp float lightDensity = (u_lightDensity);\n' +
+
+		' highp float dist = length(v_viewSpace);\n' +
+
 
 
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
@@ -73,7 +87,7 @@ var FSHADER_SOURCE =
 
 		'highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
 
-		'highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+		'highp vec3 v_Lighting = (ambientLight + (directionalLightColor * directionalW))/exp(dist * lightDensity);\n' +
 	
 		'highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
 		'highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
@@ -82,6 +96,7 @@ var FSHADER_SOURCE =
 
 		//Niebla
 		'highp float fogFactor = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		
 		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
 
 
@@ -98,13 +113,15 @@ function maze(){
 	this.size = 12;
 	this.combinedTexture = false;
 	this.directionalColor = new Array();
-	this.directionalColor.r = 0.4;
-	this.directionalColor.g = 0.4;
-	this.directionalColor.b = 0.4;
+	this.directionalColor.r = 0.5;
+	this.directionalColor.g = 0.5;
+	this.directionalColor.b = 0.5;
 	this.fogColor = new Array(); //Con esto anulo el color de la niebla para que no se vea.
 	this.fogColor.r = 0.0;
 	this.fogColor.g = 0.0;
 	this.fogColor.b = 0.0;
+	this.lightDensity = 0.6;//cuanto mas alto menos luz
+	this.lightDensityview2 = 0.1;
 	
 
 
@@ -300,6 +317,14 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 		console.log('Failed to get the storage location of u_ModelMatrix');
 		return;
 	}
+	var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  	if (!u_ViewMatrix) {
+    	console.log('Failed to get the storage location of u_ViewMatrix');
+    	return;
+   }
+
+   var lightDensity =  gl.getUniformLocation (gl.program, "u_lightDensity");
+			gl.uniform1fv(lightDensity,[mazes[0].lightDensity]);
 
 	 var y  = 1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
 				// requestAnimationFrame(drawScene);
@@ -324,6 +349,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 
 			gl.uniformMatrix4fv(u_ModelMatrix, false, mazes[0].myScene[x].mMatrix.elements);
 			gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+			gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 
 			var lightposx = camara1.pasosx;
 			var lightposy = camara1.pasosy;
@@ -525,22 +551,26 @@ function argumentsToMove(mazes,alturaOjos){
 					camara1.angley = Math.PI/180;
 					camara1.caminar = 1;
 					cameraView();
+					mazes[0].lightDensity = 0.6;
+
 
 					break;
 				case 50:
 					camara1.alturaOjos = 6;
-					console.log("anngulo antes"+camara1.angley);
+					console.log("anngulo antes" + camara1.angley);
 
 					cameraViewz = camara1.viewx + camara1.viewy;
 					camara1.angley = -90*Math.PI/180;
 					camara1.caminar = 0;
 					cameraView();
+					mazes[0].lightDensity = 0.1;
+
 						//console.log("anngulo antes"+camara1.angley);
 
 					break;
 				case 51:
 					camara1.alturaOjos = 1;
-					console.log("anngulo antes"+camara1.angley);
+					console.log("anngulo antes" + camara1.angley);
 
 					cameraViewz = camara1.viewx + camara1.viewy;
 					camara1.angley = -90*Math.PI/180;
