@@ -26,16 +26,20 @@ const gl = getWebGLContext(canvas);
 	'uniform highp mat4 u_NormalMatrix;\n' +
 	'uniform highp mat4 u_MvpMatrix;\n' +
 	'uniform highp mat4 u_ModelMatrix;\n' +
+	'uniform highp mat4 u_ViewMatrix;\n' +
 
 	'varying highp vec4 v_VertexPosition;\n' +
 	'varying highp vec2 v_TextureCoord;\n' +
 	'varying highp vec4 v_TransformedNormal;\n' +
+
+	'varying highp vec4 v_viewSpace;\n' +
 
 	'void main() {\n' +
 		 '  gl_Position = u_MvpMatrix * vec4(a_VertexPosition, 1.0);\n' +
 		 '  v_TextureCoord = a_TextureCoord;\n' +
 		 '  v_VertexPosition = u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
 		 '  v_TransformedNormal = u_NormalMatrix * vec4(a_VertexNormal, 1.0);\n' +
+		 '  v_viewSpace = u_ViewMatrix * u_ModelMatrix * vec4(a_VertexPosition, 1.0);\n' +
 	'}\n';
 
 // Fragment shader program
@@ -43,14 +47,20 @@ var FSHADER_SOURCE =
 	'varying highp vec2 v_TextureCoord;\n' +
 	'varying highp vec4 v_VertexPosition;\n' +
 	'varying highp vec4 v_TransformedNormal;\n' +
+		'varying highp vec4 v_viewSpace;\n' +
 	//'varying highp vec4 v_vertexPosition;\n' +
 
 	'uniform highp vec4 u_LightPosition;\n' +
 
-	'const highp vec3 fogColor = vec3(0.0, 0.9, 0.0);\n' +
-	'const highp float FogDensity = 0.9;\n' +
+	/*'const highp vec3 fogColor = vec3(0.0, 0.9, 0.0);\n' +
+	'const highp float FogDensity = 0.1;\n' +
 	'const highp float fogStart = -2.0;\n' +
-	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
+	'const highp float fogEnd = 20.0;\n' + //altura de la niebla*/
+
+	'const highp vec3 fogColor = vec3(0.0, 0.5, 0.0);\n' +
+	'const highp float FogDensity = 0.5;\n' +
+	'const highp float fogStart = -2.0;\n' +
+	'const highp float fogEnd = 0.5;\n' +
 
 
 	'uniform sampler2D u_image0;\n' +
@@ -59,26 +69,32 @@ var FSHADER_SOURCE =
 
 	'void main() {\n' +
 		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
-		'highp vec3 directionalLightColor = vec3(0.8, 0.8, 0.8);\n' +
+		'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
 		
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
 		//Niebla
-		'highp float fogFactor = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		' highp float dist = length(v_viewSpace);\n' +
+		'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + //Exponential podemos ir viendolo comentando y descomentando
+		'highp float fogFactor2 = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		
+		//'highp float fogFactor2 = 0.0;\n' +
+
+		'highp float fogFactor = fogFactor1 + fogFactor2;\n' + //Exponential podemos ir viendolo comentando y descomentando
+
 		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
 
 
 
 		'highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
 		'highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
-		'highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW);\n' +
+		'highp vec3 v_Lighting = (ambientLight + (directionalLightColor * directionalW))/exp(dist*FogDensity);\n' +
 		
 		'highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
 		'highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
 		
 		'highp vec4 texelColor = color0 * color1;\n' +
 
-		' gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' +
-		//'gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
+  '  gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' + // la parte de fog		//'gl_FragColor = vec4(texelColor.rgb * v_Lighting, texelColor.a);\n' +
 
 	'}\n';
 
@@ -89,6 +105,7 @@ function maze(){
 
 	this.myMaze;
 	this.myScene = [];
+	this.level = 1;
 
 
 	this.createMaze = function(numMaze){
@@ -99,22 +116,6 @@ function maze(){
 		this.myMaze = new Maze(numMaze);
 		this.myMaze.randPrim(new Pos(0, 0));
 		
-		/*pos = rndPosition(myMaze);
-	   pos.x = pos.x + 1/2;
-		pos.y = pos.y + 1/2;
-
-		this.myMaze.pos.x = Math.round(pos.x - 1/2);
-		this.myMaze.pos.y = Math.round(pos.y - 1/2);
-
-		this.myMaze.draw(ctx_2d, 0, 0, 5, 0);*/
-
-		//resetCamera(pos.x,pos.y);
-		//Reset myyscene
-		//myScene = [];
-		//mMatrix = new Matrix4();
-		//mMatrix.scale(LABERINTOX,LABERINTOY,1);
-		//myScene.push(new Floor(mMatrix));
-		//ponerCuboLaberinto(myMaze,myScene);
 	}
 }
 
@@ -299,7 +300,11 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 		console.log('Failed to get the storage location of u_ModelMatrix');
 		return;
 	}
-
+	var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  	if (!u_ViewMatrix) {
+    	console.log('Failed to get the storage location of u_ViewMatrix');
+    	return;
+   }
 	 var y  = 1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
 				// requestAnimationFrame(drawScene);
 
@@ -323,6 +328,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 
 			gl.uniformMatrix4fv(u_ModelMatrix, false, mazes[0].myScene[x].mMatrix.elements);
 			gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+			gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
 
 			var lightposx = camara1.pasosx;
 			var lightposy = camara1.pasosy;
@@ -364,7 +370,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
  			gl.activeTexture(gl.TEXTURE0);
   			gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
   			gl.activeTexture(gl.TEXTURE1);
-  			gl.bindTexture(gl.TEXTURE_2D, myBuffers[2].Texture);
+  			gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
   			gl.uniform1i(u_image0Location, 0);
   			gl.uniform1i(u_image1Location, 1);
   			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,myBuffers[y].VerticesIndicesBuffer);
@@ -724,7 +730,7 @@ function changeLevel(mazes/*,ctx_2d/*,myScene*/){
 	pos.x = 0.0;
 	pos.y = 0.0;
 
-	mazes[0].createMaze(20);
+	mazes[0].createMaze(30);
 
 	mazes[0].myMaze.randPrim(new Pos(0, 0));
 
@@ -736,33 +742,19 @@ function changeLevel(mazes/*,ctx_2d/*,myScene*/){
 	pos.y = pos.y + 1/2;
 
 	resetCamera(pos.x,pos.y);
-	
-	ctx_2d.clearRect(0,0,300,600);
+
+	ctx_2d.clearRect(0,0,100,700);
 
 	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
 
-	/*
-	myMaze = new Maze(30);
-	myMaze.randPrim(new Pos(0, 0));
-	
-	pos = rndPosition(myMaze);
-   pos.x = pos.x + 1/2;
-	pos.y = pos.y + 1/2;
-
-	myMaze.pos.x = Math.round(pos.x - 1/2);
-	myMaze.pos.y = Math.round(pos.y - 1/2);
-
-	myMaze.draw(ctx_2d, 0, 0, 5, 0);*/
-
-	//resetCamera(pos.x,pos.y);
-	//Reset myyscene
 	mazes[0].myScene = [];
 
 	mMatrix = new Matrix4();
 	mMatrix.scale(LABERINTOX,LABERINTOY,1);
 	mazes[0].myScene.push(new Floor(mMatrix));
 	ponerCuboLaberinto(mazes/*,myScene*/);
+
 
 
 }
