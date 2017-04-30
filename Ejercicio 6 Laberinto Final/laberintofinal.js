@@ -57,12 +57,15 @@ var FSHADER_SOURCE =
 	'uniform highp vec3 u_fogColor;\n' +
 	'uniform highp float u_lightDensity;\n' +
 
+	'uniform highp float u_activatefog;\n' +
+	'uniform highp float u_activatefogbg;\n' +
+
 
 
 	//'const highp vec3 fogColor = vec3(0.0, 0.0, 0.0);\n' +
 
 	//'const highp float lightDensity = 0.5;\n' + //gracias a esto puedo ilumniar solo lo cercano junto con la función exp de abajo
-	'const highp float FogDensity = 0.9;\n' +
+	'const highp float FogDensity = 0.6;\n' +
 	'const highp float fogStart = -2.0;\n' +
 	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
 
@@ -80,6 +83,9 @@ var FSHADER_SOURCE =
 
 		' highp float dist = length(v_viewSpace);\n' +
 
+		' highp float activatefog = (u_activatefog);\n' +
+		' highp float activatefogbg = (u_activatefogbg);\n' +
+
 
 
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
@@ -94,9 +100,16 @@ var FSHADER_SOURCE =
 		
 		'highp vec4 texelColor = color0 * color1;\n' +
 
-		//Niebla
-		'highp float fogFactor = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
+		//niebla
+
+		'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + //Exponential podemos ir viendolo comentando y descomentando
+
+
+		//Niebla bg
+		'highp float fogFactorbg2 = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
 		
+		'highp float fogFactor = (fogFactor1 * activatefog) + (fogFactorbg2 * activatefogbg);\n' + //Exponential podemos ir viendolo comentando y descomentando
+
 		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
 
 
@@ -122,6 +135,8 @@ function maze(){
 	this.fogColor.b = 0.0;
 	this.lightDensity = 0.1;//cuanto mas alto menos luz
 	this.lightDensityview2 = 0.1;
+	this.activatefogbg = 1.0;
+	this.activatefog = 0.0;
 	
 
 
@@ -325,6 +340,11 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 
    var lightDensity =  gl.getUniformLocation (gl.program, "u_lightDensity");
 			gl.uniform1fv(lightDensity,[mazes[0].lightDensity]);
+	var activatefog =  gl.getUniformLocation (gl.program, "u_activatefog");
+			gl.uniform1fv(activatefog,[mazes[0].activatefog]);
+	var activatefogbg =  gl.getUniformLocation (gl.program, "u_activatefogbg");
+			gl.uniform1fv(activatefogbg,[mazes[0].activatefogbg]);
+
 
 	 var y  = 1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
 				// requestAnimationFrame(drawScene);
@@ -770,6 +790,12 @@ function checkLevel(mazes){
 			mazes[0].fogColor.b = 0.0;
 
 			break;
+		case 4:
+			mazes[0].activatefog = 1.0;
+			mazes[0].activatefogbg = 0.0;
+			mazes[0].fogColor.r = 0.0;
+			mazes[0].fogColor.g = 0.5;
+			mazes[0].fogColor.b = 0.0;
 
 
 		default: return;
