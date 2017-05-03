@@ -9,6 +9,8 @@ const speed = 0.08;
 const moveAngle = 0;
 const alturaOjos = 0.50;
 const anglez = 0.0;
+const numEnemys = 10;
+const speedEnemy = 1;
 
 
 const canvas = document.getElementById('webgl');
@@ -236,6 +238,7 @@ function Enemy(x,y,z,mMatrix){
 	this.z = z;
 	this.mMatrix = mMatrix;
 	this.time = d.getTime();
+	this.sentido = true;
 
 
 }
@@ -429,7 +432,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 			}else if (mazes[0].myScene[x].id === "E") {
 				gl.activeTexture(gl.TEXTURE0);
   				gl.bindTexture(gl.TEXTURE_2D, myBuffers[4].Texture);
-  				//enemyMove(mazes,x);
+  				enemyMove(mazes,x);
 
   				}
   			else{
@@ -523,6 +526,11 @@ function checkCubo(posx,posy,mazes/*,ctx_2d/*,myScene*/){
 	}
 }
 
+function checkMaze(myScene,n){
+
+
+
+}
 function enemyMove(mazes,n){
 
 	var Sz = 1/4;
@@ -534,31 +542,70 @@ function enemyMove(mazes,n){
 	var d = new Date();
 	var tmNow = d.getTime();
 
-   var dt = tmNow - mazes[0].myScene.time;
-   mazes[0].myScene.time = d.getTime();
+   var dt = tmNow - mazes[0].myScene[n].time;
+   mazes[0].myScene[n].time = d.getTime();
 	
-	var futuropasosax = mazes[0].myScene[n].x + 1;
-	var futuropasosay = mazes[0].myScene[n].y + 1;
+	var futuropasox = mazes[0].myScene[n].x + 1 * speed*(dt/1000);
+	var futuropasoy = mazes[0].myScene[n].y + 1 * speed*(dt/1000);
 
-	var futuropasosdx = mazes[0].myScene[n].x - 1;
-	var futuropasosdy = mazes[0].myScene[n].y - 1;
 
-	if ((checkCubo(Math.round(futuropasosax - 1/2),Math.round(mazes[0].myScene[n].y - 1/2),mazes) === false)){
+	if (((Math.round(futuropasox)) > 1 && (Math.round(futuropasox)) < mazes[0].myMaze.rooms.length - 1) &&
+		 ((Math.round(futuropasoy)) > 1 && (Math.round(futuropasoy)) < mazes[0].myMaze.rooms.length - 1)){
+		 	//console.log("estoy moviendome bien");
+		if ((mazes[0].myScene[n].sentido) === true) {
+		 		mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speedEnemy*(dt/1000);
+		 	}
+		if ((mazes[0].myScene[n].sentido) === false) {
+		 		mazes[0].myScene[n].x = mazes[0].myScene[n].x - 1*speedEnemy*(dt/1000);
+		 }
+
+	}else{
+
+		if ((mazes[0].myScene[n].sentido === false)){
+			mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speedEnemy*(dt/1000)
+			mazes[0].myScene[n].sentido = true;
+
+		}else{
+			mazes[0].myScene[n].x = mazes[0].myScene[n].x - 1*speedEnemy*(dt/1000);
+			mazes[0].myScene[n].sentido = false;
+
+		}
+
+ 
+	}
+		 	
+			
+
+ //console.log("futuropasosx:" + futuropasosax );
+	//futuropasosx = camara1.pasosx - camara1.speed*Math.cos(camara1.angle) - 1/7;
+	//if ((checkCubo(Math.round(futuropasosx - 1/2),Math.round(futuropasosy -1/2),mazes/*,ctx_2d/*,myScene*/) === false)){
+
+
+	//if ((checkCubo(Math.round(futuropasosax - 1/2),Math.round(mazes[0].myScene[n].y - 1/2),mazes) === false)){
+	//	console.log("primera condicion");
+	//	mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speed*dt;
 	
-		mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speed*dt;
-	
-	}else if((checkCubo(Math.round(mazes[0].myScene[n].x - 1/2),Math.round(futuropasosay - 1/2),mazes) ===false)){
+	/*}else if((checkCubo(Math.round(mazes[0].myScene[n].x - 1/2),Math.round(futuropasosay - 1/2),mazes) === false)){
+				console.log("segunda condicion")
+
 		mazes[0].myScene[n].y = mazes[0].myScene[n].y + 1 * speed * dt;
 
-	}else if((checkCubo(Math.round(futuropasosdx - 1/2),Math.round(mazes[0].myScene[n].y - 1/2),mazes) ===false)){
+	}else if((checkCubo(Math.round(futuropasosdx - 1/2),Math.round(mazes[0].myScene[n].y - 1/2),mazes) === false)){
+		console.log("tercera condicion")
+
 			mazes[0].myScene[n].x = mazes[0].myScene[n].x - 1 * speed * dt;
 
 	}else {
+		console.log("cuarta condicion")
+
 		mazes[0].myScene[n].y = Math.round(mazes[0].myScene[n].y - 1 * speed * dt);
-	}
+	}*/
+
+	//mazes[0].myScene[n].x = mazes[0].myScene[n].x + 1*speed*dt;
 
 	pos.x = mazes[0].myScene[n].x ;
 	pos.y = mazes[0].myScene[n].y;
+
 	var mMatrix = new Matrix4();
 
 	mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
@@ -595,25 +642,25 @@ function cameraMove (signo,mazes){
 //funciones para eliminar enemigos
 function checkEnemyDistance(mazes,x){
 	//var distacia =
-	var NumAx = mazes[0].myScene[x].x;
-	var NumAy = mazes[0].myScene[x].y;
+	var numAx = mazes[0].myScene[x].x;
+	var numAy = mazes[0].myScene[x].y;
 
 	//var NumBx = camara1.viewx ;
 	//var NumBy = camara1.viewy ;
 
-	var NumBx = camara1.pasosx ;
-	var NumBy = camara1.pasosy ;
+	var numBx = camara1.pasosx ;
+	var numBy = camara1.pasosy ;
  
-	var Numx = Math.pow(NumAx - NumBx,2);
-	var Numy = Math.pow(NumAy - NumBy,2);
+	var numx = Math.pow(numAx - numBx,2);
+	var numy = Math.pow(numAy - numBy,2);
 	
-	var Distancia = Math.sqrt(Numx +Numy);
+	var distancia = Math.sqrt(numx + numy);
 	console.log("detectando");
 
-	if (Distancia < 0.25){
+	if (distancia < 0.25){
 		console.log("muere!!!");
 		return "mueres";
-	}else if ( Distancia < 1){
+	}else if ( distancia < 1){
 		console.log("detector de disparo");
 
 		return true;
@@ -920,26 +967,28 @@ function createMe(mazes){
 	mazes[0].myScene.push(new Me(pos.x,pos.y,alturaOjos,mMatrix));
 }
 
-function createEnemys(mazes){
+function createEnemys(mazes,numEnemys){
 	var pos = new Array();
 	pos.x = 0.0;
 	pos.y = 0.0;
 	
-	pos = rndPosition(mazes);
+	for (var i = 0; i < numEnemys; i++){ 
+		pos = rndPosition(mazes);
 
-   pos.x = pos.x + 1/2;
-	pos.y = pos.y + 1/2;
+	   pos.x = pos.x + 1/2;
+		pos.y = pos.y + 1/2;
 
-	var Sz = 1/4;
-	var Sx = 1/4;
-	var Sy = 1/4;
+		var Sz = 1/4;
+		var Sx = 1/4;
+		var Sy = 1/4;
 
-	var mMatrix = new Matrix4();
+		var mMatrix = new Matrix4();
 
-	mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
-	mMatrix = mMatrix.scale(Sx,Sy,Sz);
-	
-	mazes[0].myScene.push(new Enemy(pos.x,pos.y,alturaOjos,mMatrix));
+		mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
+		mMatrix = mMatrix.scale(Sx,Sy,Sz);
+		
+		mazes[0].myScene.push(new Enemy(pos.x,pos.y,alturaOjos,mMatrix));
+	}
 
 }
 
@@ -1044,6 +1093,8 @@ function main() {
 
 
 	//CONSTANTES
+
+
 
 	
 
@@ -1159,7 +1210,7 @@ function main() {
 
 	ponerCuboLaberinto(mazes/*.myMaze,myScene*/);
 	createMe(mazes);
-	createEnemys(mazes);
+	createEnemys(mazes,numEnemys);
 
 	 //ponerCubo(NUMCUBOS,LABERINTOX,LABERINTOY);
 
