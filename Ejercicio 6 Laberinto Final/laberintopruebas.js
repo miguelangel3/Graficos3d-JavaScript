@@ -598,8 +598,11 @@ function checkEnemyDistance(mazes,x){
 	var NumAx = mazes[0].myScene[x].x;
 	var NumAy = mazes[0].myScene[x].y;
 
-	var NumBx = camara1.pasosx;
-	var NumBy = camara1.pasosy;
+	//var NumBx = camara1.viewx ;
+	//var NumBy = camara1.viewy ;
+
+	var NumBx = camara1.pasosx ;
+	var NumBy = camara1.pasosy ;
  
 	var Numx = Math.pow(NumAx - NumBx,2);
 	var Numy = Math.pow(NumAy - NumBy,2);
@@ -610,7 +613,7 @@ function checkEnemyDistance(mazes,x){
 	if (Distancia < 0.25){
 		console.log("muere!!!");
 		return "mueres";
-	}else if ( Distancia < 2){
+	}else if ( Distancia < 1){
 		console.log("detector de disparo");
 
 		return true;
@@ -630,8 +633,9 @@ function checkEnemy(mazes){
 			console.log("EStoy viendo si mueres" + mazes[0].lives);
 
 			if (checkEnemyDistance(mazes,x) === "mueres"){
-				//mazes[0].lives = mazes[0].lives - 1;
-				//console.log("Tienes una vida menos" + mazes[0].lives);
+				mazes[0].lives = mazes[0].lives - 1;
+				console.log("Tienes una vida menos" + mazes[0].lives);
+				delEnemy(mazes,x);
 			}
 		}
 	}
