@@ -626,9 +626,6 @@ function shot(mazes){
 
 }
 
-
-
-
 function argumentsToMove(mazes,alturaOjos){
 	 document.onkeydown = function(ev){
 			keydown(ev);
@@ -723,6 +720,8 @@ function argumentsToMove(mazes,alturaOjos){
 					cameraView();
 
 					break;
+				case 32:
+					shot(mazes);
 				
 				 default: return;
 
@@ -781,8 +780,6 @@ function initFloorBuffers(myBuffers,gl) {
 	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, floorVerticesIndices, gl.STATIC_DRAW);
 
 }
-
-
 
 function initCuboBuffers(myBuffers,gl){
 
@@ -1014,7 +1011,7 @@ function checkLevel(mazes){
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.9;
 			mazes[0].fogColor.b = 0.0;
-				createEnemys(mazes,1);
+			createEnemys(mazes,1);
 
 
 			break;
@@ -1083,8 +1080,6 @@ console.log("estoy cambiando de nivel");
 	ponerCuboLaberinto(mazes);
 
 	checkLevel(mazes);
-
-
 
 }
 //function createMaze()
