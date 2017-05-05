@@ -128,6 +128,8 @@ var FSHADER_SOURCE =
 
 function maze(){
 
+	var d = new Date()
+
 	this.myMaze;
 	this.myScene = [];
 	this.level = 0;
@@ -147,6 +149,9 @@ function maze(){
 	this.activatefog = 0.0;
 	this.lives = 3;
 	this.puntos = 0; 
+	this.time = 60;
+	this.clock = d.getTime();
+
 	
 
 	this.createMaze = function(){
@@ -169,10 +174,15 @@ function maze(){
 		ctx_2d.fillStyle = 'green';
 		ctx_2d.font = '20pt VTFMisterPixelRegular';
 		ctx_2d.clearRect(0, 0, canvas.width, canvas.height);
-		ctx_2d.fillText("Vidas: " + this.lives, 400, 40);
+		//ctx_2d.clearRect(0, 0, 100, 800);
+
+		ctx_2d.fillText("Vidas: " + this.lives, 200, 40);
 		ctx_2d.fillStyle = 'green';
 		ctx_2d.font = '20pt VTFMisterPixelRegular';
-		ctx_2d.fillText("Puntos: " + this.puntos, 600, 40);
+		ctx_2d.fillText("Puntos: " + this.puntos, 400, 40);
+
+		ctx_2d.fillText("Tiempo: " + this.time, 600, 40);
+		ctx_2d.fillStyle = 'green';
    }
 }
 
@@ -887,12 +897,22 @@ function enemyMove(mazes,n){
 	var pos = new Array(); 
 	var d = new Date();
 	var tmNow = d.getTime();
+	var dtClock = tmNow - mazes[0].clock;
 
    var dt = tmNow - mazes[0].myScene[n].time;
    mazes[0].myScene[n].time = d.getTime();
 	
 	var futuropasox = mazes[0].myScene[n].x + 1 * speed*(dt/1000);
 	var futuropasoy = mazes[0].myScene[n].y + 1 * speed*(dt/1000);
+
+	if (dtClock/1000 >= 1){
+		console.log("entro en el reloj")
+		mazes[0].clock = tmNow;
+		mazes[0].time = mazes[0].time-1; 
+		mazes[0].drawTxt();
+		mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0)
+
+	}
 
 
 	if (((Math.round(futuropasox)) > 1 && (Math.round(futuropasox)) < mazes[0].myMaze.rooms.length - 1) &&
@@ -999,37 +1019,43 @@ function checkLevel(mazes){
 		case 1:
 			mazes[0].size = 15;
 			mazes[0].lightDensity = 0.6;
-				createEnemys(mazes,6);
+			mazes[0].puntos = mazes[0].puntos + 20;
+			createEnemys(mazes,6);
 
 			break;
 		case 2:
+			mazes[0].puntos = mazes[0].puntos + 20;
 			mazes[0].size = 20;
 			mazes[0].combinedTexture = true;
 			mazes[0].directionalColor.r = 0.9;
 			mazes[0].directionalColor.g = 0.9;
 			mazes[0].directionalColor.b = 0.9;
-				createEnemys(mazes,1);
+			createEnemys(mazes,7);
 
 			break;
 		case 3:
+		//aquí hago que la niebla se vea
+			mazes[0].puntos = mazes[0].puntos + 20;
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.9;
 			mazes[0].fogColor.b = 0.0;
-			createEnemys(mazes,1);
+			createEnemys(mazes,7);
 
 
 			break;
 		case 4:
+			mazes[0].puntos = mazes[0].puntos + 20;
 			mazes[0].activatefog = 1.0;
 			mazes[0].activatefogbg = 0.0;
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.5;
 			mazes[0].fogColor.b = 0.0;
-			createEnemys(mazes,10);
+			createEnemys(mazes,15);
 
 
 			break;
 		case 5:
+			mazes[0].puntos = mazes[0].puntos + 20;
 			mazes[0].activatefogbg = 0.7;
 			mazes[0].activatefog = 0.3;
 			mazes[0].fogColor.g = 0.2;
