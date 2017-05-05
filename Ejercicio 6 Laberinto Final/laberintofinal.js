@@ -143,7 +143,10 @@ function maze(){
 	this.fogColor.r = 0.0;
 	this.fogColor.g = 0.0;
 	this.fogColor.b = 0.0;
-	this.lightDensity = 0.1;//cuanto mas alto menos luz
+	this.lightDensity = 0.1;//esta luz es para los niveles y la que se le pasará al shader cuanto mas alto menos luz
+	this.lightDensity1 = 0.1; //esta luz es para la cámara de primera persona
+	this.lightDensity2 = 0.1; //esta luz es para las cámaras aérea y de tercera persona
+
 	this.lightDensityview2 = 0.1;
 	this.activatefogbg = 1.0;
 	this.activatefog = 0.0;
@@ -706,7 +709,9 @@ function argumentsToMove(mazes,alturaOjos){
 					camara1.angley = Math.PI/180;
 					camara1.caminar = 1;
 					cameraView();
-					mazes[0].lightDensity = 0.6;
+
+					mazes[0].lightDensity = mazes[0].lightDensity1;
+
 
 
 					break;
@@ -718,7 +723,7 @@ function argumentsToMove(mazes,alturaOjos){
 					camara1.angley = -90*Math.PI/180;
 					camara1.caminar = 0;
 					cameraView();
-					mazes[0].lightDensity = 0.1;
+					mazes[0].lightDensity = mazes[0].lightDensity2 = 0.1;
 
 						//console.log("anngulo antes"+camara1.angley);
 
@@ -731,6 +736,8 @@ function argumentsToMove(mazes,alturaOjos){
 					camara1.angley = -90*Math.PI/180;
 					camara1.caminar = 0;
 					cameraView();
+					mazes[0].lightDensity = mazes[0].lightDensity2 = 0.1;
+
 
 					break;
 				case 32: //space
@@ -905,10 +912,10 @@ function enemyMove(mazes,n){
 	var futuropasox = mazes[0].myScene[n].x + 1 * speed*(dt/1000);
 	var futuropasoy = mazes[0].myScene[n].y + 1 * speed*(dt/1000);
 
-	if (dtClock/1000 >= 1){
+	if ((dtClock/1000 >= 1) && (mazes[0].time != 0)){
 		console.log("entro en el reloj")
 		mazes[0].clock = tmNow;
-		mazes[0].time = mazes[0].time-1; 
+		mazes[0].time = mazes[0].time - 1; 
 		mazes[0].drawTxt();
 		mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0)
 
@@ -1019,6 +1026,7 @@ function checkLevel(mazes){
 		case 1:
 			mazes[0].size = 15;
 			mazes[0].lightDensity = 0.6;
+			mazes[0].lightDensity1 = 0.6;
 			mazes[0].puntos = mazes[0].puntos + 20;
 			createEnemys(mazes,6);
 
