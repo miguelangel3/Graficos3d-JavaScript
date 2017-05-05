@@ -146,6 +146,7 @@ function maze(){
 	this.activatefogbg = 1.0;
 	this.activatefog = 0.0;
 	this.lives = 3;
+	this.puntos = 0; 
 	
 
 	this.createMaze = function(){
@@ -157,12 +158,21 @@ function maze(){
 		this.myMaze.randPrim(new Pos(0, 0));
 		
 	}
-
-	this.drawLives = function(){
+	this.drawPuntos = function(){
 		ctx_2d.fillStyle = 'green';
-		ctx_2d.font = '30pt VTFMisterPixelRegular';
+		ctx_2d.font = '20pt VTFMisterPixelRegular';
 		ctx_2d.clearRect(0, 0, canvas.width, canvas.height);
-		ctx_2d.fillText("Vidas: " + this.lives, 500, 40);
+		ctx_2d.fillText("Puntos: " + this.puntos, 700, 40);
+
+	}
+	this.drawTxt = function(){
+		ctx_2d.fillStyle = 'green';
+		ctx_2d.font = '20pt VTFMisterPixelRegular';
+		ctx_2d.clearRect(0, 0, canvas.width, canvas.height);
+		ctx_2d.fillText("Vidas: " + this.lives, 400, 40);
+		ctx_2d.fillStyle = 'green';
+		ctx_2d.font = '20pt VTFMisterPixelRegular';
+		ctx_2d.fillText("Puntos: " + this.puntos, 600, 40);
    }
 }
 
@@ -222,7 +232,7 @@ function camara (pasos,angle,pasosx,pasosy,speed,moveAngle,alturaOjos,anglez){
 	this.viewx = that.pasosx + Math.cos(that.angle)
 	this.viewy = that.pasosy + Math.sin(that.angle)
 	this.viewz = that.alturaOjos + Math.sin(that.angley) + 0.02*Math.sin(that.anglez) * that.caminar;
-	this.speed = speed;;
+	this.speed = speed;
 	
  }
 
@@ -562,28 +572,18 @@ function cameraMove (signo){
 }
 
 function checkEnemyDistance(mazes,x){
-	//var distacia =
+	
 	var numAx = mazes[0].myScene[x].x;
 	var numAy = mazes[0].myScene[x].y;
-
-	//var NumBx = camara1.viewx ;
-	//var NumBy = camara1.viewy ;
-
 	var numBx = camara1.pasosx ;
 	var numBy = camara1.pasosy ;
- 
 	var numx = Math.pow(numAx - numBx,2);
 	var numy = Math.pow(numAy - numBy,2);
-	
 	var distancia = Math.sqrt(numx + numy);
-	console.log("detectando");
 
 	if (distancia < 0.25){
-		console.log("muere!!!");
 		return "mueres";
 	}else if ( distancia < 1){
-		console.log("detector de disparo");
-
 		return true;
 	}else{
 	return false;
@@ -604,7 +604,7 @@ function checkEnemy(mazes){
 				mazes[0].lives = mazes[0].lives - 1;
 				console.log("Tienes una vida menos" + mazes[0].lives);
 				delEnemy(mazes,x);
-				mazes[0].drawLives();
+				mazes[0].drawTxt();
 			}
 		}
 	}
@@ -617,6 +617,9 @@ function shot(mazes){
 			
 			if (checkEnemyDistance(mazes,x) === true){
 				delEnemy(mazes,x);
+				mazes[0].puntos = mazes[0].puntos + 10;
+				mazes[0].drawTxt();
+
 			}else if (checkEnemyDistance(mazes,x) === "mueres"){
 				mazes[0].lives = mazes[0].lives - 1;
 			}else{
@@ -720,7 +723,7 @@ function argumentsToMove(mazes,alturaOjos){
 					cameraView();
 
 					break;
-				case 32:
+				case 32: //space
 					shot(mazes);
 				
 				 default: return;
@@ -904,7 +907,8 @@ function enemyMove(mazes,n){
 		if (checkEnemyDistance(mazes,x) === "mueres"){
 			mazes[0].lives = mazes[0].lives - 1;
 			delEnemy(mazes,x);
-			mazes[0].drawLives();
+			mazes[0].drawTxt();
+			checkLives(mazes);
 		}
 
 	}else{
@@ -995,7 +999,7 @@ function checkLevel(mazes){
 		case 1:
 			mazes[0].size = 15;
 			mazes[0].lightDensity = 0.6;
-				createEnemys(mazes,1);
+				createEnemys(mazes,6);
 
 			break;
 		case 2:
@@ -1021,14 +1025,22 @@ function checkLevel(mazes){
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.5;
 			mazes[0].fogColor.b = 0.0;
+			createEnemys(mazes,10);
+
+
 			break;
 		case 5:
-			mazes[0].activatefogbg = 1.0;
+			mazes[0].activatefogbg = 0.7;
+			mazes[0].activatefog = 0.3;
 			mazes[0].fogColor.g = 0.2;
+			createEnemys(mazes,20);
+
 
 			break;
-
-
+		case 6:
+			alert("FELICIDADES TU PUNTUACION ES:" + mazes[0].puntos);
+			restart();
+			break;
 		default: return;
 	}
 }
@@ -1081,6 +1093,19 @@ console.log("estoy cambiando de nivel");
 
 	checkLevel(mazes);
 
+}
+
+function checkLives(mazes){
+	if (mazes[0].lives <= 0){
+		alert("GAME OVER");
+		restart();
+
+	}
+
+}
+function restart(){
+
+	location.reload(true);
 }
 //function createMaze()
 
@@ -1184,7 +1209,5 @@ function main() {
 	argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,alturaLuz);
 	argumentsToMove(mazes,alturaOjos);
 	document.addEventListener('mousemove', Raton1.mueveRaton);
-	mazes[0].drawLives();
-
+	mazes[0].drawTxt();
 }
-
