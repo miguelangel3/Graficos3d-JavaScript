@@ -1,13 +1,34 @@
 Controles:
 
-Avanzar --> "w"
-Retroceder --> "s"
+	-Avanzar --> "w"
+	-Retroceder --> "s"
+	-Disparar ---> "Barra espaciadora" El disparo eliminará a cualquier fantasma que esté a un alcance de una casilla respecto de ti.
+
+Puntuacion:
+
+	-Cada fantasma eliminado son 10 puntos 
+	-Cada nivel que te pasas son 20 puntos 
+	-El tiempo sobrante de cada laberinto se súmara como puntos
+
+
 
 El ángulo de avance se modificará moviendo el ratón.
 Además se puede mover la cabeza hacia arriba y hacia abajo.
+El jugador se creará de manera completamente aleatoria. Pudiendo estar cerca de la salido o encima de un fantasma quitandole una vida.
+En ocasiones aparecerán "fantasmas enfermos" otorgando puntos extra al jugador, además estos fantasmas no ocasioanrán daño alguno al jugador.
+
+El jugador dispondrá de tres visiones accionando las siguientes teclas " ":
+	-Primera persona "1" --> el jugador tendrá el efecto de estar caminando
+	-Visión aérea "2" --> el jugador podrá ver el laberinto y los fantasmas siempre y cuando la niebla se lo permita
+	-Tercera persona --> está visión otorga al jugador de visión nocturna permitiendole ver mucho mejor en la oscuridad del laberinto.
 
 Niveles -->>
 
-Nivel 0 --->> Laberinto básico con luz puntual de tamaño 20 
-Nivel 1 --->> Laberinto básico con luz puntual de tamaño 25 
-Nivel 2 -->> Laberinto con texturas y luz puntual
+Todos los niveles tendrán la luz puntual.
+
+Nivel 0 --->> Laberinto básico con luz puntual. Tamaño 12
+Nivel 1 --->> Laberinto básico con luz puntual que con la distacia se atenua. Tamaño 15 
+Nivel 2 --->> Laberinto con texturas combinadas y luz puntual de tamaño 20
+Nivel 3 --->> Laberinto con niebla en el suelo
+Nivel 4 --->> Laberinto con niebla normal
+Nivel 5 --->> LAberinto con niebla combinada
