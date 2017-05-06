@@ -1066,7 +1066,7 @@ function checkLevel(mazes){
 			document.getElementById("mySong").play();
 			mazes[0].size = 12;
 			createEnemys(mazes,6);
-			mazes[0].time = 30;
+			mazes[0].time = 35;
 
 			break;
 		case 2:
@@ -1075,7 +1075,7 @@ function checkLevel(mazes){
 			mazes[0].lightDensity1 = 0.6;
 			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
 			createEnemys(mazes,6);
-			mazes[0].time = 20;
+			mazes[0].time = 35;
 			mazes[0].clock = d.getTime();
 
 			break;
@@ -1087,7 +1087,7 @@ function checkLevel(mazes){
 			mazes[0].directionalColor.g = 0.9;
 			mazes[0].directionalColor.b = 0.9;
 			createEnemys(mazes,7);
-			mazes[0].time = 40;
+			mazes[0].time = 45;
 			mazes[0].clock = d.getTime();
 	
 
@@ -1099,7 +1099,7 @@ function checkLevel(mazes){
 			mazes[0].fogColor.g = 0.9;
 			mazes[0].fogColor.b = 0.0;
 			createEnemys(mazes,15);
-			mazes[0].time = 40;
+			mazes[0].time = 45;
 			mazes[0].clock = d.getTime();
 			break;
 		case 5:
@@ -1109,8 +1109,8 @@ function checkLevel(mazes){
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.5;
 			mazes[0].fogColor.b = 0.0;
-			createEnemys(mazes,15);
-			mazes[0].time = 40;
+			createEnemys(mazes,20);
+			mazes[0].time = 45;
 			mazes[0].clock = d.getTime();
 			break;
 		case 6:
@@ -1121,10 +1121,12 @@ function checkLevel(mazes){
 			mazes[0].fogColor.g = 0.2;
 			mazes[0].size = 30;
 			createEnemys(mazes,30);
-			mazes[0].time = 55;
+			mazes[0].time = 65;
 			mazes[0].clock = d.getTime();
 			
 		case 7: 
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
+
 			alert("HAS CONSEGUIDO SALVAR A LA HUMANIDAD, TU PUNTUACION ES:" + mazes[0].puntos);
 			restart();
 			break;
