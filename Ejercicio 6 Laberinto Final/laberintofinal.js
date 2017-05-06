@@ -508,6 +508,30 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 }
 
 
+function rndPositionMe(mazes){
+
+	 var position = new Array();
+	 var i;
+	 var j;
+
+	 i =  (mazes[0].myMaze.rooms.length -1);
+	 j =  (mazes[0].myMaze.rooms.length -1);
+
+	 console.log("i" + i);
+	 console.log("j" + j);
+	 while (mazes[0].myMaze.rooms[i][j] === false){
+			i = i -1;
+			j = j -1;
+			console.log("i" + i);
+			console.log("j" + j);
+	 }
+
+	 position.x = i;
+	 position.y = j;
+	 return position;
+
+}
+
 function rndPosition(mazes){
 
 	 var position = new Array();
@@ -1098,7 +1122,7 @@ function checkLevel(mazes){
 			mazes[0].clock = d.getTime();
 			
 		case 7: 
-			alert("FELICIDADES TU PUNTUACION ES:" + mazes[0].puntos);
+			alert("HAS CONSEGUIDO SALVAR A LA HUMANIDAD, TU PUNTUACION ES:" + mazes[0].puntos);
 			restart();
 			break;
 
@@ -1132,7 +1156,7 @@ console.log("estoy cambiando de nivel");
 	mazes[0].myMaze.pos.x = Math.round(pos.x - 1/2);
 	mazes[0].myMaze.pos.y = Math.round(pos.y - 1/2);
 	
-	pos = rndPosition(mazes);
+	pos = rndPositionMe(mazes);
    pos.x = pos.x + 1/2;
 	pos.y = pos.y + 1/2;
 
@@ -1229,7 +1253,7 @@ function main() {
 	mazes[0].createMaze();
 	mazes[0].myMaze.randPrim(new Pos(0, 0));
 
-	pos = rndPosition(mazes);
+	pos = rndPositionMe(mazes);
 
    pos.x = pos.x + 1/2;
 	pos.y = pos.y + 1/2;
