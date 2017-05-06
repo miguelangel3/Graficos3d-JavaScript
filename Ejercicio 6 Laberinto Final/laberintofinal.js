@@ -9,7 +9,6 @@ const speed = 0.08;
 const moveAngle = 0;
 const alturaOjos = 0.50;
 const anglez = 0.0;
-const numEnemys = 1;
 const speedEnemy = 1;
 
 
@@ -150,9 +149,9 @@ function maze(){
 	this.lightDensityview2 = 0.1;
 	this.activatefogbg = 1.0;
 	this.activatefog = 0.0;
-	this.lives = 3;
+	this.lives = 6;
 	this.puntos = 0; 
-	this.time = 60;
+	this.time = 0;
 	this.clock = d.getTime();
 
 	
@@ -166,13 +165,7 @@ function maze(){
 		this.myMaze.randPrim(new Pos(0, 0));
 		
 	}
-	this.drawPuntos = function(){
-		ctx_2d.fillStyle = 'green';
-		ctx_2d.font = '20pt VTFMisterPixelRegular';
-		ctx_2d.clearRect(0, 0, canvas.width, canvas.height);
-		ctx_2d.fillText("Puntos: " + this.puntos, 700, 40);
-
-	}
+	
 	this.drawTxt = function(){
 		ctx_2d.fillStyle = 'green';
 		ctx_2d.font = '20pt VTFMisterPixelRegular';
@@ -375,6 +368,8 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 		requestAnimationFrame(drawScene);
 
 		mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0)
+
+		clock(mazes);
 
 	 	var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
 
@@ -719,6 +714,8 @@ function argumentsToMove(mazes,alturaOjos){
 					camara1.alturaOjos = 6;
 					console.log("anngulo antes" + camara1.angley);
 
+						;
+
 					cameraViewz = camara1.viewx + camara1.viewy;
 					camara1.angley = -90*Math.PI/180;
 					camara1.caminar = 0;
@@ -731,7 +728,7 @@ function argumentsToMove(mazes,alturaOjos){
 				case 51:
 					camara1.alturaOjos = 1;
 					console.log("anngulo antes" + camara1.angley);
-
+					
 					cameraViewz = camara1.viewx + camara1.viewy;
 					camara1.angley = -90*Math.PI/180;
 					camara1.caminar = 0;
@@ -742,8 +739,13 @@ function argumentsToMove(mazes,alturaOjos){
 					break;
 				case 32: //space
 					shot(mazes);
+					break;
+				case 84: 
+					mazes[0].lives = 99;
+					mazes[0].drawTxt();
+					break;
 				
-				 default: return;
+				default: return;
 
 		 }
 	 }
@@ -771,7 +773,7 @@ function initFloorBuffers(myBuffers,gl) {
 
 	var vertexNormals = new Float32Array([
 		-1.0, -1.0,  1.0, 
-	    1.0, -1.0, 1.0,  
+	    1.0, -1.0,  1.0,  
 		 1.0,  1.0,  1.0,
 		-1.0,  1.0,  1.0
 	]);
@@ -894,7 +896,25 @@ function handleTextureLoaded(y,image,myBuffers,gl) {
 	gl.bindTexture(gl.TEXTURE_2D, null);
 
 }
+function clock (mazes){
+	var d = new Date();
+	var tmNow = d.getTime();
+	var dtClock = tmNow - mazes[0].clock;
 
+	if ((dtClock/1000 >= 1) && (mazes[0].time != 0)){
+		console.log("entro en el reloj")
+		mazes[0].clock = tmNow;
+		mazes[0].time = mazes[0].time - 1;
+		if (mazes[0].time === 0){
+			mazes[0].lives = mazes[0].lives -1;
+			checkLives(mazes);
+
+		}
+		mazes[0].drawTxt();
+		mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0)
+
+	}
+}
 function enemyMove(mazes,n){
 
 	var Sz = 1/4;
@@ -904,7 +924,6 @@ function enemyMove(mazes,n){
 	var pos = new Array(); 
 	var d = new Date();
 	var tmNow = d.getTime();
-	var dtClock = tmNow - mazes[0].clock;
 
    var dt = tmNow - mazes[0].myScene[n].time;
    mazes[0].myScene[n].time = d.getTime();
@@ -912,14 +931,7 @@ function enemyMove(mazes,n){
 	var futuropasox = mazes[0].myScene[n].x + 1 * speed*(dt/1000);
 	var futuropasoy = mazes[0].myScene[n].y + 1 * speed*(dt/1000);
 
-	if ((dtClock/1000 >= 1) && (mazes[0].time != 0)){
-		console.log("entro en el reloj")
-		mazes[0].clock = tmNow;
-		mazes[0].time = mazes[0].time - 1; 
-		mazes[0].drawTxt();
-		mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0)
-
-	}
+	
 
 
 	if (((Math.round(futuropasox)) > 1 && (Math.round(futuropasox)) < mazes[0].myMaze.rooms.length - 1) &&
@@ -1024,57 +1036,72 @@ function checkLevel(mazes){
 		
 			break;
 		case 1:
-			mazes[0].size = 15;
-			mazes[0].lightDensity = 0.6;
-			mazes[0].lightDensity1 = 0.6;
-			mazes[0].puntos = mazes[0].puntos + 20;
+			document.getElementById("mySong").play();
+			mazes[0].size = 12;
 			createEnemys(mazes,6);
+			mazes[0].time = 30;
 
 			break;
 		case 2:
-			mazes[0].puntos = mazes[0].puntos + 20;
+			mazes[0].size = 15;
+			mazes[0].lightDensity = 0.6;
+			mazes[0].lightDensity1 = 0.6;
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
+			createEnemys(mazes,6);
+			mazes[0].time = 20;
+			mazes[0].clock = d.getTime();
+
+			break;
+		case 3:
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
 			mazes[0].size = 20;
 			mazes[0].combinedTexture = true;
 			mazes[0].directionalColor.r = 0.9;
 			mazes[0].directionalColor.g = 0.9;
 			mazes[0].directionalColor.b = 0.9;
 			createEnemys(mazes,7);
-
-			break;
-		case 3:
-		//aquí hago que la niebla se vea
-			mazes[0].puntos = mazes[0].puntos + 20;
-			mazes[0].fogColor.r = 0.0;
-			mazes[0].fogColor.g = 0.9;
-			mazes[0].fogColor.b = 0.0;
-			createEnemys(mazes,7);
-
+			mazes[0].time = 40;
+			mazes[0].clock = d.getTime();
+	
 
 			break;
 		case 4:
-			mazes[0].puntos = mazes[0].puntos + 20;
+			//aquí hago que la niebla se vea
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
+			mazes[0].fogColor.r = 0.0;
+			mazes[0].fogColor.g = 0.9;
+			mazes[0].fogColor.b = 0.0;
+			createEnemys(mazes,15);
+			mazes[0].time = 40;
+			mazes[0].clock = d.getTime();
+			break;
+		case 5:
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
 			mazes[0].activatefog = 1.0;
 			mazes[0].activatefogbg = 0.0;
 			mazes[0].fogColor.r = 0.0;
 			mazes[0].fogColor.g = 0.5;
 			mazes[0].fogColor.b = 0.0;
 			createEnemys(mazes,15);
-
-
-			break;
-		case 5:
-			mazes[0].puntos = mazes[0].puntos + 20;
-			mazes[0].activatefogbg = 0.7;
-			mazes[0].activatefog = 0.3;
-			mazes[0].fogColor.g = 0.2;
-			createEnemys(mazes,20);
-
-
+			mazes[0].time = 40;
+			mazes[0].clock = d.getTime();
 			break;
 		case 6:
+			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
+			mazes[0].fogColor.g = 0.9;
+			mazes[0].activatefogbg = 0.3;
+			mazes[0].activatefog = 0.7;
+			mazes[0].fogColor.g = 0.2;
+			mazes[0].size = 30;
+			createEnemys(mazes,30);
+			mazes[0].time = 55;
+			mazes[0].clock = d.getTime();
+			
+		case 7: 
 			alert("FELICIDADES TU PUNTUACION ES:" + mazes[0].puntos);
 			restart();
 			break;
+
 		default: return;
 	}
 }
@@ -1115,7 +1142,6 @@ console.log("estoy cambiando de nivel");
 
 	ctx_2d.clearRect(0,0,200,1000);
 
-	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
 
 
 	mazes[0].myScene = [];
@@ -1126,6 +1152,8 @@ console.log("estoy cambiando de nivel");
 	ponerCuboLaberinto(mazes);
 
 	checkLevel(mazes);
+	mazes[0].myMaze.draw(ctx_2d, 0, 0, 5, 0);
+
 
 }
 
@@ -1145,6 +1173,7 @@ function restart(){
 
 function main() {
 
+	alert(" ANTES DE COMENZAR POR PRIMERA VEZ, RECUERDA LEER EL ARCHIVO DE INDTRUCCIONES README ");
 
 	//Variables de cámara
 	var pos = new Array();
@@ -1227,7 +1256,7 @@ function main() {
 	mazes[0].myScene.push(new Floor(mMatrix));
 
 	ponerCuboLaberinto(mazes);
-	createEnemys(mazes,numEnemys);
+	//createEnemys(mazes,numEnemys);
 
 
 	initCuboBuffers(myBuffers,gl);
