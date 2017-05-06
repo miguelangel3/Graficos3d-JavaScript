@@ -127,6 +127,13 @@ function maze(){
 		this.myMaze.randPrim(new Pos(0, 0));
 	}
 	var that = this;
+	this.drawLives = function(){
+		ctx_2d.fillStyle = 'green';
+		ctx_2d.font = '30pt VTFMisterPixelRegular';
+		ctx_2d.clearRect(0, 0, canvas.width, canvas.height);
+		ctx_2d.fillText("Vidas: " + this.lives, 700, 40);
+   }
+
 	this.drawTime = function (){
 		
 		ctx_2d.fillStyle = 'green';
@@ -252,7 +259,15 @@ function Raton(topOjos){
 	this.mouseantesy = 0;
 	this.mouse.x = 0;
 	this.mouse.y = 0;
+	this.click = true;
 	that = this;
+	this.pulsaRaton = function() {
+		if (this.click === true){
+			this.click = false;
+		}else{
+			this.click = true;
+		}
+	}
 	this.mueveRaton = function(captura){
 
 		//console.log("posxraton:" + this.mouse.x, this.mouse.y);
@@ -260,22 +275,22 @@ function Raton(topOjos){
 		//En esta parte los ejes los considero en 2d con los del canvas
 		that.mouse.x = captura.pageX;
 		that.mouse.y = captura.pageY;
-		if ((that.mouse.x) > (that.mouseantesx)) {
+		if (((that.mouse.x) > (that.mouseantesx)) && this.click === true) {
 			camara1.moveAngle = camara1.moveAngle - 5;
 			camara1.angle = camara1.moveAngle *  Math.PI/180;
 
-		}else if ((that.mouse.x) < (that.mouseantesx)) {
+		}else if (((that.mouse.x) < (that.mouseantesx)) && this.click === true ) {
 
 			camara1.moveAngle = camara1.moveAngle + 5;
 			camara1.angle = camara1.moveAngle * Math.PI/180;
 			}
 		if (topOjos === camara1.alturaOjos){
-			if ((that.mouse.y) > (that.mouseantesy)) {
+			if (((that.mouse.y) > (that.mouseantesy)) && this.click === true) {
 
 				camara1.moveAngley = checkAngle(camara1.moveAngley - 5,"y");
 				camara1.angley = camara1.moveAngley * Math.PI/180;
 
-			}else if ((that.mouse.y) < (that.mouseantesy)){
+			}else if (((that.mouse.y) < (that.mouseantesy)) && this.click === true){
 
 				camara1.moveAngley = checkAngle(camara1.moveAngley + 5,"y");
 				camara1.angley = camara1.moveAngley * Math.PI/180;
@@ -286,8 +301,8 @@ function Raton(topOjos){
 				that.mouseantesx = captura.pageX
 				that.mouseantesy = captura.pageY
 			
-	}
-
+		}
+	
 }
 
 function checkAngle(angle,eje){
@@ -558,6 +573,12 @@ function enemyMove(mazes,n){
 		if ((mazes[0].myScene[n].sentido) === false) {
 		 		mazes[0].myScene[n].x = mazes[0].myScene[n].x - 1*speedEnemy*(dt/1000);
 		 }
+		if (checkEnemyDistance(mazes,x) === "mueres"){
+				mazes[0].lives = mazes[0].lives - 1;
+				console.log("Tienes una vida menos" + mazes[0].lives);
+				delEnemy(mazes,x);checkEnemyDistance(mazes,n);
+				mazes[0].drawLives();
+		}
 
 	}else{
 
@@ -683,6 +704,7 @@ function checkEnemy(mazes){
 				mazes[0].lives = mazes[0].lives - 1;
 				console.log("Tienes una vida menos" + mazes[0].lives);
 				delEnemy(mazes,x);
+				mazes[0].drawLives();
 			}
 		}
 	}
@@ -1229,7 +1251,13 @@ function main() {
 	argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,alturaLuz);
 	argumentsToMove(mazes/*myMaze*//*,ctx_2d*/,alturaOjos/*,myScene*/);
 	//drawScene();
-	 document.addEventListener('mousemove', Raton1.mueveRaton);
+	// document.addEventListener('mousemove', Raton1.mueveRaton);
+	mazes[0].drawLives();
+
+	document.addEventListener('click', Raton1.pulsaRaton); //&& document.addEventListener('mousemove', Raton1.mueveRaton)){
+	document.addEventListener('mousemove', Raton1.mueveRaton);
+	
+
 	//setTimeout ("mazes[0].drawTime()",1000);
 	//drawTime();
 	//mazes[0].drawTime();
