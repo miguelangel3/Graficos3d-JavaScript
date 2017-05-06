@@ -10,10 +10,6 @@ const moveAngle = 0;
 const alturaOjos = 0.50;
 const anglez = 0.0;
 const speedEnemy = 1;
-
-
-
-
 const canvas = document.getElementById('webgl');
 const canvas2d = document.getElementById('2d');
 const ctx_2d = canvas2d.getContext("2d");
@@ -277,7 +273,15 @@ function Raton(topOjos){
 	this.mouseantesy = 0;
 	this.mouse.x = 0;
 	this.mouse.y = 0;
+	this.click = true;
 	that = this;
+	this.pulsaRaton = function() {
+		if (this.click === true){
+			this.click = false;
+		}else{
+			this.click = true;
+		}
+	}
 	this.mueveRaton = function(captura){
 
 		//console.log("posxraton:" + this.mouse.x, this.mouse.y);
@@ -285,35 +289,34 @@ function Raton(topOjos){
 		//En esta parte los ejes los considero en 2d con los del canvas
 		that.mouse.x = captura.pageX;
 		that.mouse.y = captura.pageY;
-		if ((that.mouse.x) > (that.mouseantesx)) {
+		if (((that.mouse.x) > (that.mouseantesx)) && this.click === true) {
 			camara1.moveAngle = camara1.moveAngle - 5;
 			camara1.angle = camara1.moveAngle *  Math.PI/180;
 
-		}else if ((that.mouse.x) < (that.mouseantesx)) {
+		}else if (((that.mouse.x) < (that.mouseantesx)) && this.click === true ) {
 
 			camara1.moveAngle = camara1.moveAngle + 5;
 			camara1.angle = camara1.moveAngle * Math.PI/180;
 			}
 		if (topOjos === camara1.alturaOjos){
-			if ((that.mouse.y) > (that.mouseantesy)) {
+			if (((that.mouse.y) > (that.mouseantesy)) && this.click === true) {
 
 				camara1.moveAngley = checkAngle(camara1.moveAngley - 5,"y");
 				camara1.angley = camara1.moveAngley * Math.PI/180;
 
-			}else if ((that.mouse.y) < (that.mouseantesy)){
+			}else if (((that.mouse.y) < (that.mouseantesy)) && this.click === true){
 
 				camara1.moveAngley = checkAngle(camara1.moveAngley + 5,"y");
 				camara1.angley = camara1.moveAngley * Math.PI/180;
-
 			}
 		}
-				cameraView();
-				that.mouseantesx = captura.pageX
-				that.mouseantesy = captura.pageY
+		cameraView();
+		that.mouseantesx = captura.pageX
+		that.mouseantesy = captura.pageY
 			
-	}
-
+		}
 }
+
 
 function checkAngle(angle,eje){
 	 var max;
@@ -1296,5 +1299,8 @@ function main() {
 	argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,alturaLuz);
 	argumentsToMove(mazes,alturaOjos);
 	document.addEventListener('mousemove', Raton1.mueveRaton);
+
+	document.addEventListener('click', Raton1.pulsaRaton);
+	//document.addEventListener('mousemove', Raton1.mueveRaton);
 	mazes[0].drawTxt();
 }
