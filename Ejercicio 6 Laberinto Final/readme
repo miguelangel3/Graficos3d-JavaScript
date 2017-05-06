@@ -10,10 +10,18 @@ Controles:
 	-Retroceder --> "s"
 	-Disparar ---> "Barra espaciadora" El disparo eliminará a cualquier fantasma que esté a un alcance de una casilla respecto de ti.
 
+Movimiento: 
+
+	-El ángulo de avance se modificará moviendo el ratón.
+	-El movimiento del ratón debe ser suave y lento para una mejor experiencia del juego.
+	-El ratón se puede bloquear al hacer click izquierdo, para poder posicionarlo en el centro o donde al jugador le parezca mas cómodo, para desbloquearlo se tiene que volver a presionar.
+	-Nada mas comenzar el juego, el ratón estara bloqueado.
+	-Se puede mover la cabeza hacia arriba y hacia abajo.
+
 El jugador dispondrá de tres visiones accionando las siguientes teclas " ":
 
 	-Primera persona "1" --> el jugador tendrá el efecto de estar caminando.
-	-Visión aérea "2" --> el jugador podrá ver el laberinto y los fantasmas siempre y cuando la niebla se lo permita.
+	-Visión aérea "2" --> el jugador podrá ver el laberinto y los fantasmas siempre y cuando la niebla se lo permita. (en esta visión estarás en la parte de abajo del juego en el medio)
 	-Tercera persona "3" --> está visión otorga al jugador de visión nocturna permitiendole ver mucho mejor en la oscuridad del laberinto.
 
 Puntuación:
@@ -35,20 +43,16 @@ Vidas:
 	-Los fantasmas quitaran una vida al jugador al colisionar con este y eliminarán, pero no sumará puntos al jugador.
 	
 
-Movimineto: 
 
-	-El ángulo de avance se modificará moviendo el ratón.
-	-El movimiento del ratón debe ser suave y continuo para una mejor experiencia del juego.
-	-Se puede mover la cabeza hacia arriba y hacia abajo.
 
-El jugador se creará de manera completamente aleatoria. Pudiendo estar cerca de la salido o encima de un fantasma quitándole una vida.
+El jugador se creará lo mas alejado posible de la salida  y además podrá aparecer debajo de un fantasma quitándole una vida.
 
 
 Niveles -->>
 
 Todos los niveles tendrán la luz puntual.
 
-Nivel 0 --->> En este nivel no se ganaran puntos ni se perderán vidas, es un nivel para que ej jugador se familiarice con los controles.
+Nivel 0 --->> En este nivel no se ganaran puntos ni se perderán vidas, es un nivel para que el jugador se familiarice con los controles.
 				  Cuando crea estar preparado completará el laberinto y automáticamente comenzará el juego.
 
 Nivel 1 --->> Laberinto básico con luz puntual. Tamaño 12 (Advertencia, a partir de este nivel puedes usar altavoces o cascos)
