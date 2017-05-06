@@ -1,34 +1,66 @@
+Objetivo:
+	
+	-Acabar de completar el laberinto en el menor tiempo posible, sin ser eliminado.
+	-Para terminar el laberinto se tendrá que llegar a la coordenada (0,0).
+	-Una vez llegada a esta coordenada se cambiará automáticamente de nivel sumando los puntos correspondientes y reseteando el reloj.
+
 Controles:
 
 	-Avanzar --> "w"
 	-Retroceder --> "s"
 	-Disparar ---> "Barra espaciadora" El disparo eliminará a cualquier fantasma que esté a un alcance de una casilla respecto de ti.
 
-Puntuacion:
+El jugador dispondrá de tres visiones accionando las siguientes teclas " ":
+
+	-Primera persona "1" --> el jugador tendrá el efecto de estar caminando.
+	-Visión aérea "2" --> el jugador podrá ver el laberinto y los fantasmas siempre y cuando la niebla se lo permita.
+	-Tercera persona "3" --> está visión otorga al jugador de visión nocturna permitiendole ver mucho mejor en la oscuridad del laberinto.
+
+Puntuación:
 
 	-Cada fantasma eliminado son 10 puntos 
 	-Cada nivel que te pasas son 20 puntos 
-	-El tiempo sobrante de cada laberinto se súmara como puntos
+	-El tiempo sobrante de cada laberinto se sumara como puntos
 
+Enemigos:
 
+	-Los fantasmas podrán atravesar las paredes
+	-Una vez que se elimine un fantasma este no volverá a aparecer en el nivel
+	-En ocasiones aparecerán "fantasmas enfermos" otorgando puntos extra al jugador. Estos fantasmas no ocasionarán daño alguno al jugador.
 
-El ángulo de avance se modificará moviendo el ratón.
-Además se puede mover la cabeza hacia arriba y hacia abajo.
-El jugador se creará de manera completamente aleatoria. Pudiendo estar cerca de la salido o encima de un fantasma quitandole una vida.
-En ocasiones aparecerán "fantasmas enfermos" otorgando puntos extra al jugador, además estos fantasmas no ocasioanrán daño alguno al jugador.
+Vidas:
+	
+	-El jugador comenzará con un total de 6 vidas.
+	-Si no se completan los laberintos a tiempo se le restará una vida.
+	-Los fantasmas quitaran una vida al jugador al colisionar con este y eliminarán, pero no sumará puntos al jugador.
+	
 
-El jugador dispondrá de tres visiones accionando las siguientes teclas " ":
-	-Primera persona "1" --> el jugador tendrá el efecto de estar caminando
-	-Visión aérea "2" --> el jugador podrá ver el laberinto y los fantasmas siempre y cuando la niebla se lo permita
-	-Tercera persona --> está visión otorga al jugador de visión nocturna permitiendole ver mucho mejor en la oscuridad del laberinto.
+Movimineto: 
+
+	-El ángulo de avance se modificará moviendo el ratón.
+	-El movimiento del ratón debe ser suave y continuo para una mejor experiencia del juego.
+	-Se puede mover la cabeza hacia arriba y hacia abajo.
+
+El jugador se creará de manera completamente aleatoria. Pudiendo estar cerca de la salido o encima de un fantasma quitándole una vida.
+
 
 Niveles -->>
 
 Todos los niveles tendrán la luz puntual.
 
-Nivel 0 --->> Laberinto básico con luz puntual. Tamaño 12
-Nivel 1 --->> Laberinto básico con luz puntual que con la distacia se atenua. Tamaño 15 
-Nivel 2 --->> Laberinto con texturas combinadas y luz puntual de tamaño 20
-Nivel 3 --->> Laberinto con niebla en el suelo
-Nivel 4 --->> Laberinto con niebla normal
-Nivel 5 --->> LAberinto con niebla combinada
+Nivel 0 --->> En este nivel no se ganaran puntos ni se perderán vidas, es un nivel para que ej jugador se familiarice con los controles.
+				  Cuando crea estar preparado completará el laberinto y automáticamente comenzará el juego.
+
+Nivel 1 --->> Laberinto básico con luz puntual. Tamaño 12 (Advertencia, a partir de este nivel puedes usar altavoces o cascos)
+Nivel 2 --->> Laberinto básico con luz puntual que con la distancia se atenúa. Tamaño 15 
+Nivel 3 --->> Laberinto con texturas combinadas y luz puntual de tamaño 20
+Nivel 4 --->> Laberinto con niebla en el suelo
+Nivel 5 --->> Laberinto con niebla normal
+Nivel 6 --->> Laberinto con niebla combinada
+
+Argumento:
+
+Eres la ultima esperanza de la humanidad para salvarla de un apocalipsis fantasmal que ha invadido repentinamente la humanidad a través de un portal ectoplásmico.
+Has conseguido atravesar el portal gracias a tu traje y has conseguido la materia antiplasmica que escasea en la tierra para la aniquilación total de los fantasmas y cerrar el portal. Pero te has perdido en su mundo y la energía de tu traje que te protege de la atmósfera ectoplásmica se está acabando. Sal cuando antes abriéndote paso con tu arma nuclear de protones de alta capacidad, no mueras en el intento  y salva a la humanidad!!!
+ 
+ 
