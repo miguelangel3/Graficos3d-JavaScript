@@ -437,7 +437,7 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 			var u_image0Location = gl.getUniformLocation(gl.program, "u_image0");
   			var u_image1Location = gl.getUniformLocation(gl.program, "u_image1");
   			
-  			if (mazes[0].myScene[x].id === "M"){
+  			if (mazes[0].myScene[x].id === "M" && (camara1.alturaOjos !=alturaOjos)){
 
   				gl.activeTexture(gl.TEXTURE0);
   				gl.bindTexture(gl.TEXTURE_2D, myBuffers[3].Texture);
@@ -450,10 +450,11 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
   				enemyMove(mazes,x);
 
   				}
-  			else{
+  			else {
 
 				gl.activeTexture(gl.TEXTURE0);
   				gl.bindTexture(gl.TEXTURE_2D, myBuffers[y].Texture);
+  			
   			}
   			
   			gl.activeTexture(gl.TEXTURE1);
@@ -983,7 +984,7 @@ function createMe(mazes){
 
 	var mMatrix = new Matrix4();
 
-	mMatrix = mMatrix.translate(pos.x,pos.y,alturaOjos);
+	mMatrix = mMatrix.translate(pos.x,pos.y,0.2);
 	mMatrix = mMatrix.scale(Sx,Sy,Sz);
 	
 	mazes[0].myScene.push(new Me(pos.x,pos.y,alturaOjos,mMatrix));
@@ -1224,7 +1225,7 @@ function main() {
 	myBuffers.push(new TexturaMe(Texture));
 	myBuffers.push(new TexturaEnemy(Texture));
 
-	projMatrix.setPerspective(100, canvas.width/canvas.height, 0.20, 100);
+	projMatrix.setPerspective(100, canvas.width/canvas.height, 0.00001, 100);
 	mMatrix = new Matrix4();
 	mMatrix.scale(LABERINTOX,LABERINTOY,1);
 

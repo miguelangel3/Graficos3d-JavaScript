@@ -58,12 +58,11 @@ var FSHADER_SOURCE =
 
 	'uniform highp float u_activatefog;\n' +
 	'uniform highp float u_activatefogbg;\n' +
+	'uniform highp float u_activatespecular;\n' +
 
 
 
-	//'const highp vec3 fogColor = vec3(0.0, 0.0, 0.0);\n' +
-
-	//'const highp float lightDensity = 0.5;\n' + //gracias a esto puedo ilumniar solo lo cercano junto con la función exp de abajo
+	'highp float materialShiness = 0.7;\n' +
 	'const highp float FogDensity = 0.6;\n' +
 	'const highp float fogStart = -2.0;\n' +
 	'const highp float fogEnd = 0.5;\n' + //altura de la niebla
@@ -73,26 +72,32 @@ var FSHADER_SOURCE =
 
 
 	'void main() {\n' +
-		'highp vec3 ambientLight = vec3(0.4, 0.4, 0.4);\n' +
-		//'highp vec3 directionalLightColor = vec3(0.5, 0.5, 0.5);\n' +
+		'highp vec3 ambientLight = vec3(0.1, 0.1, 0.1);\n' +
+		'highp vec3 PointLightingSpecularColor = vec3(0.5, 0.5, 0.5);\n' +
 
 		'highp vec3 directionalLightColor = (u_directionalLightColor);\n' +
 		'highp vec3 fogColor = (u_fogColor);\n' +
+		
 		'highp float lightDensity = (u_lightDensity);\n' +
 
-		' highp float dist = length(v_viewSpace);\n' +
+		'highp float dist = length(v_viewSpace);\n' +
 
-		' highp float activatefog = (u_activatefog);\n' +
-		' highp float activatefogbg = (u_activatefogbg);\n' +
-
-
+		'highp float activatefog = (u_activatefog);\n' +
+		'highp float activatefogbg = (u_activatefogbg);\n' +
+		'highp float activatespecular = (u_activatespecular);\n' +
 
 		'highp vec4 pointLightPosition = (u_LightPosition);\n' +
 		'highp vec3 lightDirection = normalize((u_LightPosition - v_VertexPosition).xyz);\n' +
-
+		
+		//Luz especular
+		'highp vec3 normal = normalize(v_TransformedNormal.xyz);\n'+
+		'highp vec3 eyeDirection = normalize(u_LightPosition.xyz - v_VertexPosition.xyz);\n'+
+		'highp vec3 reflectionDirection = reflect(-lightDirection, normal);\n'+
+		'highp float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection), 0.0), materialShiness);\n'+
+		
 		'highp float directionalW = max(dot(v_TransformedNormal.xyz, lightDirection), 0.0);\n' +
-
-		'highp vec3 v_Lighting = (ambientLight + (directionalLightColor * directionalW))/exp(dist * lightDensity);\n' +
+		
+		'highp vec3 v_Lighting = ambientLight + (directionalLightColor * directionalW)/exp(dist * lightDensity) + activatespecular*((PointLightingSpecularColor * specularLightWeighting)/exp(dist * lightDensity)) ;\n' +
 	
 		'highp vec4 color0 = texture2D(u_image0, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
 		'highp vec4 color1 = texture2D(u_image1, vec2(v_TextureCoord.s, v_TextureCoord.t));\n' +
@@ -101,22 +106,14 @@ var FSHADER_SOURCE =
 
 		//niebla
 
-		'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + //Exponential podemos ir viendolo comentando y descomentando
-
-		//'fogFactor1 = clamp( fogFactor1, 0.0, 1.0 );\n' +
-
+		'highp float fogFactor1 = 1.0 /exp(dist * FogDensity);\n' + 
 		//Niebla bg
 		'highp float fogFactorbg2 = ((v_VertexPosition.z/v_VertexPosition.w)-fogStart) / (fogEnd - fogStart);\n' +
 		
-		//'fogFactorbg2 = clamp( fogFactorbg2, 0.0, 1.0 );\n' +
-				'highp float fogFactor = (fogFactor1 * activatefog) + (fogFactorbg2 * activatefogbg);\n' + //Exponential podemos ir viendolo comentando y descomentando
-
+		'highp float fogFactor = (fogFactor1 * activatefog) + (fogFactorbg2 * activatefogbg);\n' + 
 
 		'fogFactor = clamp( fogFactor, 0.0, 1.0 );\n' +
-		
-
-
-		' gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' +
+		'gl_FragColor = vec4(fogColor*(1.0-fogFactor), 1.0) + fogFactor*vec4(texelColor.rgb * v_Lighting.rgb, texelColor.a);\n' +
 	'}\n';
 
 
@@ -145,6 +142,7 @@ function maze(){
 	this.lightDensityview2 = 0.1;
 	this.activatefogbg = 1.0;
 	this.activatefog = 0.0;
+	this.activatespecular = 1.0;
 	this.lives = 6;
 	this.puntos = 0; 
 	this.time = 0;
@@ -284,8 +282,6 @@ function Raton(topOjos){
 	}
 	this.mueveRaton = function(captura){
 
-		//console.log("posxraton:" + this.mouse.x, this.mouse.y);
-
 		//En esta parte los ejes los considero en 2d con los del canvas
 		that.mouse.x = captura.pageX;
 		that.mouse.y = captura.pageY;
@@ -359,7 +355,6 @@ function cameraView(){
 	camara1.viewy = camara1.pasosy + Math.sin(camara1.angle);
 	camara1.viewz = camara1.alturaOjos + Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez) * camara1.caminar;
 
-
 }
 
 function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,alturaLuz){
@@ -398,18 +393,18 @@ function argumentsToDraw(viewMatrix,projMatrix,mvpMatrix,myBuffers,mazes,gl,altu
 		gl.uniform1fv(activatefog,[mazes[0].activatefog]);
 		var activatefogbg =  gl.getUniformLocation (gl.program, "u_activatefogbg");
 		gl.uniform1fv(activatefogbg,[mazes[0].activatefogbg]);
+		var activatespecular =  gl.getUniformLocation (gl.program, "u_activatespecular");
+		gl.uniform1fv(activatespecular,[mazes[0].activatespecular]);
+		
+
 
 
 	 	var y  = 1; //Esta variable la declaro para selccionar uno de los dos buffers para pintar correctamente.
-				// requestAnimationFrame(drawScene);
-
 
 	 	for (x in mazes[0].myScene){
+	 		
 
 	 		viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.viewx,camara1.viewy,camara1.viewz, 0,0,1);
-
-			//	viewMatrix.setLookAt(camara1.pasosx,camara1.pasosy,camara1.alturaOjos,camara1.pasosx+Math.cos(camara1.angle),
-			//							camara1.pasosy+Math.sin(camara1.angle),camara1.alturaOjos+Math.sin(camara1.angley) + 0.02*Math.sin(camara1.anglez), 0,0,1);
 
 			//lamada a los buffers para pintar con texturas
 			if (mazes[0].myScene[x].id === "F1"){
@@ -520,13 +515,11 @@ function rndPositionMe(mazes){
 	 i =  (mazes[0].myMaze.rooms.length -1);
 	 j =  (mazes[0].myMaze.rooms.length -1);
 
-	 console.log("i" + i);
-	 console.log("j" + j);
+	
 	 while (mazes[0].myMaze.rooms[i][j] === false){
 			i = i -1;
 			j = j -1;
-			console.log("i" + i);
-			console.log("j" + j);
+			
 	 }
 
 	 position.x = i;
@@ -544,8 +537,7 @@ function rndPosition(mazes){
 	 i = Math.round (Math.random() * (mazes[0].myMaze.rooms.length -1));
 	 j = Math.round (Math.random() * (mazes[0].myMaze.rooms.length -1));
 
-	 console.log("i" + i);
-	 console.log("j" + j);
+	
 	 while (mazes[0].myMaze.rooms[i][j] === false){
 			i = Math.round (Math.random() * (mazes[0].myMaze.rooms.length -1));
 			j = Math.round (Math.random() * (mazes[0].myMaze.rooms.length -1));
@@ -749,8 +741,6 @@ function argumentsToMove(mazes,alturaOjos){
 					cameraView();
 					mazes[0].lightDensity = mazes[0].lightDensity2 = 0.1;
 
-						//console.log("anngulo antes"+camara1.angley);
-
 					break;
 				case 51:
 					camara1.alturaOjos = 1;
@@ -779,8 +769,6 @@ function argumentsToMove(mazes,alturaOjos){
 }
 
 function initFloorBuffers(myBuffers,gl) {
-
-	//objfloorvar1.n = objfloorvar1.n+1;
 
 	myBuffers[0].VerticesBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, myBuffers[0].VerticesBuffer);
@@ -1070,7 +1058,12 @@ function checkLevel(mazes){
 
 			break;
 		case 2:
+			mazes[0].activatespecular = 0.0;
 			mazes[0].size = 15;
+			mazes[0].directionalColor.r = 0.9;
+			mazes[0].directionalColor.g = 0.9;
+			mazes[0].directionalColor.b = 0.9;
+
 			mazes[0].lightDensity = 0.6;
 			mazes[0].lightDensity1 = 0.6;
 			mazes[0].puntos = mazes[0].puntos + 20 + mazes[0].time;
@@ -1202,7 +1195,7 @@ function restart(){
 
 function main() {
 
-	alert(" ANTES DE COMENZAR POR PRIMERA VEZ, RECUERDA LEER EL ARCHIVO DE INDTRUCCIONES README ");
+	alert(" ANTES DE COMENZAR POR PRIMERA VEZ, RECUERDA LEER EL ARCHIVO DE INSTRUCCIONES README ");
 
 	//Variables de cámara
 	var pos = new Array();
